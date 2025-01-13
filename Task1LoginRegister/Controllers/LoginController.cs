@@ -46,7 +46,7 @@ namespace Task1LoginRegister.Controllers
                     ViewBag.Accounterror = "<script>alert('Account is inactive.')</script>";
                     return View();
                 }
-                // Set cookie for user authentication
+                // cookie for user authentication
                 var claims = new[] { new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Name, u.Email) };
                 var identity = new System.Security.Claims.ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 var principal = new System.Security.Claims.ClaimsPrincipal(identity);

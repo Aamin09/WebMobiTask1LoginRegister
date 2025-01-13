@@ -27,7 +27,6 @@ namespace Task1LoginRegister.Controllers
             return View(data);
         }
 
-        // GET: Userlogins/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -52,7 +51,6 @@ namespace Task1LoginRegister.Controllers
             var data = await context.Userlogins.FindAsync(id);
             if (data != null)
             {
-                // Delete image file from server if it exists
                 var imagePath = Path.Combine(env.WebRootPath, "Images", data.Photo);
 
                 if (System.IO.File.Exists(imagePath))
@@ -60,12 +58,12 @@ namespace Task1LoginRegister.Controllers
                     System.IO.File.Delete(imagePath);
                 }
 
-                // Remove the user login record
+             
                 context.Userlogins.Remove(data);
                 await context.SaveChangesAsync();
             }
 
-            return RedirectToAction(nameof(Index));  // Redirect back to the list page after deletion
+            return RedirectToAction("Index");  
         }
 
         public IActionResult Edit(int id)
@@ -76,7 +74,6 @@ namespace Task1LoginRegister.Controllers
                 return NotFound();
             }
 
-            // Map the data to the UserLoginModels (view model)
             var model = new UserLoginModels
             {
                 Id = user.Id,
