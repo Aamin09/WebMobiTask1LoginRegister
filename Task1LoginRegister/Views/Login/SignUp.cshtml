@@ -6,8 +6,9 @@
 
 <h1>SignUp</h1>
 
-<h4>Userlogin</h4>
+
 <hr />
+<div class="container">
 <div class="row">
     <div class="col-md-4">
         <form asp-action="SignUp" method="post" enctype="multipart/form-data">
@@ -69,7 +70,7 @@
 <div>
     <a asp-action="Login" asp-controller="Login">Already Register? Click here to Login</a>
 </div>
-
+</div>
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");

@@ -27,25 +27,24 @@
                         </li>
                     </ul>
                     <ul class="navbar-nav ms-auto">
-                        <li class="nav-item">
-                            @if (Context.Session.GetString("UserSession") != null)
-                            {
-                                <span class="nav-link text-dark">Hello, @Context.Session.GetString("UserSession")</span>
-                                <form asp-controller="Login" asp-action="Logout" method="post">
-                                    <button type="submit" class="btn btn-link nav-link text-dark">Logout</button>
+                        @if (Context.Session.GetString("UserSession") != null)
+                        {
+                            <li class="nav-item d-flex align-items-center">
+                                <span class="nav-link text-dark me-2">Hello, @Context.Session.GetString("UserSession")</span>
+                                <form asp-controller="Login" asp-action="Logout" method="post" class="m-0">
+                                    <button type="submit" class="btn btn-link nav-link text-dark p-0">Logout</button>
                                 </form>
-                            }
-                            else
-                            {
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Login" asp-action="Login">Login</a>
-                            }
-                        </li>
-                        <li class="nav-item">
-                            @if (Context.Session.GetString("UserSession") == null)
-                            {
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Login" asp-action="SignUp">SignUp</a>
-                            }
-                        </li>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
