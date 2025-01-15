@@ -24,6 +24,7 @@ namespace Task1LoginRegister.Models
         public string Phone { get; set; } = null!;
      
         [DisplayName("Profile Picture")]
+        
         public IFormFile? Profile { get; set; }
         [Required]
         public string Gender { get; set; } = null!;
@@ -33,7 +34,7 @@ namespace Task1LoginRegister.Models
         [Required]
         [Compare("Password")]
         [DataType(DataType.Password)]
-        [DisplayName("Confirm Passowrd")]
+        [DisplayName("Confirm Password")]
         public string ConfirmPassword { get; set; }
         public bool IsActive { get; set; } = true;
         public string? Photo { get; set; }

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using System.Diagnostics;
 using Task1LoginRegister.Models;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Task1LoginRegister.Controllers
 {
@@ -20,7 +21,7 @@ namespace Task1LoginRegister.Controllers
             context = _context;
             env = _env;
         }
-       
+
         public async Task<IActionResult> Index()
         {
             var data = await context.Userlogins.ToListAsync();
@@ -55,15 +56,23 @@ namespace Task1LoginRegister.Controllers
 
                 if (System.IO.File.Exists(imagePath))
                 {
-                    System.IO.File.Delete(imagePath);
+                    try
+                    {
+                        await Task.Delay(100);  // 100 ms delay
+                        System.IO.File.Delete(imagePath);
+                    }
+                    catch (IOException ex)
+                    {
+                        return StatusCode(500, $"Error deleting image file: {ex.Message}");
+                    }
                 }
 
-             
+
                 context.Userlogins.Remove(data);
                 await context.SaveChangesAsync();
             }
 
-            return RedirectToAction("Index");  
+            return RedirectToAction("Index");
         }
 
         public IActionResult Edit(int id)
@@ -83,12 +92,12 @@ namespace Task1LoginRegister.Controllers
                 Phone = user.Phone,
                 Gender = user.Gender,
                 Photo = user.Photo,
-                Password=user.Password,
-                ConfirmPassword=user.Password,
+                Password = user.Password,
+                ConfirmPassword = user.Password,
                 IsActive = user.IsActive
             };
 
-            return View(model); 
+            return View(model);
         }
 
         [HttpPost]
@@ -102,46 +111,57 @@ namespace Task1LoginRegister.Controllers
                     return NotFound();
                 }
 
-             
+
                 user.FirstName = u.FirstName;
                 user.LastName = u.LastName;
                 user.Email = u.Email;
                 user.Phone = u.Phone;
                 user.Gender = u.Gender;
-                user.Password = u.Password; 
+                user.Password = u.Password;
 
                 if (u.Profile != null)
                 {
-                    // deleteing the old photo
-                    if (!string.IsNullOrEmpty(user.Photo))
-                    {
-                        string oldFilePath = Path.Combine(env.WebRootPath, "Images", user.Photo);
-                        if (System.IO.File.Exists(oldFilePath))
-                        {
-                            System.IO.File.Delete(oldFilePath);  
-                        }
-                    }
+
                     // new photo file code
                     string filename = Guid.NewGuid().ToString() + "_" + u.Profile.FileName;
                     string folder = Path.Combine(env.WebRootPath, "Images");
                     string filepath = Path.Combine(folder, filename);
-                    u.Profile.CopyTo(new FileStream(filepath, FileMode.Create));
+                    using (var fileStream = new FileStream(filepath, FileMode.Create))
+                    {
+                        await u.Profile.CopyToAsync(fileStream);
+                    }
+                    // Deleting the old photo
+                    if (!string.IsNullOrEmpty(user.Photo))
+                    {
+                        string oldFilePath = Path.Combine(env.WebRootPath, "Images", user.Photo);
+                        try
+                        {
+                            if (System.IO.File.Exists(oldFilePath))
+                            {
+                                System.IO.File.Delete(oldFilePath);
+                            }
+                        }
+                        catch (IOException ex)
+                        {
+                            Console.WriteLine($"Error deleting file: {ex.Message}");
+                        }
+                    }
+                    user.Photo = filename;
 
-                    user.Photo = filename;  
                 }
                 else
                 {
-                    user.Photo = user.Photo; 
+                    user.Photo = user.Photo;
                 }
 
-                
+
                 await context.SaveChangesAsync();
 
-                
-                return RedirectToAction("Index"); 
+
+                return RedirectToAction("Index");
             }
 
-           
+
             return View(u);
         }
 

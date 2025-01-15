@@ -91,8 +91,10 @@ namespace Task1LoginRegister.Controllers
                     string folder = Path.Combine(env.WebRootPath, "Images");
                     filename = Guid.NewGuid().ToString() + "_" + u.Profile.FileName;
                     string filepath = Path.Combine(folder, filename);
-                    u.Profile.CopyTo(new FileStream(filepath, FileMode.Create));
-
+                    using (var fileStream = new FileStream(filepath, FileMode.Create))
+                    {
+                        await u.Profile.CopyToAsync(fileStream);
+                    }
                     Userlogin userlogin = new Userlogin()
                     {
                         FirstName = u.FirstName,
