@@ -1,14 +1,17 @@
 ﻿@model IEnumerable<Task1LoginRegister.Models.Userlogin>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "List Of Users";
 }
+
+<!-- Include DataTables CSS and JS from CDN -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
 
 <h1 class="text-center mt-4">User List</h1>
 
 <div class="container">
     <div class="table-responsive">
-        <table class="table table-bordered">
+        <table class="table" id="userTable">
             <thead>
                 <tr>
                     <th>@Html.DisplayNameFor(model => model.FirstName)</th>
@@ -52,24 +55,33 @@
         </table>
     </div>
 </div>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    $(document).on("click", ".btn", function () {
-        var button = $(this);
-        var userId = button.data("id");
-
-        $.ajax({
-            type: "POST",
-            url: "@Url.Action("ToggleStatus", "Home")",
-            data: { id: userId },
-            success: function (data) {
-                if (data.isActive) {
-                    button.removeClass("btn-success").addClass("btn-danger").text("Deactivate");
-                } else {
-                    button.removeClass("btn-danger").addClass("btn-success").text("Activate");
-                }
-            }
+@section Scripts {
+ 
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+           
+            $("#userTable").DataTable();
         });
-    });
-</script>
+
+        $(document).on("click", ".btn", function () {
+            var button = $(this);
+            var userId = button.data("id");
+
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("ToggleStatus", "Home")",
+                data: { id: userId },
+                success: function (data) {
+                    if (data.isActive) {
+                        button.removeClass("btn-success").addClass("btn-danger").text("Deactivate");
+                    } else {
+                        button.removeClass("btn-danger").addClass("btn-success").text("Activate");
+                    }
+                }
+            });
+        });
+    </script>
+
+}

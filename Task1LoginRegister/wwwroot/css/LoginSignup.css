@@ -1,0 +1,100 @@
+﻿/* Global Styles */
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Container */
+.container {
+    max-width: 100%;
+    padding: 0 15px;
+}
+
+/* Card Styling */
+.card {
+    background-color: #ffffff;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: auto;
+    max-width: 500px;
+}
+
+.card-header {
+    font-size: 1.5rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.card-footer {
+    font-size: 0.9rem;
+}
+
+/* Form Elements */
+.form-control {
+    font-size: 1rem;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.form-label {
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.text-danger {
+    font-size: 0.85rem;
+}
+
+/* Button Styling */
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+    font-size: 1.2rem;
+}
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+/* Responsive Styling */
+@media (max-width: 768px) {
+    .card-header h3 {
+        font-size: 1.25rem;
+    }
+
+    .btn-primary {
+        font-size: 1rem;
+    }
+
+    .form-control {
+        font-size: 0.9rem;
+        padding: 8px;
+    }
+
+    .form-label {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .container {
+        padding: 0 10px;
+    }
+
+    .card {
+        padding: 10px;
+    }
+
+    .card-header {
+        font-size: 1.2rem;
+    }
+
+    .btn-primary {
+        font-size: 0.9rem;
+        padding: 10px;
+    }
+}

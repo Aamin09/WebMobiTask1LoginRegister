@@ -7,38 +7,48 @@
 @Html.Raw(ViewBag.error)
 @Html.Raw(ViewBag.Accounterror)
 @Html.Raw(ViewBag.LoginMessage)
-<h1>Login</h1>
+<link href="~/css/loginsignup.css" rel="stylesheet" />
+<div class="container my-5">
+    <div class="row justify-content-center align-items-center" style="min-height: 80vh;">
+        <div class="col-lg-5 col-md-7 col-sm-10">
+            <div class="card shadow-lg border-0 rounded-lg" style="max-width: 100%;">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <h3 class="card-title mb-0">Login</h3>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Login" method="post">
+                        <input type="hidden" name="returnUrl" value="@returnUrl" />
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-<h4>Userlogin</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Login" method="post">
-            <input type="hidden" name="returnUrl" value="@returnUrl" />
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-           
-            <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
+                        <div class="form-group mb-3">
+                            <label asp-for="Email" class="form-label fw-bold">Email Address</label>
+                            <input asp-for="Email" class="form-control" placeholder="Enter your email" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Password" class="form-label fw-bold">Password</label>
+                            <input asp-for="Password" type="password" class="form-control" placeholder="Enter your password" />
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary fw-bold py-2">Login</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center py-3">
+                    <p class="mb-0">
+                        New User? 
+                        <a asp-action="SignUp" asp-controller="Login" class="text-decoration-none text-primary fw-bold">Click here to register.</a>
+                    </p>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="Password" class="control-label"></label>
-                <input asp-for="Password" class="form-control" />
-                <span asp-validation-for="Password" class="text-danger"></span>
-            </div>
-            <br /><br />
-            <div class="form-group">
-                <input type="submit" value="Login" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="SignUp" asp-controller="Login">New User? Click here to register.</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
 }
+

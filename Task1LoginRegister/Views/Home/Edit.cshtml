@@ -4,75 +4,194 @@
     ViewData["Title"] = "Edit";
 }
 
-<h1>Edit</h1>
+<style>
+    body {
+        background-color: #f4f6f9;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
-<h4>Userlogin</h4>
+    .row {
+        background-color: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-top: 30px;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+   
+    h1.text-center {
+        font-size: 2.5rem;
+        color: #333;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-control {
+        font-size: 1rem;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
+
+    .text-danger {
+        font-size: 0.875rem;
+        color: #e3342f;
+    }
+
+    .btn-primary {
+        font-size: 1.1rem;
+        font-weight: 600;
+        background-color: #007bff;
+        border-color: #007bff;
+        padding: 15px;
+        width: 100%;
+        border-radius: 8px;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #0056b3;
+    }
+
+    .img-thumbnail {
+        border-radius: 50%;
+        border: 3px solid #ddd;
+        max-width: 120px;
+        margin-bottom: 15px;
+    }
+
+    .mt-4 {
+        margin-top: 20px;
+    }
+
+    .btn-link {
+        font-size: 1.1rem;
+        font-weight: 500;
+        text-decoration: none;
+        color: #007bff;
+        transition: color 0.3s ease;
+    }
+
+    .btn-link:hover {
+        color: #0056b3;
+    }
+
+    /* Responsive Design */
+    @@media (max-width: 768px) {
+        .container {
+            padding: 20px;
+        }
+
+        h1.text-center {
+            font-size: 2rem;
+        }
+
+        .btn-primary {
+            font-size: 1rem;
+        }
+    }
+</style>
+
+<h1 class="text-center text-primary mb-5">Edit Profile</h1>
+
 <hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit" method="post" enctype="multipart/form-data">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="FirstName" class="control-label"></label>
-                <input asp-for="FirstName" class="form-control" />
-                <span asp-validation-for="FirstName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="LastName" class="control-label"></label>
-                <input asp-for="LastName" class="form-control" />
-                <span asp-validation-for="LastName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Phone" class="control-label"></label>
-                <input asp-for="Phone" class="form-control" />
-                <span asp-validation-for="Phone" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                @if (!string.IsNullOrEmpty(Model.Photo))
-                {
-                    <div>
-                        <img src="~/Images/@Model.Photo" alt="Profile" class="img-thumbnail" width="100" />
-                        <p>Current Profile Picture</p>
-                    </div>
-                }
-                <input type="file" class="form-control" id="Profile" name="Profile" />
-            </div>
-            <div class="form-group">
-                <label asp-for="Gender" class="control-label"></label>
-                <div>
-                    <input type="radio" asp-for="Gender" value="Male" id="male" />
-                    <label for="male">Male</label>
-                    <input type="radio" asp-for="Gender" value="Female" id="female" />
-                    <label for="female">Female</label>
-                </div>
-                <span asp-validation-for="Gender" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Password" class="control-label"></label>
-                <input asp-for="Password" type="password" value="@Model.Password" class="form-control" />
-                <span asp-validation-for="Password" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ConfirmPassword" class="control-label"></label>
-                <input asp-for="ConfirmPassword" type="password" value="@Model.ConfirmPassword" class="form-control" />
-                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-            </div>
-            <br /><br />
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>
+<div class="container">
+    <div class="row justify-content-center" >
+        <div class="col-12">
 
-<div>
-    <a asp-action="Index">Back to List</a>
+            <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <input type="hidden" asp-for="Id" />
+
+                <!-- First Name -->
+                <div class="form-group">
+                    <label asp-for="FirstName" class="form-label fw-bold">First Name</label>
+                    <input asp-for="FirstName" class="form-control" placeholder="Enter your first name" />
+                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                </div>
+
+                <!-- Last Name -->
+                <div class="form-group">
+                    <label asp-for="LastName" class="form-label fw-bold">Last Name</label>
+                    <input asp-for="LastName" class="form-control" placeholder="Enter your last name" />
+                    <span asp-validation-for="LastName" class="text-danger"></span>
+                </div>
+
+                <!-- Email -->
+                <div class="form-group">
+                    <label asp-for="Email" class="form-label fw-bold">Email</label>
+                    <input asp-for="Email" class="form-control" placeholder="Enter your email" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <!-- Phone -->
+                <div class="form-group">
+                    <label asp-for="Phone" class="form-label fw-bold">Phone</label>
+                    <input asp-for="Phone" class="form-control" placeholder="Enter your phone number" />
+                    <span asp-validation-for="Phone" class="text-danger"></span>
+                </div>
+
+                <!-- Profile Picture -->
+                <div class="form-group text-center">
+                    @if (!string.IsNullOrEmpty(Model.Photo))
+                    {
+                        <div class="mb-3">
+                            <img src="~/Images/@Model.Photo" alt="Profile" class="img-thumbnail" />
+                            <p class="mt-2">Current Profile Picture</p>
+                        </div>
+                    }
+                    <input type="file" class="form-control" id="Profile" name="Profile" />
+                </div>
+
+                <!-- Gender -->
+                <div class="form-group">
+                    <label asp-for="Gender" class="form-label fw-bold">Gender</label>
+                    <div>
+                        <input type="radio" asp-for="Gender" value="Male" id="male" />
+                        <label for="male" class="mr-3">Male</label>
+                        <input type="radio" asp-for="Gender" value="Female" id="female" />
+                        <label for="female">Female</label>
+                    </div>
+                    <span asp-validation-for="Gender" class="text-danger"></span>
+                </div>
+
+                <!-- Password -->
+                <div class="form-group">
+                    <label asp-for="Password" class="form-label fw-bold">Password</label>
+                    <input asp-for="Password" type="password" class="form-control" value="@Model.Password" placeholder="Enter your password" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="form-group">
+                    <label asp-for="ConfirmPassword" class="form-label fw-bold">Confirm Password</label>
+                    <input asp-for="ConfirmPassword" type="password" value="@Model.ConfirmPassword" class="form-control" placeholder="Confirm your password" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+
+            <div class="mt-4 text-center">
+                <a asp-action="Index" class="btn btn-link">Back to List</a>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
