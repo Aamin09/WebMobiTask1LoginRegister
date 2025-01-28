@@ -1,0 +1,97 @@
+﻿@model IEnumerable<Task1LoginRegister.Models.Product>
+
+@{
+    ViewData["Title"] = "Product List";
+}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+
+<h1 class="text-center mb-4">Product List</h1>
+<div class="alert alert-dark">
+    To view Category and Subcategory click below button 
+</div>
+<p class="text-right">
+    <a asp-action="Index" asp-controller="CategorySubcategory" class="btn btn-dark text-white btn-md">Go to Category and Subcategory Dashboard</a>
+</p>
+
+<p class="text-right mt-2">
+    <a asp-action="Create" class="btn btn-primary btn-md">Create New Product</a>
+</p>
+
+<div class="table-responsive">
+    <table class="table table-striped table-bordered" id="productsTable">
+        <thead class="bg-black text-white">
+            <tr>
+                <th>Image</th>
+                <th>@Html.DisplayNameFor(model => model.Name)</th>
+                <th>@Html.DisplayNameFor(model => model.SKU)</th>
+                <th>@Html.DisplayNameFor(model => model.Price)</th>
+                <th>@Html.DisplayNameFor(model => model.SellingPricePercent)</th>
+                <th>@Html.DisplayNameFor(model => model.CalculatedSellingPrice)</th>
+                <th>@Html.DisplayNameFor(model => model.Status)</th>
+                <th>@Html.DisplayNameFor(model => model.Category)</th>
+                <th>@Html.DisplayNameFor(model => model.Subcategory)</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <!-- Display the Primary Image -->
+                    <td>
+                        @if (item.ProductImages != null && item.ProductImages.Any())
+                        {
+                            var primaryImage = item.ProductImages.FirstOrDefault(img => img.IsPrimaryImage);
+                            <img src="@primaryImage.ImageUrl" alt="Product Image" class="img-fluid" style="max-width: 100px; height: auto;" />
+                        }
+                        else
+                        {
+                            <img src="https://via.placeholder.com/100x100?text=No+Image" alt="No Image Available" class="img-fluid" style="max-width: 100px; height: auto;" />
+                        }
+                    </td>
+
+                   
+                    <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                    <td>@Html.DisplayFor(modelItem => item.SKU)</td>
+                    <td>@item.Price.ToString("C")</td>
+                    <td>@item.SellingPricePercent.ToString("0.##") %</td>
+                    <td>@item.CalculatedSellingPrice.ToString("C")</td>
+                    <td>@(item.Status ? "Active" : "Inactive")</td>
+
+                    <td>@Html.DisplayFor(modelItem => item.Category.Name)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Subcategory.Name)</td>
+
+                    <td>
+                        <div style="width: 100%;">
+                            <a asp-action="Edit" asp-route-id="@item.ProductId" class="btn btn-warning btn-sm w-100 mb-2" title="Edit Product">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                        </div>
+                        <div style="width: 100%;">
+                            <a asp-action="Details" asp-route-id="@item.ProductId" class="btn btn-info btn-sm w-100 mb-2" title="View Product Details">
+                                <i class="fas fa-info-circle"></i> Details
+                            </a>
+                        </div>
+                        <div style="width: 100%;">
+                            <a asp-action="Delete" asp-route-id="@item.ProductId" class="btn btn-danger btn-sm w-100" onclick="return confirm('Are you sure you want to delete this product?')" title="Delete Product">
+                                <i class="fas fa-trash-alt"></i> Delete
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#productsTable").DataTable();
+        });
+    </script>
+}

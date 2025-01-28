@@ -1,0 +1,33 @@
+﻿@model Task1LoginRegister.Models.CategorySubcategoryViewModel
+
+<h2>Create Category and Subcategory</h2>
+
+<form method="post" asp-action="Create">
+    <h3>Category</h3>
+    <div class="form-group">
+        <label asp-for="Category.Name"></label>
+        <input asp-for="Category.Name" class="form-control" />
+        <span asp-validation-for="Category.Name" class="text-danger"></span>
+    </div>
+
+    <h3>Subcategories</h3>
+    <div class="form-group">
+        <label>Subcategories (Comma separated)</label>
+        <input type="text" id="subcategoryNames" name="subcategoryNames" class="form-control" />
+        <span asp-validation-for="Subcategories" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>
+
+@section Scripts {
+    <script>
+        // On form submission, we don't need to modify the subcategoryNames value anymore
+        document.querySelector("form").onsubmit = function () {
+            var subcategoryNames = document.getElementById("subcategoryNames").value;
+
+            // Simply leave the subcategoryNames as-is (don't convert to JSON)
+            // The backend will handle parsing it correctly
+        };
+    </script>
+}

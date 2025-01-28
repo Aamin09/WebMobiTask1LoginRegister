@@ -28,7 +28,7 @@ namespace Task1LoginRegister.Controllers
 
                 ViewBag.LoginMessage = "You are already logged in.";
                
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Index", "Products");
             }
 
             return View();

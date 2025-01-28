@@ -1,0 +1,196 @@
+﻿@model Task1LoginRegister.DTOs.ProductDto
+@{
+    ViewData["Title"] = "Edit Product";
+    var errorMessages = TempData["ErrorMessages"] as string;
+}
+
+@if (!string.IsNullOrEmpty(errorMessages))
+{
+    <div class="alert alert-danger">
+        <ul>
+            @foreach (var errorMessage in errorMessages.Split('\n'))
+            {
+                <li>@errorMessage</li>
+            }
+        </ul>
+    </div>
+}
+
+<div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="text-primary">Edit Product</h1>
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </div>
+
+    <form asp-action="Edit" enctype="multipart/form-data" method="post">
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="SKU" />
+
+        <div class="row">
+            <!-- Left Section -->
+            <div class="col-lg-8">
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Product Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group mb-3">
+                            <label asp-for="Name" class="form-label fw-bold">Product Name</label>
+                            <input asp-for="Name" class="form-control" placeholder="Enter product name" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Description" class="form-label fw-bold">Description</label>
+                            <textarea asp-for="Description" class="form-control" rows="4" placeholder="Enter detailed description"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="ShortDescription" class="form-label fw-bold">Short Description</label>
+                            <input asp-for="ShortDescription" class="form-control" placeholder="Enter short description" />
+                            <span asp-validation-for="ShortDescription" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Price" class="form-label fw-bold">Price</label>
+                                    <input asp-for="Price" class="form-control" type="number" step="0.01" placeholder="Enter price" />
+                                    <span asp-validation-for="Price" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="SellingPricePercentage" class="form-label fw-bold">Discount (%)</label>
+                                    <input asp-for="SellingPricePercentage" class="form-control" type="number" step="0.01" placeholder="Enter discount percentage" />
+                                    <span asp-validation-for="SellingPricePercentage" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="CategoryId" class="form-label fw-bold">Category</label>
+                                    <select asp-for="CategoryId" class="form-select" asp-items="@ViewBag.Categories" required>
+                                        <option value="">Select Category</option>
+                                    </select>
+                                    <span asp-validation-for="CategoryId" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="SubcategoryId" class="form-label fw-bold">Subcategory</label>
+                                    <select asp-for="SubcategoryId" class="form-select" asp-items="@ViewBag.Subcategories" id="SubcategoryId">
+                                        <option value="">Select Subcategory</option>
+                                    </select>
+                                    <span asp-validation-for="SubcategoryId" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group form-check mb-3">
+                            <input asp-for="Status" class="form-check-input" type="checkbox" id="Status" />
+                            <label asp-for="Status" class="form-check-label fw-bold" for="Status">Active</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Section -->
+            <div class="col-lg-4">
+                <div class="accordion" id="imageAccordion">
+                    <!-- Primary Image -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingPrimaryImage">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePrimaryImage" aria-expanded="true" aria-controls="collapsePrimaryImage">
+                                Primary Image
+                            </button>
+                        </h2>
+                        <div id="collapsePrimaryImage" class="accordion-collapse collapse show" aria-labelledby="headingPrimaryImage" data-bs-parent="#imageAccordion">
+                            <div class="accordion-body">
+                                <div class="form-group mb-3">
+                                    <input asp-for="PrimaryImage" type="file" class="form-control" accept="image/*" />
+                                    <span asp-validation-for="PrimaryImage" class="text-danger"></span>
+                                </div>
+                                @if (!string.IsNullOrEmpty(Model.PrimaryImageUrl))
+                                {
+                                    <img src="@Model.PrimaryImageUrl" class="img-fluid rounded mb-2" alt="Primary Image" />
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gallery Images -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingGalleryImages">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseGalleryImages" aria-expanded="false" aria-controls="collapseGalleryImages">
+                                Gallery Images
+                            </button>
+                        </h2>
+                        <div id="collapseGalleryImages" class="accordion-collapse collapse" aria-labelledby="headingGalleryImages" data-bs-parent="#imageAccordion">
+                            <div class="accordion-body">
+                                <div class="form-group mb-3">
+                                    <input asp-for="GalleryImages" type="file" multiple class="form-control" accept="image/*" />
+                                    <span asp-validation-for="GalleryImages" class="text-danger"></span>
+                                </div>
+
+                                @if (Model.ExistingGalleryImages != null && Model.ExistingGalleryImages.Any())
+                                {
+                                    <div class="row">
+                                        @foreach (var image in Model.ExistingGalleryImages)
+                                        {
+                                            <div class="col-6 mb-3">
+                                                <img src="@image.ImageUrl" class="img-thumbnail" alt="Gallery Image" />
+                                                <div class="form-check">
+                                                    <input type="checkbox" class="form-check-input" name="ImagesToDelete" value="@image.ProductImageId" />
+                                                    <label class="form-check-label">Delete</label>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group mt-4">
+            <button type="submit" class="btn btn-primary btn-lg">Save Changes</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.PartialAsync("_ValidationScriptsPartial");
+        }
+    <script>
+        $(document).ready(function () {
+            var selectedSubcategoryId = '@Model.SubcategoryId';
+
+            $('#CategoryId').change(function () {
+                var categoryId = $(this).val();
+                var subcategorySelect = $('#SubcategoryId');
+                subcategorySelect.empty().append('<option value="">Select Subcategory</option>');
+
+                if (categoryId) {
+                    $.get('/Products/GetSubCategories', { categoryId: categoryId }, function (data) {
+                        $.each(data, function (i, item) {
+                            subcategorySelect.append($('<option>', {
+                                value: item.subcategoryId,
+                                text: item.name,
+                                selected: item.subcategoryId == selectedSubcategoryId
+                            }));
+                        });
+                    });
+                }
+            });
+
+            $('#CategoryId').change();
+        });
+    </script>
+}

@@ -1,0 +1,57 @@
+﻿@model IEnumerable<Task1LoginRegister.Models.Category>
+
+@{
+    ViewData["Title"] = "Category and Subcategory Index";
+}
+
+<h2>Category and Subcategory List</h2>
+<br />
+<br />
+<div class="alert alert-dark">
+    To view Products click below button
+</div>
+<p class="text-right">
+    <a asp-action="Index" asp-controller="Products" class="btn btn-dark text-white btn-md">Go to Products Dashboard</a>
+</p>
+
+<!-- Create New Category and Subcategory Button -->
+<a asp-action="Create" class="btn btn-success">Create New Category and Subcategory</a>
+<br />
+<br />
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Category Name</th>
+            <th>Subcategories</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var category in Model)
+        {
+            <tr>
+                <!-- Category Name -->
+                <td>@category.Name</td>
+
+                <!-- Subcategories -->
+                <td>
+                    @if (category.Subcategories != null && category.Subcategories.Any())
+                    {
+                        @string.Join(", ", category.Subcategories.Select(s => s.Name))
+                    }
+                    else
+                    {
+                        <em>No subcategories</em>
+                    }
+                </td>
+
+                <td>
+                    <a asp-action="Edit" asp-route-id="@category.CategoryId" class="btn btn-primary">Edit</a>
+
+                    <a asp-action="Delete" asp-route-id="@category.CategoryId" class="btn btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

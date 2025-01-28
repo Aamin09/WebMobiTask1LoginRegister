@@ -11,6 +11,12 @@ var provider = builder.Services.BuildServiceProvider();
 var config=provider.GetRequiredService<IConfiguration>();
 builder.Services.AddDbContext<WebMobiTask1DbContext>(x => x.UseSqlServer(config.GetConnectionString("dbcs")));
 
+// Add this to your Program.cs or Startup.cs
+var uploadDirectory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Images", "ProductsImage");
+if (!Directory.Exists(uploadDirectory))
+{
+    Directory.CreateDirectory(uploadDirectory);
+}
 // for authentication to access
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>

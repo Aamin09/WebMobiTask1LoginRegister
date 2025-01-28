@@ -1,0 +1,200 @@
+﻿@model Task1LoginRegister.Models.Product
+
+@{
+    ViewData["Title"] = "Product Details";
+}
+
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f8f9fa;
+    }
+
+    h2 {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #343a40;
+    }
+
+    .card {
+        border: none;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+        border-radius: 10px;
+    }
+
+    .product-image {
+        width: 100%;
+        border-radius: 10px;
+        object-fit: cover;
+    }
+
+    .thumbnail {
+        width: 80px;
+        height: 80px;
+        border-radius: 5px;
+        object-fit: cover;
+    }
+
+    .btn {
+        border-radius: 5px;
+    }
+
+    .text-muted {
+        font-size: 0.9rem;
+    }
+
+    
+    .row.equal-height {
+        display: flex;
+        align-items: stretch;
+    }
+
+    .product-image-container {
+        display: flex;
+        align-items: stretch; 
+    }
+
+    .product-details-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between; 
+
+    /* Card style */
+    .card-body {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+  
+    .product-image-container img {
+        object-fit: cover;
+        height: 100%; /
+    }
+
+</style>
+
+<div class="container my-4">
+
+    <div class="text-center mb-4">
+        <h2>@Model.Name</h2>
+        <p class="text-muted">Manage product details and images</p>
+    </div>
+
+    <div class="row equal-height">
+        <!-- Product Image -->
+        <div class="col-lg-4 col-md-5 col-sm-12 mb-4 product-image-container">
+            <div class="card">
+                <img src="@Model.ProductImages.FirstOrDefault(img => img.IsPrimaryImage)?.ImageUrl" class="product-image img-fluid" alt="Primary Product Image">
+            </div>
+        </div>
+
+        <!-- Product Details -->
+        <div class="col-lg-8 col-md-7 col-sm-12 product-details-container">
+            <div class="card-header bg-black text-white">
+                <h4 class="mb-0">Product Details</h4>
+            </div>
+
+            <div class="card p-3">
+                <table class="table table-striped">
+                    <tbody>
+                        <tr>
+                            <th>Product Name</th>
+                            <td>@Model.Name</td>
+                        </tr>
+                        <tr>
+                            <th>Description</th>
+                            <td>@Model.Description</td>
+                        </tr>
+                        <tr>
+                            <th>Short Description</th>
+                            <td>@Model.ShortDescription</td>
+                        </tr>
+                        <tr>
+                            <th>SKU</th>
+                            <td>@Model.SKU</td>
+                        </tr>
+                        <tr>
+                            <th>Price</th>
+                            <td>@Model.Price.ToString("C")</td>
+                        </tr>
+                        <tr>
+                            <th>Selling Price Percent</th>
+                            <td>@Model.SellingPricePercent.ToString("0.##") %</td>
+                        </tr>
+                        <tr>
+                            <th>Calculated Selling Price</th>
+                            <td>@Model.CalculatedSellingPrice.ToString("C")</td>
+                        </tr>
+                        <tr>
+                            <th>Status</th>
+                            <td>@(Model.Status ? "Active" : "Inactive")</td>
+                        </tr>
+                        <tr>
+                            <th>Category</th>
+                            <td>@Model.Category.Name</td>
+                        </tr>
+                        <tr>
+                            <th>Subcategory</th>
+                            <td>@Model.Subcategory.Name</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gallery Images Section -->
+    <div class="card mt-4">
+        <div class="card-header bg-black text-white">
+            <h5 class="mb-0">Gallery Images</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead class="bg-dark text-white">
+                        <tr>
+                            <th>Image Id</th>
+                            <th>Image</th>
+                            <th>Is Primary</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.ProductImages != null && Model.ProductImages.Any())
+                        {
+                            @foreach (var productImage in Model.ProductImages.Where(img => !img.IsPrimaryImage))
+                            {
+                                <tr>
+                                    <td>
+                                        @productImage.Id
+                                    </td>
+                                    <td>
+                                        <img src="@productImage.ImageUrl" class="thumbnail" alt="Gallery Image">
+                                    </td>
+                                    <td>@(productImage.IsPrimaryImage ? "Yes" : "No")</td>
+                                    <td>
+                                        <form method="post" asp-action="DeleteProductImage" asp-route-imageId="@productImage.Id" asp-route-productId="@Model.ProductId" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this image?');">
+                                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="3" class="text-center text-muted">No additional images available.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a asp-action="Edit" asp-route-id="@Model.ProductId" class="btn btn-primary mx-2">Edit Product</a>
+        <a asp-action="Index" class="btn btn-secondary mx-2">Back to List</a>
+    </div>
+</div>

@@ -1,0 +1,138 @@
+﻿@model Task1LoginRegister.DTOs.CreateProductsDto
+
+@{
+    ViewData["Title"] = "Add New Product";
+}
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Add Product</h2>
+
+    <form asp-action="Create" enctype="multipart/form-data" method="post" class="shadow-lg p-4 bg-light rounded">
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label asp-for="Name" class="form-label">Product Name</label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Price" class="form-label">Price</label>
+                <input asp-for="Price" type="number" class="form-control" />
+                <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label asp-for="SellingPricePercentage" class="form-label">Selling Price Percentage</label>
+                <input asp-for="SellingPricePercentage" type="number" class="form-control" />
+                <span asp-validation-for="SellingPricePercentage" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Status" class="form-label">Status</label>
+                <select asp-for="Status" class="form-select">
+                    <option value="true">Active</option>
+                    <option value="false">Inactive</option>
+                </select>
+                <span asp-validation-for="Status" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Description" class="form-label">Description</label>
+            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="ShortDescription" class="form-label">Short Description</label>
+            <textarea asp-for="ShortDescription" class="form-control" rows="2"></textarea>
+            <span asp-validation-for="ShortDescription" class="text-danger"></span>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label asp-for="PrimaryImage" class="form-label">Primary Image</label>
+                <input asp-for="PrimaryImage" type="file" class="form-control" />
+                <span asp-validation-for="PrimaryImage" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="GalleryImages" class="form-label">Gallery Images</label>
+                <input asp-for="GalleryImages" type="file" multiple class="form-control" />
+                <span asp-validation-for="GalleryImages" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label>Category</label>
+                <select id="CategoryDropdown" asp-for="CategoryId" class="form-select">
+                    <option value="">-- Select Category --</option>
+                    @foreach (var category in (IEnumerable<SelectListItem>)ViewBag.Categories)
+                    {
+                        <option value="@category.Value">@category.Text</option>
+                    }
+                </select>
+                <span asp-validation-for="CategoryId" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label>Subcategory</label>
+                <select id="SubcategoryDropdown" asp-for="SubcategoryId" class="form-select">
+                    <option value="">-- Select Subcategory --</option>
+                </select>
+                <span asp-validation-for="SubcategoryId" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <a href="javascript:history.back()" class="btn btn-secondary px-4 py-2">Back</a>
+            <button type="submit" class="btn btn-primary px-4 py-2">Save</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            function loadSubcategories(categoryId, selectedSubcategoryId) {
+                if (categoryId) {
+                    $.ajax({
+                        url: '/Products/GetSubCategories',
+                        type: 'GET',
+                        data: { categoryId: categoryId },
+                        success: function (data) {
+                            var subcategoryDropdown = $('#SubcategoryDropdown');
+                            subcategoryDropdown.empty().append('<option value="">-- Select Subcategory --</option>');
+                            $.each(data, function (index, subcategory) {
+                                var option = $(`<option value="${subcategory.subcategoryId}">${subcategory.name}</option>`);
+                                if (subcategory.subcategoryId == selectedSubcategoryId) {
+                                    option.prop('selected', true);
+                                }
+                                subcategoryDropdown.append(option);
+                            });
+                        },
+                        error: function (xhr, status, error) {
+                            console.error("Error loading subcategories: " + error);
+                        }
+                    });
+                } else {
+                    $('#SubcategoryDropdown').empty().append('<option value="">-- Select Subcategory --</option>');
+                }
+            }
+
+            var initialCategoryId = $('#CategoryDropdown').val();
+            var initialSubcategoryId = '@Model.SubcategoryId';
+            if (initialCategoryId) {
+                loadSubcategories(initialCategoryId, initialSubcategoryId);
+            }
+
+            $('#CategoryDropdown').change(function () {
+                loadSubcategories($(this).val());
+            });
+        });
+    </script>
+}

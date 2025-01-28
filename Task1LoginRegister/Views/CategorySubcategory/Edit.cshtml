@@ -1,0 +1,25 @@
+﻿@model Task1LoginRegister.Models.CategorySubcategoryViewModel
+
+<h2>Edit Category and Subcategories</h2>
+
+<form method="post">
+    <h3>Category</h3>
+    <div class="form-group">
+        <label asp-for="Category.Name"></label>
+        <input asp-for="Category.Name" class="form-control" />
+        <span asp-validation-for="Category.Name" class="text-danger"></span>
+    </div>
+    <input type="hidden" asp-for="Category.CategoryId" />
+
+    <h3>Subcategories</h3>
+    <div class="form-group">
+        <label>Subcategories (Comma separated)</label>
+        <input type="text" id="subcategoryNames" name="subcategoryNames" class="form-control"
+               value="@string.Join(", ", Model.Subcategories.Select(s => s.Name))" />
+        <span asp-validation-for="Subcategories" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>
+
+
