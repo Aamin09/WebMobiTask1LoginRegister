@@ -60,7 +60,7 @@ namespace Task1LoginRegister.Controllers
                 }
                 else
                 {
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "Products");
                 }
               
             }
