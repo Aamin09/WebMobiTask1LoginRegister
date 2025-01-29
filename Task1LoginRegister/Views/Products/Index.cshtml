@@ -3,16 +3,14 @@
 @{
     ViewData["Title"] = "Product List";
 }
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+
 
 <h1 class="text-center mb-4">Product List</h1>
-<div class="alert alert-dark">
-    To view Category and Subcategory click below button 
-</div>
-<p class="text-right">
-    <a asp-action="Index" asp-controller="CategorySubcategory" class="btn btn-dark text-white btn-md">Go to Category and Subcategory Dashboard</a>
-</p>
 
+<div class="alert alert-dark text-center">
+    <h5 class="mb-3">Want to manage Categories?</h5>
+    <a asp-action="Index" asp-controller="CategorySubcategory" class="btn btn-dark text-white btn-md">Go to Category and Subcategory Dashboard</a>
+</div>
 <p class="text-right mt-2">
     <a asp-action="Create" class="btn btn-primary btn-md">Create New Product</a>
 </p>
@@ -86,9 +84,7 @@
 
 
 @section Scripts {
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+   
     <script>
         $(document).ready(function () {
             $("#productsTable").DataTable();

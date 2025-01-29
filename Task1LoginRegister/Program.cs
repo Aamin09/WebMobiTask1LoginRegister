@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 using Task1LoginRegister.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,12 +20,20 @@ if (!Directory.Exists(uploadDirectory))
 }
 // for authentication to access
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(options =>
-                {
-                    options.LoginPath = "/Login/Login"; 
-                    options.LogoutPath = "/Login/Logout";
-                    options.AccessDeniedPath = "/Home/AccessDenied";
-                });
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Login/Login";
+        options.LogoutPath = "/Login/Logout";
+        options.AccessDeniedPath = "/Home/AccessDenied";
+
+        // Expire cookie when browser is closed
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(30); // Optional: Set a timeout
+        options.SlidingExpiration = true;
+        options.Cookie.IsEssential = true;
+        options.Cookie.HttpOnly = true;
+        options.Cookie.Expiration = null;
+    });
+
 
 builder.Services.AddSession(options =>
 {

@@ -4,54 +4,67 @@
     ViewData["Title"] = "Category and Subcategory Index";
 }
 
-<h2>Category and Subcategory List</h2>
-<br />
-<br />
-<div class="alert alert-dark">
-    To view Products click below button
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-uppercase text-dark">Category & Subcategory List</h2>
+        <a asp-action="Create" class="btn btn-success btn-md">
+            <i class="fas fa-plus-circle"></i> Add Category & Subcategory
+        </a>
+    </div>
+
+    <div class="alert alert-dark text-center">
+        <h5 class="mb-2">Want to manage products?</h5>
+        <a asp-action="Index" asp-controller="Products" class="btn btn-dark btn-md text-white">
+            <i class="fas fa-box-open"></i> Go to Products Dashboard
+        </a>
+    </div>
+
+    <div class="card shadow-lg">
+        <div class="card-body">
+            <table class="table table-hover" id="categoryTable">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Category Name</th>
+                        <th scope="col">Subcategories</th>
+                        <th scope="col" class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var category in Model)
+                    {
+                        <tr>
+                            <td class="align-middle"><strong>@category.Name</strong></td>
+                            <td class="align-middle">
+                                @if (category.Subcategories != null && category.Subcategories.Any())
+                                {
+                                    @string.Join(", ", category.Subcategories.Select(s => s.Name))
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No subcategories</span>
+                                }
+                            </td>
+                            <td class="text-center align-middle">
+                                <a asp-action="Edit" asp-route-id="@category.CategoryId" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@category.CategoryId" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-trash-alt"></i> Delete
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
-<p class="text-right">
-    <a asp-action="Index" asp-controller="Products" class="btn btn-dark text-white btn-md">Go to Products Dashboard</a>
-</p>
 
-<!-- Create New Category and Subcategory Button -->
-<a asp-action="Create" class="btn btn-success">Create New Category and Subcategory</a>
-<br />
-<br />
-
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Category Name</th>
-            <th>Subcategories</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var category in Model)
-        {
-            <tr>
-                <!-- Category Name -->
-                <td>@category.Name</td>
-
-                <!-- Subcategories -->
-                <td>
-                    @if (category.Subcategories != null && category.Subcategories.Any())
-                    {
-                        @string.Join(", ", category.Subcategories.Select(s => s.Name))
-                    }
-                    else
-                    {
-                        <em>No subcategories</em>
-                    }
-                </td>
-
-                <td>
-                    <a asp-action="Edit" asp-route-id="@category.CategoryId" class="btn btn-primary">Edit</a>
-
-                    <a asp-action="Delete" asp-route-id="@category.CategoryId" class="btn btn-danger">Delete</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+@section Scripts {
+   
+    <script>
+        $(document).ready(function () {
+            $("#categoryTable").DataTable();
+        });
+    </script>
+}

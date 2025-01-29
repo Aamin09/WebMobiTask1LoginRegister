@@ -37,7 +37,7 @@ namespace Task1LoginRegister.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CategorySubcategoryViewModel model, string subcategoryNames)
+        public async Task<IActionResult> Create(CategorySubcategoryViewModel model, List<string> SubcategoryNames)
         {
             if (ModelState.IsValid)
             {
@@ -47,7 +47,7 @@ namespace Task1LoginRegister.Controllers
 
                 if (existingCategory != null)
                 {
-                    ModelState.AddModelError("Category.Name", "A category with this name already exists.");
+                    ViewBag.errorExisting=$"<script>alert('{existingCategory.Name} : A category with this name already exists.)</script>'";
                     return View(model);
                 }
 
@@ -55,31 +55,18 @@ namespace Task1LoginRegister.Controllers
                 context.Categories.Add(model.Category);
                 await context.SaveChangesAsync();
 
-                // Parse subcategory names from the comma-separated string and add them
-                if (!string.IsNullOrEmpty(subcategoryNames))
+                // Add multiple subcategories dynamically
+                if (SubcategoryNames != null && SubcategoryNames.Any())
                 {
-                    var subcategoryList = subcategoryNames.Split(',')
+                    var subcategoryList = SubcategoryNames
+                        .Where(name => !string.IsNullOrWhiteSpace(name))
                         .Select(name => new Subcategory
                         {
                             Name = name.Trim(),
-                            CategoryId = model.Category.CategoryId // Link the subcategory to the newly created category
+                            CategoryId = model.Category.CategoryId
                         })
                         .ToList();
 
-                    foreach (var subcategory in subcategoryList)
-                    {
-                        // Check for duplicates in the same category
-                        var existingSubcategory = await context.Subcategories
-                            .FirstOrDefaultAsync(s => s.Name == subcategory.Name && s.CategoryId == model.Category.CategoryId);
-
-                        if (existingSubcategory != null)
-                        {
-                            ModelState.AddModelError("Subcategory.Name", $"A subcategory with the name '{subcategory.Name}' already exists in this category.");
-                            return View(model);
-                        }
-                    }
-
-                    // Add subcategories
                     context.Subcategories.AddRange(subcategoryList);
                     await context.SaveChangesAsync();
                 }
@@ -91,109 +78,95 @@ namespace Task1LoginRegister.Controllers
         }
 
 
+        [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
             var category = await context.Categories
                 .Include(c => c.Subcategories)
                 .FirstOrDefaultAsync(c => c.CategoryId == id);
+
             if (category == null)
             {
                 return NotFound();
             }
 
-            var data = new CategorySubcategoryViewModel
+            var model = new CategorySubcategoryViewModel
             {
                 Category = category,
                 Subcategories = category.Subcategories.ToList()
             };
 
-            return View(data);
+            return View(model);
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(CategorySubcategoryViewModel model, string subcategoryNames)
+        public async Task<IActionResult> EditPost(CategorySubcategoryViewModel model,  string[] updatedSubcategoryNames, int[] ExistingSubcategoryIds, int[] SubcategoryIdsToRemove, string[] NewSubcategoryNames)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                // Log or inspect the CategoryId value to ensure it's passed correctly
-                if (model.Category.CategoryId == 0)
-                {
-                    ModelState.AddModelError("Category.CategoryId", "Invalid Category ID.");
-                    return View(model);
-                }
-
-                var existingCategory = await context.Categories
-                    .FirstOrDefaultAsync(c => c.CategoryId == model.Category.CategoryId);
-
-                // If the category does not exist, log and return an error
-                if (existingCategory == null)
-                {
-                    ModelState.AddModelError("Category.Name", "Category not found.");
-                    return View(model);
-                }
-
-                // Check if the category name has changed and if the new name is unique
-                if (existingCategory.Name != model.Category.Name)
-                {
-                    var categoryWithNewName = await context.Categories
-                        .FirstOrDefaultAsync(c => c.Name == model.Category.Name);
-
-                    if (categoryWithNewName != null)
-                    {
-                        ModelState.AddModelError("Category.Name", "A category with this name already exists.");
-                        return View(model);
-                    }
-                }
-
-                // Update category name
-                existingCategory.Name = model.Category.Name;
-                await context.SaveChangesAsync();
-
-                // Parse subcategory names from the comma-separated string
-                if (!string.IsNullOrEmpty(subcategoryNames))
-                {
-                    var subcategoryList = subcategoryNames.Split(',')
-                        .Select(name => new Subcategory
-                        {
-                            Name = name.Trim(),
-                            CategoryId = model.Category.CategoryId // Link the subcategory to the existing category
-                        })
-                        .ToList();
-
-                    // Remove existing subcategories that are no longer part of the list
-                    var existingSubcategories = await context.Subcategories
-                        .Where(s => s.CategoryId == model.Category.CategoryId)
-                        .ToListAsync();
-
-                    foreach (var subcategory in existingSubcategories)
-                    {
-                        // If the subcategory isn't in the updated list, delete it
-                        if (!subcategoryList.Any(s => s.Name == subcategory.Name))
-                        {
-                            context.Subcategories.Remove(subcategory);
-                        }
-                    }
-
-                    // Add new subcategories
-                    foreach (var subcategory in subcategoryList)
-                    {
-                        var existingSubcategory = await context.Subcategories
-                            .FirstOrDefaultAsync(s => s.Name == subcategory.Name && s.CategoryId == model.Category.CategoryId);
-
-                        if (existingSubcategory == null)
-                        {
-                            context.Subcategories.Add(subcategory);
-                        }
-                    }
-
-                    await context.SaveChangesAsync();
-                }
-
-                return RedirectToAction("Index");
+                return View(model);
             }
 
-            return View(model);
+            var category = await context.Categories
+                .Include(c => c.Subcategories)
+                .FirstOrDefaultAsync(c => c.CategoryId == model.Category.CategoryId);
+
+            if (category == null)
+            {
+                return NotFound();
+            }
+
+           // updating category name
+            category.Name = model.Category.Name;
+
+            // removing selected Subcategories
+            if (SubcategoryIdsToRemove != null)
+            {
+                foreach (var subcategoryId in SubcategoryIdsToRemove)
+                {
+                    var subcategoryToRemove = category.Subcategories.FirstOrDefault(s => s.SubcategoryId == subcategoryId);
+                    if (subcategoryToRemove != null)
+                    {
+                        category.Subcategories.Remove(subcategoryToRemove);
+                    }
+                }
+            }
+
+            // Converting ICollection to List for Indexing
+            var subcategoryList = category.Subcategories.ToList();
+
+            // Updating Existing Subcategory Names
+            if (updatedSubcategoryNames != null && ExistingSubcategoryIds != null)
+            {
+                for (int i = 0; i < ExistingSubcategoryIds.Length; i++)
+                {
+                    var subcategory = subcategoryList.FirstOrDefault(s => s.SubcategoryId == ExistingSubcategoryIds[i]);
+
+                    if (subcategory != null && !string.IsNullOrEmpty(updatedSubcategoryNames[i]) && subcategory.Name != updatedSubcategoryNames[i])
+                    {
+                        subcategory.Name = updatedSubcategoryNames[i];
+                    }
+                }
+            }
+
+            // Adding  New Subcategories code
+            if (NewSubcategoryNames != null)
+            {
+                foreach (var newName in NewSubcategoryNames)
+                {
+                    if (!string.IsNullOrWhiteSpace(newName))
+                    {
+                        category.Subcategories.Add(new Subcategory { Name = newName });
+                    }
+                }
+            }
+
+            
+            await context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
 
 

@@ -1,33 +1,77 @@
 ﻿@model Task1LoginRegister.Models.CategorySubcategoryViewModel
 
-<h2>Create Category and Subcategory</h2>
+@Html.Raw(ViewBag.errorExisting)
 
-<form method="post" asp-action="Create">
-    <h3>Category</h3>
-    <div class="form-group">
-        <label asp-for="Category.Name"></label>
-        <input asp-for="Category.Name" class="form-control" />
-        <span asp-validation-for="Category.Name" class="text-danger"></span>
-    </div>
+<h2 class="text-center mb-5">Create Category and Subcategory</h2>
 
-    <h3>Subcategories</h3>
-    <div class="form-group">
-        <label>Subcategories (Comma separated)</label>
-        <input type="text" id="subcategoryNames" name="subcategoryNames" class="form-control" />
-        <span asp-validation-for="Subcategories" class="text-danger"></span>
-    </div>
+<div class="container">
+    <form method="post" asp-action="Create">
 
-    <button type="submit" class="btn btn-primary">Save</button>
-</form>
+        <!-- Category Section -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h3 class="card-title">Category</h3>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label asp-for="Category.Name" class="form-label">Category Name</label>
+                    <input asp-for="Category.Name" class="form-control" placeholder="Enter category name" />
+                    <span asp-validation-for="Category.Name" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subcategory Section -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-secondary text-white">
+                <h3 class="card-title">Subcategories</h3>
+            </div>
+            <div class="card-body">
+                <div id="subcategoryContainer">
+                    <!-- Dynamic Subcategory Fields will be added here -->
+                </div>
+                <button type="button" class="btn btn-success mt-2" id="addSubcategoryBtn">
+                    <i class="fas fa-plus"></i> Add Subcategory
+                </button>
+            </div>
+        </div>
+
+   
+        <div class="form-group text-center">
+            <button type="submit" class="btn btn-primary px-5 py-2">Save</button>
+        </div>
+
+        <div class="form-group text-center mt-4">
+            <a asp-action="Index" class="btn btn-secondary px-5 py-2">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+    </form>
+</div>
 
 @section Scripts {
     <script>
-        // On form submission, we don't need to modify the subcategoryNames value anymore
-        document.querySelector("form").onsubmit = function () {
-            var subcategoryNames = document.getElementById("subcategoryNames").value;
+        document.addEventListener("DOMContentLoaded", function () {
+            let subcategoryCount = 0;
 
-            // Simply leave the subcategoryNames as-is (don't convert to JSON)
-            // The backend will handle parsing it correctly
-        };
+            document.getElementById("addSubcategoryBtn").addEventListener("click", function () {
+                const subcategoryContainer = document.getElementById("subcategoryContainer");
+
+                const div = document.createElement("div");
+                div.classList.add("input-group", "mb-2");
+
+                div.innerHTML = `
+                            <input type="text" name="SubcategoryNames" class="form-control" placeholder="Enter subcategory name" required>
+                            <button type="button" class="btn btn-danger remove-subcategory">X<i class="fas fa-trash"></i></button>
+                        `;
+
+                subcategoryContainer.appendChild(div);
+
+                // Remove button event listener
+                div.querySelector(".remove-subcategory").addEventListener("click", function () {
+                    subcategoryContainer.removeChild(div);
+                });
+            });
+        });
     </script>
 }

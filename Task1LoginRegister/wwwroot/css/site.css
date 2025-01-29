@@ -20,3 +20,19 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.bg-gradient-navbar {
+    background: linear-gradient(90deg, #007bff, #00c6ff); /* Dark blue to light blue gradient */
+}
+.navbar-nav .nav-link {
+    font-size: 1rem;
+    letter-spacing: 1px;
+    font-weight: 500;
+    color: #ffffff;
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+    .navbar-nav .nav-link:hover {
+        color: #ffd700; /* Gold color on hover */
+        transform: scale(1.05);
+    }

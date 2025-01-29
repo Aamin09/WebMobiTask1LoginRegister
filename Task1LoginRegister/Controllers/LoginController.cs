@@ -23,13 +23,12 @@ namespace Task1LoginRegister.Controllers
         public IActionResult Login(string returnUrl)
         {
             ViewData["ReturnUrl"] = returnUrl;
-            if (HttpContext.Session.GetString("UserSession") != null)
+            if (User.Identity.IsAuthenticated) 
             {
-
                 ViewBag.LoginMessage = "You are already logged in.";
-               
                 return RedirectToAction("Index", "Products");
             }
+
 
             return View();
         }
@@ -72,9 +71,12 @@ namespace Task1LoginRegister.Controllers
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            HttpContext.Session.Clear();
+            HttpContext.Session.Clear(); // Clear session
+            Response.Cookies.Delete(".AspNetCore.Cookies"); // Ensure authentication cookie is deleted
             return RedirectToAction("Login", "Login");
         }
+
+
         public IActionResult SignUp()
         {
             return View();
