@@ -126,7 +126,7 @@
                                     else if (fileExtension == ".mp4" || fileExtension == ".webm" || fileExtension == ".ogg")
                                     {
                                         // Display video
-                                        <video class="img-fluid rounded mb-2" controls>
+                                        <video class="img-fluid rounded mb-2"  controls autoplay loop>
                                             <source src="@Model.PrimaryImageUrl" type="video/@fileExtension.Substring(1)">
                                             Your browser does not support the video tag.
                                         </video>

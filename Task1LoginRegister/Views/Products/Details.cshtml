@@ -11,7 +11,7 @@
         margin-bottom: 20px;
     }
 
-    .product-image {
+    .product-image,.product-video {
         width: 100%;
         height: auto; /* Ensure the image maintains aspect ratio */
     }
@@ -36,6 +36,7 @@ h2 {
     border: none;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
     border-radius: 10px;
+        height: 100%;
 }
 
 .product-image {
@@ -79,12 +80,14 @@ h2 {
 .card-body {
     display: flex;
     flex-direction: column;
+        height: 100%;
     justify-content: space-between;
 }
 
-.product-image-container img {
+.product-image-container img,.product-image-container video{
     object-fit: cover;
     height: 100%;
+    width:100%;
 }
 
    
@@ -116,7 +119,7 @@ h2 {
                         else if (fileExtension == ".mp4" || fileExtension == ".webm" || fileExtension == ".ogg")
                         {
                             // Display video
-                            <video class="product-video img-fluid" controls autoplay>
+                            <video class="product-video img-fluid" controls autoplay loop>
                                 <source src="@primaryMedia.ImageUrl" type="video/@fileExtension.Substring(1)">
                                 Your browser does not support the video tag.
                             </video>
