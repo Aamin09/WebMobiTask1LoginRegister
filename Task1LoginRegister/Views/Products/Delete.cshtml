@@ -101,8 +101,27 @@
                             <tr>
                                 <td>@productImage.Id</td>
                                 <td>
-                                    <img src="@productImage.ImageUrl" alt="Product Image" class="img-thumbnail" style="width: 100px; height: auto;" />
+                                    @if (!string.IsNullOrEmpty(productImage?.ImageUrl))
+                                    {
+                                        var fileExtension = System.IO.Path.GetExtension(productImage.ImageUrl)?.ToLower();
+
+                                        if (fileExtension == ".jpg" || fileExtension == ".jpeg" || fileExtension == ".png" || fileExtension == ".gif" || fileExtension == ".webp")
+                                        {
+                                            // Display image
+                                            <img src="@productImage.ImageUrl" alt="Product Image" class="img-thumbnail" style="width: 100px; height: auto;" />
+                                        }
+                                        else if (fileExtension == ".mp4" || fileExtension == ".webm" || fileExtension == ".ogg")
+                                        {
+                                            // Display Video
+                                            <video width="100" height="auto" controls autoplay>
+                                                <source src="@productImage.ImageUrl" type="video/@fileExtension.Substring(1)">
+                                                Your browser does not support the video tag.
+                                            </video>
+                                        }
+                                    }
+                                   
                                 </td>
+
                                 <td>@(productImage.IsPrimaryImage ? "Yes" : "No")</td>
                                 <td>
                                     <form method="post" asp-action="DeleteProductImage" asp-route-imageId="@productImage.Id" asp-route-productId="@Model.ProductId" onsubmit="return confirm('Are you sure you want to delete this image?');">

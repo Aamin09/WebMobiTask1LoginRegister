@@ -39,14 +39,37 @@
                     <td>
                         @if (item.ProductImages != null && item.ProductImages.Any())
                         {
-                            var primaryImage = item.ProductImages.FirstOrDefault(img => img.IsPrimaryImage);
-                            <img src="@primaryImage.ImageUrl" alt="Product Image" class="img-fluid" style="max-width: 100px; height: auto;" />
+                            var primaryMedia = item.ProductImages.FirstOrDefault(img => img.IsPrimaryImage);
+
+                            if (primaryMedia != null)
+                            {
+                                var fileExtension = System.IO.Path.GetExtension(primaryMedia.ImageUrl)?.ToLower();
+
+                                if (fileExtension == ".jpg" || fileExtension == ".jpeg" || fileExtension == ".png" || fileExtension == ".gif" || fileExtension == ".webp")
+                                {
+                                    // Display image
+                                    <img src="@primaryMedia.ImageUrl" alt="Product Image" class="img-fluid" style="max-width: 100px; height: auto;" />
+                                }
+                                else if (fileExtension == ".mp4" || fileExtension == ".webm" || fileExtension == ".ogg")
+                                {
+                                    // Display video
+                                    <video width="100" height="auto" controls autoplay>
+                                        <source src="@primaryMedia.ImageUrl" type="video/@fileExtension.Substring(1)">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                }
+                                else
+                                {
+                                    <img src="https://via.placeholder.com/100x100?text=No+Image" alt="No Image Available" class="img-fluid" style="max-width: 100px; height: auto;" />
+                                }
+                            }
                         }
                         else
                         {
                             <img src="https://via.placeholder.com/100x100?text=No+Image" alt="No Image Available" class="img-fluid" style="max-width: 100px; height: auto;" />
                         }
                     </td>
+
 
                    
                     <td>@Html.DisplayFor(modelItem => item.Name)</td>
@@ -87,7 +110,11 @@
    
     <script>
         $(document).ready(function () {
-            $("#productsTable").DataTable();
+            $("#productsTable").DataTable({
+                responsive: true,
+                autoWidth: true,
+                scrollX: true,
+            });
         });
     </script>
 }

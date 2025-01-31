@@ -114,10 +114,30 @@
                                     <input asp-for="PrimaryImage" type="file" class="form-control" accept="image/*" />
                                     <span asp-validation-for="PrimaryImage" class="text-danger"></span>
                                 </div>
-                                @if (!string.IsNullOrEmpty(Model.PrimaryImageUrl))
+                                @if (!string.IsNullOrEmpty(Model?.PrimaryImageUrl))
                                 {
-                                    <img src="@Model.PrimaryImageUrl" class="img-fluid rounded mb-2" alt="Primary Image" />
+                                    var fileExtension = System.IO.Path.GetExtension(Model.PrimaryImageUrl)?.ToLower();
+
+                                    if (fileExtension == ".jpg" || fileExtension == ".jpeg" || fileExtension == ".png" || fileExtension == ".gif" || fileExtension == ".webp")
+                                    {
+                                        // Display image
+                                        <img src="@Model.PrimaryImageUrl" class="img-fluid rounded mb-2" alt="Primary Image" />
+                                    }
+                                    else if (fileExtension == ".mp4" || fileExtension == ".webm" || fileExtension == ".ogg")
+                                    {
+                                        // Display video
+                                        <video class="img-fluid rounded mb-2" controls>
+                                            <source src="@Model.PrimaryImageUrl" type="video/@fileExtension.Substring(1)">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    }
+                                    else
+                                    {
+                                        // Default placeholder if file type is unknown
+                                        <img src="https://via.placeholder.com/300x300?text=No+Image" class="img-fluid rounded mb-2" alt="No Image Available" />
+                                    }
                                 }
+
                             </div>
                         </div>
                     </div>
@@ -167,7 +187,7 @@
 @section Scripts {
     @{
         await Html.PartialAsync("_ValidationScriptsPartial");
-        }
+    }
     <script>
         $(document).ready(function () {
             var selectedSubcategoryId = '@Model.SubcategoryId';
