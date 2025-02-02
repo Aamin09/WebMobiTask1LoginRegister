@@ -446,6 +446,21 @@ namespace Task1LoginRegister.Controllers
             return RedirectToAction("Index");
         }
 
+        [HttpPost]
+        public async Task<IActionResult> ToggleStatus(int id)
+        {
+            var product=await context.Products.FindAsync(id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            product.Status = !product.Status;   
+
+            await context.SaveChangesAsync();
+
+            return Json(new { isActive=product.Status});
+        }
 
     }
 }

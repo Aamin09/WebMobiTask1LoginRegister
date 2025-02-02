@@ -25,9 +25,10 @@
                 <th>@Html.DisplayNameFor(model => model.Price)</th>
                 <th width="6%">@Html.DisplayNameFor(model => model.SellingPricePercent)</th>
                 <th>@Html.DisplayNameFor(model => model.CalculatedSellingPrice)</th>
-                <th>@Html.DisplayNameFor(model => model.Status)</th>
                 <th>@Html.DisplayNameFor(model => model.Category)</th>
                 <th>@Html.DisplayNameFor(model => model.Subcategory)</th>
+                <th>@Html.DisplayNameFor(model => model.Status)</th>
+
                 <th>Actions</th>
             </tr>
         </thead>
@@ -77,11 +78,15 @@
                     <td>@item.Price.ToString("C")</td>
                     <td width="6%">@item.SellingPricePercent.ToString("0.##") %</td>
                     <td>@item.CalculatedSellingPrice.ToString("C")</td>
-                    <td>@(item.Status ? "Active" : "Inactive")</td>
-
                     <td>@Html.DisplayFor(modelItem => item.Category.Name)</td>
                     <td>@Html.DisplayFor(modelItem => item.Subcategory.Name)</td>
 
+                    <td>
+                        <button class="btn @(item.Status ? "btn-success" : "btn-danger") btn-sm toggle-status" data-id="@item.ProductId">
+                            @(item.Status ? "Active" : "InActive")
+                        </button>
+                    </td>
+                    
                     <td>
                         <div style="width: 100%;">
                             <a asp-action="Edit" asp-route-id="@item.ProductId" class="btn btn-warning btn-sm w-100 mb-2" title="Edit Product">
@@ -116,5 +121,24 @@
                 scrollX: true,
             });
         });
+
+        $(document).on("click", ".btn", function () {
+            var button = $(this);
+            var ProductId = button.data("id");
+
+            $.ajax({
+                type: "Post",
+                url: "@Url.Action("ToggleStatus", "Products")",
+                data: { id: ProductId },
+                success: function (data) {
+                    if (data.isActive) {
+                        button.removeClass("btn-danger").addClass("btn-success").text("Active");
+                    } else {
+                        button.removeClass("btn-success").addClass("btn-danger").text("InActive");
+                    }
+                }
+            });
+        });
+
     </script>
 }

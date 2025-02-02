@@ -39,8 +39,8 @@
                         <td>@Html.DisplayFor(modelItem => item.Gender)</td>
                         <td>@Html.DisplayFor(modelItem => item.Password)</td>
                         <td>
-                            <button class="btn @(item.IsActive ? "btn-danger" : "btn-success") btn-sm" data-id="@item.Id">
-                                @(item.IsActive ? "Deactivate" : "Activate")
+                            <button class="btn @(item.IsActive ? "btn-success" : "btn-danger") btn-sm" data-id="@item.Id">
+                                @(item.IsActive ? "Activate" : "Deactivate")
                             </button>
                         </td>
                         <td>
@@ -70,14 +70,14 @@
             var userId = button.data("id");
 
             $.ajax({
-                type: "POST",
+                type: "Post",
                 url: "@Url.Action("ToggleStatus", "Home")",
                 data: { id: userId },
                 success: function (data) {
                     if (data.isActive) {
-                        button.removeClass("btn-success").addClass("btn-danger").text("Deactivate");
-                    } else {
                         button.removeClass("btn-danger").addClass("btn-success").text("Activate");
+                    } else {
+                        button.removeClass("btn-success").addClass("btn-danger").text("Deactivate");
                     }
                 }
             });
