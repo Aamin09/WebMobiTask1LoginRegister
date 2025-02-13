@@ -26,7 +26,7 @@ namespace Task1LoginRegister.Controllers
             if (User.Identity.IsAuthenticated) 
             {
                 ViewBag.LoginMessage = "You are already logged in.";
-                return RedirectToAction("Index", "Products");
+                return RedirectToAction("Index", "User");
             }
 
 
@@ -59,7 +59,7 @@ namespace Task1LoginRegister.Controllers
                 }
                 else
                 {
-                    return RedirectToAction("Index", "Products");
+                    return RedirectToAction("Index", "User");
                 }
               
             }

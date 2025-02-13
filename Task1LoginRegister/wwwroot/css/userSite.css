@@ -1,0 +1,92 @@
+﻿body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Roboto', sans-serif;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+
+.bg-gradient-navbar {
+    background: linear-gradient(90deg, #007bff, #00088b); 
+}
+
+.navbar-nav .nav-link {
+    color: white !important;
+    font-weight: 500;
+    transition: color 0.3s ease-in-out;
+}
+
+
+    .navbar-nav .nav-link:hover {
+        color: #87CEFA !important;
+    }
+
+/* Footer Styling */
+.bg-gradient-footer {
+    background: linear-gradient(90deg, #007bff, #00088b); 
+}
+
+.footer {
+    color: white;
+    padding: 30px 0;
+    font-size: 14px;
+}
+
+    .footer h5 {
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+
+    .footer a {
+        color: #f8f9fa;
+        text-decoration: none;
+        transition: color 0.3s ease-in-out;
+    }
+
+        /* Dark Blue Hover Effect */
+        .footer a:hover {
+            color: #87CEFA !important; /* Dark Blue */
+        }
+
+/* Social Media Icons */
+.social-links a {
+    color: white;
+    font-size: 18px;
+    margin-right: 10px;
+    transition: color 0.3s ease-in-out;
+}
+
+    /* Dark Blue Hover Effect */
+    .social-links a:hover {
+        color: #87CEFA;
+    }
+
+/* Responsive Design */
+@media (max-width: 767px) {
+    .navbar {
+        padding: 10px 0;
+    }
+
+    .footer {
+        padding: 20px 0;
+    }
+
+        .footer h5 {
+            font-size: 16px;
+        }
+
+    .social-links a {
+        font-size: 16px;
+        margin-right: 8px;
+    }
+}

@@ -74,7 +74,7 @@ namespace Task1LoginRegister.Controllers
                 if (ModelState.IsValid)
                 {
                     string generatedSKU = $"CAT-{model.CategoryId}-SUB-{model.SubcategoryId}-{model.Name.Substring(0, 3).ToUpper()}-{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}";
-                    decimal calculatedSellingPrice = model.Price + model.Price * (model.SellingPricePercentage / 100);
+                    decimal calculatedSellingPrice = model.Price - model.Price * (model.SellingPricePercentage / 100);
 
                     var product = new Product
                     {
@@ -224,7 +224,7 @@ namespace Task1LoginRegister.Controllers
                 product.Status = model.Status;
                 product.CategoryId = model.CategoryId;
                 product.SubcategoryId = model.SubcategoryId;
-                product.CalculatedSellingPrice = model.Price + (model.Price * model.SellingPricePercentage / 100);
+                product.CalculatedSellingPrice = model.Price - (model.Price * model.SellingPricePercentage / 100);
 
                 // deleting gallery image based on the checkbox selection 
                 if (model.ImagesToDelete != null && model.ImagesToDelete.Any())
