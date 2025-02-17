@@ -210,6 +210,9 @@
         flex-grow: 1;
     }
 
+    .justify-content-between {
+        font-size:1.1rem;
+    }
     .pagination .page-item.active .page-link {
         background-color: #007bff;
         border-color: #007bff;
@@ -221,16 +224,21 @@
         padding-right: 60px;
     }
 
+
     /* Media Queries for Small Devices */
     @@media (max-width: 480px) { 
         .main {
-            padding-left: 10px; 
-            padding-right: 10px;
+            padding-left: 0; 
+            padding-right: 0;
+        }
+        .col-sm-6{
+            width:50%;
+            padding-left:0;
+            padding-right:0;
         }
 
-        .product-image {
-            height: 425px;
-            object-fit: cover;
+        .card-img-top {
+            max-height: 200px;
         }
 
         .row-cols-md-2 {
@@ -239,18 +247,20 @@
 
         .card {
             height: auto; 
+            margin-left:0;
+            margin-right:0;
         }
 
         .card-title {
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
 
         .text-muted {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
 
-        .text-success {
-            font-size: 1rem;
+        .text-success.text-black {
+            font-size: 0.95rem;
         }
 
         .pagination .page-link {
@@ -282,8 +292,8 @@
     /* Media Queries for iPad Mini/Pro */
     @@media (max-width: 1024px) { 
         .main {
-            padding-left: 10px; 
-            padding-right: 10px; 
+            padding-left: 5px; 
+            padding-right: 5px; 
         }
 
         .product-image {
