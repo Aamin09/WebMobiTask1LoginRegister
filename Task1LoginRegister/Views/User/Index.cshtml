@@ -3,105 +3,7 @@
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_UserLayout.cshtml";
 }
-
-<style>
-    .product-image {
-        height: 300px;
-        object-fit: cover;
-        width: 100%;
-        transition: transform 0.3s ease; 
-    }
-
-    .carousel-item img {
-        height: 600px;
-        object-fit: cover;
-    }
-
-    .card{
-        position: relative;
-        overflow: hidden; 
-        margin-bottom:10px;
-    }
-    .col-lg-3{
-        margin-bottom:20px;
-        padding-left:2px;
-    }
-    .product-image:hover {
-        transform: scale(1.1); 
-    }
-
-    .banner {
-        max-width: 100%;
-    }
-
-    .main {
-        max-width: 100%;
-        padding-right: 40px;
-        padding-left: 40px;
-    }
-
-    /* Media Query for Tablets and Smaller Devices */
-    @@media (max-width: 768px) {
-        .main {
-            padding-left: 0px;
-            padding-right: 0px;
-            margin-bottom: 10px;
-        }
-
-        .card-body {
-            margin-bottom: 10px;
-        }
-
-        .carousel-item img {
-            height: 400px;
-        }
-
-        .product-image {
-            height: 350px;
-        }
-
-        .col-lg-3, .col-md-6 {
-            width: 100%;
-            margin-bottom: 1rem;
-        }
-
-        .card-body {
-            padding: 1rem;
-        }
-
-        .btn-outline-primary {
-            font-size: 0.9rem;
-        }
-    }
-
-    /* Media Query for iPad*/
-    @@media (min-width: 768px) and (max-width: 1024px) {
-        .col-lg-3, .col-md-6 {
-            width: 50%;
-            margin-bottom: 20px;
-        }
-
-        .card {
-            margin-bottom: 20px;
-        }
-    }
-
-    /* Media Query for Mobile Devices */
-    @@media (max-width: 480px) {
-        .carousel-item img {
-            height: 350px;
-        }
-
-        .product-image {
-            height: 300px;
-        }
-
-        .col-lg-3, .col-md-6 {
-            width: 100%;
-        }
-    }
-</style>
-
+<link href="~/css/featuredproducts.css" rel="stylesheet" />
 <div class="banner">
     <div id="mainCarousel" class="carousel slide" data-bs-ride="carousel">
         <div class="carousel-indicators">
@@ -132,50 +34,7 @@
     <div class="row">
         @foreach (var product in Model)
         {
-            <div class="col-lg-3 col-md-6 col-sm-12 col-12">
-                <div class="card shadow-sm border-light rounded-3 d-flex flex-column h-100">
-                    <div class="position-relative">
-                        @{
-                            var primaryMedia = @product.ProductImages.FirstOrDefault(pi => pi.IsPrimaryImage);
-                            if (primaryMedia != null)
-                            {
-                                var fileExtension = System.IO.Path.GetExtension(primaryMedia.ImageUrl)?.ToLower();
-
-                                if (fileExtension == ".jpg" || fileExtension == ".jpeg" || fileExtension == ".png" || fileExtension == ".gif" || fileExtension == ".webp")
-                                {
-                                    // Display image
-                                    <img src="@primaryMedia.ImageUrl" class="card-img-top product-image rounded-3" alt="Primary Product Image">
-                                }
-                                else if (fileExtension == ".mp4" || fileExtension == ".webm" || fileExtension == ".ogg")
-                                {
-                                    // Display video
-                                    <video class="card-img-top product-image rounded-3" controls autoplay loop>
-                                        <source src="@primaryMedia.ImageUrl" type="video/@fileExtension.Substring(1)">
-                                        Your browser does not support the video tag.
-                                    </video>
-                                }
-                            }
-                        }
-
-                    </div>
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title">@product.Name</h5>
-                        <div class="d-flex justify-content-between align-items-center" style="font-size:1.1rem">
-                            <span class="text-black fw-bold">@product.CalculatedSellingPrice.ToString("C")</span>
-                            <span class="text-success fw-bold">
-                                @product.SellingPricePercent.ToString("0")% off
-                            </span>
-
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center">
-
-                            <span class="text-muted text-decoration-line-through">@product.Price.ToString("C")</span>
-
-                        </div>
-                        <a href="/Products/Details/@product.ProductId" class="btn btn-outline-primary mt-2">View Details</a>
-                    </div>
-                </div>
-            </div>
+            <partial name="_ProductPartialView" model="product" view-data='new ViewDataDictionary(ViewData) { { "ColumnClass", "col-lg-3 col-md-6 col-sm-6" } }' />
         }
     </div>
 </div>

@@ -1,0 +1,339 @@
+﻿@model Task1LoginRegister.Models.Product
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+<link href="~/css/featuredproducts.css" rel="stylesheet" />
+
+<style>
+    .container-fluid {
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    th {
+        white-space: nowrap;
+    }
+
+    .image-section {
+        position: sticky;
+        top: 20px;
+    }
+
+    .details-section {
+        padding: 0 15px;
+    }
+
+    .main-product-media {
+        width: 100%;
+        height: 450px;
+        object-fit: cover;
+        border: 2px solid #ddd;
+        padding: 5px;
+        border-radius: 10px;
+    }
+
+    .thumbnail-container {
+        display: flex;
+        gap: 10px;
+        padding: 5px;
+    }
+
+    .thumbnail-img {
+        width: 80px;
+        height: 60px;
+        cursor: pointer;
+        border: 2px solid transparent;
+        border-radius: 5px;
+        transition: border 0.3s ease-in-out;
+        flex-shrink: 0;
+    }
+
+        .thumbnail-img:hover {
+            border-color: #007bff;
+        }
+
+    .btn-buy {
+        background-color: #fb641b;
+        width: 60%;
+        margin-top: 10px;
+        border: none;
+    }
+
+    .quantity-input {
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        width: 60%;
+    }
+
+    .quantity-btn {
+        border: none;
+        background: #f8f9fa;
+        padding: 8px 12px;
+        cursor: pointer;
+        width: 100px;
+        transition: background-color 0.2s;
+    }
+
+        .quantity-btn:hover {
+            background: #e9ecef;
+        }
+
+    .form-control {
+        text-align: center;
+        border: none;
+        justify-content: center;
+        border-left: 1px solid #dee2e6;
+        border-right: 1px solid #dee2e6;
+        padding: 8px 0;
+    }
+
+    @@media (max-width: 767px) {
+        .image-section {
+            position: relative;
+            top: 0;
+        }
+
+        .main-product-media {
+            height: 300px;
+        }
+
+        .btn-buy,
+        .quantity-input {
+            width: 100%;
+        }
+
+        h2.card-title {
+            font-size: 1.25rem;
+        }
+
+        h5 {
+            font-size: 0.95rem;
+        }
+
+        .container-fluid {
+            padding: 10px;
+        }
+
+    }
+
+    /* Small Mobile Devices */
+    @@media (max-width: 576px) {
+        .main-product-media {
+            height: 250px;
+        }
+
+        .thumbnail-img {
+            width: 60px;
+            height: 45px;
+        }
+
+        .details-section, table{
+            padding:0;
+            margin:0;
+        }
+        .container-fluid {
+            padding: 5px;
+        }
+
+        .related-products{
+            margin:10px;
+        }
+    }
+
+    /* Landscape Mode for iPads */
+    @@media screen and (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+        .image-section {
+            position: sticky;
+            top: 20px;
+        }
+
+        .main-product-media {
+            height: 350px;
+        }
+    }
+</style>
+
+<div class="container-fluid main">
+    <div class="row g-0">
+        <div class="col-12 col-lg-6">
+            <div class="image-section">
+                <div class="card">
+                    <div class="text-center mb-3">
+                        @if (Model.ProductImages != null && Model.ProductImages.Any())
+                        {
+                            var firstMedia = Model.ProductImages.FirstOrDefault(img => img.ProductId == Model.ProductId);
+
+                            <div id="mainDisplay">
+                                @if (firstMedia != null)
+                                {
+                                    var fileExt = System.IO.Path.GetExtension(firstMedia.ImageUrl)?.ToLower();
+                                    if (fileExt == ".jpg" || fileExt == ".jpeg" || fileExt == ".png" || fileExt == ".gif" || fileExt == ".webp")
+                                    {
+                                        <img id="mainImage" src="@firstMedia.ImageUrl" class="img-fluid main-product-media" alt="Main Product Image">
+                                    }
+                                    else if (fileExt == ".mp4" || fileExt == ".webm" || fileExt == ".ogg")
+                                    {
+                                        <video id="mainVideo" class="img-fluid main-product-media" controls autoplay loop>
+                                            <source src="@firstMedia.ImageUrl" type="video/@fileExt.Substring(1)">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    }
+                                }
+                            </div>
+                        }
+                    </div>
+
+                    <div class="thumbnail-container mt-3 d-flex justify-content-center">
+                        @foreach (var media in Model.ProductImages.Where(img => img.ProductId == Model.ProductId))
+                        {
+                            var extension = System.IO.Path.GetExtension(media.ImageUrl)?.ToLower();
+
+                            if (extension == ".jpg" || extension == ".jpeg" || extension == ".png" || extension == ".gif" || extension == ".webp")
+                            {
+                                <img src="@media.ImageUrl" class="thumbnail-img" onclick="changeMainMedia('@media.ImageUrl', 'image')" alt="Thumbnail">
+                            }
+                            else if (extension == ".mp4" || extension == ".webm" || extension == ".ogg")
+                            {
+                                <video class="thumbnail-img" onclick="changeMainMedia('@media.ImageUrl', 'video')" muted>
+                                    <source src="@media.ImageUrl" type="video/@extension.Substring(1)">
+                                </video>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-6">
+            <div class="details-section">
+                <div class="card-body">
+                    <h2 class="card-title text-dark mb-3">@Model.Name</h2>
+                    <h5>@Model.ShortDescription</h5>
+                    <h5 class="d-flex gap-3 align-items-center flex-wrap">
+                        <span class="text-black fw-bold">@Model.CalculatedSellingPrice.ToString("C")</span>
+                        <span class="text-muted text-decoration-line-through">@Model.Price.ToString("C")</span>
+                        <span class="fw-bold btn btn-success">
+                            @Model.SellingPricePercent.ToString("0")% off
+                        </span>
+                    </h5>
+                    <div class="d-block">
+                        <div>You Save @((Model.Price - Model.CalculatedSellingPrice).ToString("C"))</div>
+                        <div>Get it by Tomorrow </div>
+                    </div>
+                    <div class="buy-details mb-4 mt-3">
+                        <div class="quantity-input d-flex mb-2">
+                            <button type="button" class="quantity-btn minus" onclick="decrementQuantity()">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <input type="number" id="quantityInput" name="quantity" min="1"
+                                   value="1" class="form-control" onchange="validateQuantity(this)">
+                            <button type="button" class="quantity-btn plus" onclick="incrementQuantity()">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <div>
+                            <button asp-action="Order" asp-controller="Order" class="btn btn-buy text-white">Buy</button>
+                        </div>
+                    </div>
+                    <div class="product-details">
+                        <h3 class="text-dark">Product details</h3>
+
+                        <hr />
+                        <table class="table table-borderless">
+                            <tr>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Name)
+                                </th>
+                                <td>
+                                    @Html.DisplayFor(model => model.Name)
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    Model Number
+                                </th>
+                                <td>
+                                    @Html.DisplayFor(model => model.SKU)
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Description)
+                                </th>
+                                <td>
+                                    @Html.DisplayFor(model => model.Description)
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Category)
+                                </th>
+                                <td>
+                                    @Html.DisplayFor(model => model.Category.Name)
+                                </td>
+                            <tr>
+                                <th>
+                                        @Html.DisplayNameFor(model => model.Subcategory)
+                                </th>
+                                <td>
+                                        @Html.DisplayFor(model => model.Subcategory.Name)
+                                </td>
+                            </tr>
+                        </table>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+       </div> 
+    <div class="related-products mt-5">
+        <h2 class="section-title text-center mb-4">Related Products</h2>
+        <div class="row">
+            @foreach (var product in ViewBag.relatedProducts)
+            {
+                <partial name="_ProductPartialView" model="product" view-data='new ViewDataDictionary(ViewData) { { "ColumnClass", "col-lg-3 col-md-6 col-sm-6" } }' />
+            }
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function changeMainMedia(mediaUrl, type) {
+        const mainDisplay = document.getElementById('mainDisplay');
+
+        if (type === 'image') {
+            mainDisplay.innerHTML = `<img id="mainImage" src="${mediaUrl}" class="img-fluid main-product-media" alt="Main Product Image">`;
+        } else if (type === 'video') {
+            mainDisplay.innerHTML = `
+                <video id="mainVideo" class="img-fluid main-product-media" controls autoplay loop>
+                    <source src="${mediaUrl}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            `;
+        }
+    }
+
+    function incrementQuantity() {
+        let quantityInput = document.getElementById('quantityInput');
+        quantityInput.value = parseInt(quantityInput.value) + 1;
+    }
+
+    function decrementQuantity() {
+        let quantityInput = document.getElementById('quantityInput');
+        if (quantityInput.value > 1) {
+            quantityInput.value = parseInt(quantityInput.value) - 1;
+        }
+    }
+
+    function validateQuantity(input) {
+        if (input.value < 1) {
+            input.value = 1;
+        }
+    }
+</script>

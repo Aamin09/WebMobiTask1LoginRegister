@@ -161,5 +161,33 @@ namespace Task1LoginRegister.Controllers.User
 
             return Json(priceRange);
         }
+
+        // details page code 
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            var product = await context.Products
+                .Include(p => p.ProductImages)
+                .Include(p => p.Category)
+                .Include(p => p.Subcategory)
+                .FirstOrDefaultAsync(p=>p.ProductId == id);
+
+            if(product == null)
+            {
+                return NotFound();
+            }
+            // getting relted products
+            var relatedProducts=await context.Products
+                .Include(p=>p.ProductImages)
+                .Where(p => p.CategoryId == product.CategoryId && p.ProductId != id)
+                .Take(4)
+                .ToListAsync();
+
+        
+            ViewBag.relatedProducts=relatedProducts;
+
+            return View(product);  
+        }
+
     }
 }
