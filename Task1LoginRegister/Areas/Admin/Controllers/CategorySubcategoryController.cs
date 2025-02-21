@@ -4,9 +4,10 @@ using Microsoft.DotNet.Scaffolding.Shared.Project;
 using Microsoft.EntityFrameworkCore;
 using Task1LoginRegister.Models;
 
-namespace Task1LoginRegister.Controllers
+namespace Task1LoginRegister.Areas.Admin.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin")]
+    [Area("Admin")]
     public class CategorySubcategoryController : Controller
     {
         private readonly WebMobiTask1DbContext context;
@@ -47,7 +48,7 @@ namespace Task1LoginRegister.Controllers
 
                 if (existingCategory != null)
                 {
-                    ViewBag.errorExisting=$"<script>alert('{existingCategory.Name} : A category with this name already exists.)</script>'";
+                    ViewBag.errorExisting = $"<script>alert('{existingCategory.Name} : A category with this name already exists.)</script>'";
                     return View(model);
                 }
 
@@ -102,7 +103,7 @@ namespace Task1LoginRegister.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditPost(CategorySubcategoryViewModel model,  string[] updatedSubcategoryNames, int[] ExistingSubcategoryIds, int[] SubcategoryIdsToRemove, string[] NewSubcategoryNames)
+        public async Task<IActionResult> EditPost(CategorySubcategoryViewModel model, string[] updatedSubcategoryNames, int[] ExistingSubcategoryIds, int[] SubcategoryIdsToRemove, string[] NewSubcategoryNames)
         {
             if (!ModelState.IsValid)
             {
@@ -118,7 +119,7 @@ namespace Task1LoginRegister.Controllers
                 return NotFound();
             }
 
-           // updating category name
+            // updating category name
             category.Name = model.Category.Name;
 
             // removing selected Subcategories
@@ -163,7 +164,7 @@ namespace Task1LoginRegister.Controllers
                 }
             }
 
-            
+
             await context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
@@ -222,4 +223,3 @@ namespace Task1LoginRegister.Controllers
     }
 }
 
-  

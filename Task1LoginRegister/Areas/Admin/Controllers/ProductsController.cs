@@ -6,9 +6,11 @@ using Microsoft.EntityFrameworkCore;
 using Task1LoginRegister.DTOs;
 using Task1LoginRegister.Models;
 
-namespace Task1LoginRegister.Controllers
+namespace Task1LoginRegister.Areas.Admin.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin")]
+    [Area("Admin")]
+
     public class ProductsController : Controller
     {
         private readonly WebMobiTask1DbContext context;
@@ -39,8 +41,8 @@ namespace Task1LoginRegister.Controllers
 
             var product = await context.Products
                 .Include(p => p.ProductImages)
-                .Include(p => p.Category) 
-                .Include(p => p.Subcategory) 
+                .Include(p => p.Category)
+                .Include(p => p.Subcategory)
                 .FirstOrDefaultAsync(p => p.ProductId == id);
 
             if (product == null)
@@ -137,7 +139,7 @@ namespace Task1LoginRegister.Controllers
 
             return View(model);
         }
-       
+
         [HttpGet]
         public async Task<JsonResult> GetSubCategories(int categoryId)
         {
@@ -179,7 +181,7 @@ namespace Task1LoginRegister.Controllers
                 SubcategoryId = product.SubcategoryId,
                 PrimaryImageUrl = product.ProductImages.FirstOrDefault(pi => pi.IsPrimaryImage)?.ImageUrl
             };
-            
+
             // Reload existing images for the model
             await ReloadExistingImages(model);
 
@@ -224,7 +226,7 @@ namespace Task1LoginRegister.Controllers
                 product.Status = model.Status;
                 product.CategoryId = model.CategoryId;
                 product.SubcategoryId = model.SubcategoryId;
-                product.CalculatedSellingPrice = model.Price - (model.Price * model.SellingPricePercentage / 100);
+                product.CalculatedSellingPrice = model.Price - model.Price * model.SellingPricePercentage / 100;
 
                 // deleting gallery image based on the checkbox selection 
                 if (model.ImagesToDelete != null && model.ImagesToDelete.Any())
@@ -238,7 +240,7 @@ namespace Task1LoginRegister.Controllers
                         DeleteImageFile(image.ImageUrl);
                         context.ProductImages.Remove(image);
                     }
-                   // saving changes 
+                    // saving changes 
                     await context.SaveChangesAsync();
                 }
 
@@ -265,7 +267,7 @@ namespace Task1LoginRegister.Controllers
                         IsPrimaryImage = true
                     };
                     context.ProductImages.Add(newPrimaryImage);
-                    await context.SaveChangesAsync(); 
+                    await context.SaveChangesAsync();
                 }
 
                 //  Adding new gallery images
@@ -285,7 +287,7 @@ namespace Task1LoginRegister.Controllers
                             context.ProductImages.Add(galleryImage);
                         }
                     }
-                    await context.SaveChangesAsync(); 
+                    await context.SaveChangesAsync();
                 }
 
                 // Final save for any remaining changes
@@ -388,7 +390,7 @@ namespace Task1LoginRegister.Controllers
         {
             var categories = await context.Categories.ToListAsync();
             var subcategories = await context.Subcategories.ToListAsync();
-           
+
             ViewBag.Categories = new SelectList(categories, "CategoryId", "Name", selectedCategoryId);
             ViewBag.Subcategories = new SelectList(subcategories, "SubcategoryId", "Name");
         }
@@ -398,8 +400,8 @@ namespace Task1LoginRegister.Controllers
         {
             var product = await context.Products
                 .Include(p => p.ProductImages)
-                .Include(p => p.Category) 
-                .Include(p => p.Subcategory) 
+                .Include(p => p.Category)
+                .Include(p => p.Subcategory)
                 .FirstOrDefaultAsync(p => p.ProductId == id);
 
             if (product == null)
@@ -449,17 +451,17 @@ namespace Task1LoginRegister.Controllers
         [HttpPost]
         public async Task<IActionResult> ToggleStatus(int id)
         {
-            var product=await context.Products.FindAsync(id);
+            var product = await context.Products.FindAsync(id);
             if (product == null)
             {
                 return NotFound();
             }
 
-            product.Status = !product.Status;   
+            product.Status = !product.Status;
 
             await context.SaveChangesAsync();
 
-            return Json(new { isActive=product.Status});
+            return Json(new { isActive = product.Status });
         }
 
     }

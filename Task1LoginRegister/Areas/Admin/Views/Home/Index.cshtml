@@ -1,0 +1,87 @@
+﻿@model IEnumerable<Task1LoginRegister.Models.Userlogin>
+
+@{
+    ViewData["Title"] = "List Of Users";
+}
+
+<!-- Include DataTables CSS and JS from CDN -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+
+<h1 class="text-center mt-4">User List</h1>
+
+<div class="container">
+    <div class="table-responsive">
+        <table class="table" id="userTable">
+            <thead>
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.FirstName)</th>
+                    <th>@Html.DisplayNameFor(model => model.LastName)</th>
+                    <th>@Html.DisplayNameFor(model => model.Email)</th>
+                    <th>@Html.DisplayNameFor(model => model.Phone)</th>
+                    <th>@Html.DisplayNameFor(model => model.Photo)</th>
+                    <th>@Html.DisplayNameFor(model => model.Gender)</th>
+                    <th>@Html.DisplayNameFor(model => model.Role)</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(modelItem => item.FirstName)</td>
+                        <td>@Html.DisplayFor(modelItem => item.LastName)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Email)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Phone)</td>
+                        <td>
+                            <img src="~/Images/@item.Photo" height="50" width="50" alt="Photo" />
+                        </td>
+                        <td>@Html.DisplayFor(modelItem => item.Gender)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Role)</td>
+                        <td>
+                            <button class="btn @(item.IsActive ? "btn-success" : "btn-danger") btn-sm" data-id="@item.Id">
+                                @(item.IsActive ? "Activate" : "Deactivate")
+                            </button>
+                        </td>
+                        <td>
+                            <div class="d-flex flex-column flex-sm-row gap-2">
+                                <a class="btn btn-warning btn-sm w-100" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                                <a class="btn btn-danger btn-sm w-100" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+@section Scripts {
+ 
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+           
+            $("#userTable").DataTable();
+        });
+
+        $(document).on("click", ".btn", function () {
+            var button = $(this);
+            var userId = button.data("id");
+
+            $.ajax({
+                type: "Post",
+                url: "@Url.Action("ToggleStatus", "Home")",
+                data: { id: userId },
+                success: function (data) {
+                    if (data.isActive) {
+                        button.removeClass("btn-danger").addClass("btn-success").text("Activate");
+                    } else {
+                        button.removeClass("btn-success").addClass("btn-danger").text("Deactivate");
+                    }
+                }
+            });
+        });
+    </script>
+
+}

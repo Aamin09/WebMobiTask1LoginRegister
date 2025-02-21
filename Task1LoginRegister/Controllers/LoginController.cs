@@ -23,7 +23,7 @@ namespace Task1LoginRegister.Controllers
         public IActionResult Login(string returnUrl)
         {
             ViewData["ReturnUrl"] = returnUrl;
-            if (User.Identity.IsAuthenticated) 
+            if (User.Identity.IsAuthenticated)
             {
                 ViewBag.LoginMessage = "You are already logged in.";
                 return RedirectToAction("Index", "User");
@@ -33,10 +33,10 @@ namespace Task1LoginRegister.Controllers
             return View();
         }
         [HttpPost]
-        public async Task<IActionResult> Login(Userlogin u,string returnUrl)
+        public async Task<IActionResult> Login(Userlogin u, string returnUrl)
         {
 
-            var data = await context.Userlogins.Where(x => x.Email == u.Email && x.Password == u.Password).FirstOrDefaultAsync();
+            var data = await context.Userlogins.Where(x => x.Email == u.Email && x.Password == u.Password && u.Role == "User").FirstOrDefaultAsync();
 
             if (data != null)
             {
@@ -46,28 +46,38 @@ namespace Task1LoginRegister.Controllers
                     return View();
                 }
                 // cookie for user authentication
-                var claims = new[] { new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Name, u.Email) };
+                var claims = new List<System.Security.Claims.Claim>
+                { 
+                    new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Name, u.Email),
+                    new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Role, data.Role)
+                };
                 var identity = new System.Security.Claims.ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 var principal = new System.Security.Claims.ClaimsPrincipal(identity);
 
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
                 HttpContext.Session.SetString("UserSession", u.Email);
+                HttpContext.Session.SetString("UserRole", data.Role);
+
                 if (!string.IsNullOrEmpty(returnUrl))
                 {
                     return Redirect(returnUrl);
                 }
-                else
+                if (data.Role == "Admin")
                 {
-                    return RedirectToAction("Index", "User");
+                    return RedirectToAction("Index", "Home", new { area = "Admin" });
                 }
-              
+                else if (data.Role == "User")
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+
+                return RedirectToAction("Index", "Home");
             }
-
-
             ViewBag.error = "<script>alert('Incorrect Username or Password!')</script>";
             return View();
         }
+
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);

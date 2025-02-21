@@ -32,7 +32,7 @@ public partial class Userlogin
     [Required]
     [DataType(DataType.Password)]
     public string Password { get; set; } = null!;
-    
+    public string Role { get; set; } = "User";
     public bool IsActive { get; set; }
 
 }

@@ -1,195 +1,196 @@
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
-using System.Diagnostics;
+using Task1LoginRegister.DTOs;
 using Task1LoginRegister.Models;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Task1LoginRegister.Controllers
 {
-    [Authorize]
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
         private readonly WebMobiTask1DbContext context;
-        private readonly IWebHostEnvironment env;
+        private const int PageSize = 12;
 
-        public HomeController(ILogger<HomeController> logger, WebMobiTask1DbContext _context, IWebHostEnvironment _env)
+        public HomeController(WebMobiTask1DbContext context)
         {
-            _logger = logger;
-            context = _context;
-            env = _env;
+            this.context = context;
         }
 
         public async Task<IActionResult> Index()
         {
-            var data = await context.Userlogins.ToListAsync();
-            return View(data);
+            var products = await context.Products
+                .Include(p => p.ProductImages)
+                .Include(p => p.Category)
+                .Include(p => p.Subcategory)
+                .Where(p => p.Status)
+                .Take(8)
+                .ToListAsync();
+            return View(products);
         }
 
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Products(int? categoryId, string subcategoryIds, decimal? minPrice,
+     decimal? maxPrice, string sortOrder, string searchProduct, int page = 1)
         {
-            if (id == null)
+            var data = context.Products
+                .Include(p => p.ProductImages)
+                .Include(p => p.Category)
+                .Include(p => p.Subcategory)
+                .Where(p => p.Status);
+
+
+            if (categoryId.HasValue)
             {
-                return NotFound();
+                data = data.Where(p => p.CategoryId == categoryId);
             }
 
-            var data = await context.Userlogins.FirstOrDefaultAsync(x => x.Id == id);
-            if (data == null)
+            if (!string.IsNullOrEmpty(subcategoryIds))
             {
-                return NotFound();
-            }
+                var selectedIds = subcategoryIds.Split(',')
+                    .Where(s => !string.IsNullOrEmpty(s))
+                    .Select(int.Parse)
+                    .ToList();
 
-            return View(data);
-        }
-
-        // POST: Userlogins/Delete/5
-        [HttpPost, ActionName("DeleteConfirmed")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var data = await context.Userlogins.FindAsync(id);
-            if (data != null)
-            {
-                var imagePath = Path.Combine(env.WebRootPath, "Images", data.Photo);
-
-                if (System.IO.File.Exists(imagePath))
+                if (selectedIds.Any())
                 {
-                    try
-                    {
-                        await Task.Delay(100);  // 100 ms delay
-                        System.IO.File.Delete(imagePath);
-                    }
-                    catch (IOException ex)
-                    {
-                        return StatusCode(500, $"Error deleting image file: {ex.Message}");
-                    }
+                    data = data.Where(p => selectedIds.Contains(p.SubcategoryId));
                 }
-
-
-                context.Userlogins.Remove(data);
-                await context.SaveChangesAsync();
             }
 
-            return RedirectToAction("Index");
-        }
-
-        public IActionResult Edit(int id)
-        {
-            var user = context.Userlogins.FirstOrDefault(x => x.Id == id);
-            if (user == null)
+            if (!string.IsNullOrEmpty(searchProduct))
             {
-                return NotFound();
+                data = data.Where(p => p.Name.ToLower().StartsWith(searchProduct.ToLower()) || p.Description.ToLower().StartsWith(searchProduct.ToLower()));
             }
 
-            var model = new UserLoginModels
+            if (minPrice.HasValue)
             {
-                Id = user.Id,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Email = user.Email,
-                Phone = user.Phone,
-                Gender = user.Gender,
-                Photo = user.Photo,
-                Password = user.Password,
-                ConfirmPassword = user.Password,
-                IsActive = user.IsActive
+                data = data.Where(p => p.CalculatedSellingPrice >= minPrice);
+            }
+            if (maxPrice.HasValue)
+            {
+                data = data.Where(p => p.CalculatedSellingPrice <= maxPrice);
+            }
+
+            // sorting
+            data = sortOrder switch
+            {
+                "name_desc" => data.OrderByDescending(p => p.Name),
+                "price_asc" => data.OrderBy(p => p.CalculatedSellingPrice),
+                "price_desc" => data.OrderByDescending(p => p.CalculatedSellingPrice),
+                _ => data.OrderBy(p => p.Name)
             };
 
-            return View(model);
-        }
+            var totalItems = await data.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalItems / (double)PageSize);
+            page = Math.Max(1, Math.Min(page, totalPages));
 
-        [HttpPost]
-        public async Task<IActionResult> Edit(int id, UserLoginModels u)
-        {
-            if (ModelState.IsValid)
+            // paginated results
+            var products = await data
+                .Skip((page - 1) * PageSize)
+                .Take(PageSize)
+                .ToListAsync();
+
+            // categories for dropdown
+            var categories = await context.Categories
+                .Select(c => new SelectListItem
+                {
+                    Value = c.CategoryId.ToString(),
+                    Text = c.Name
+                })
+                .ToListAsync();
+
+            //  subcategories for selected category
+            var subcategories = await context.Subcategories
+                .Where(s => categoryId == null || s.CategoryId == categoryId)
+                .Select(s => new SelectListItem
+                {
+                    Value = s.SubcategoryId.ToString(),
+                    Text = s.Name
+                })
+                .ToListAsync();
+
+            var viewModel = new ProductListViewModel
             {
-                var user = await context.Userlogins.FindAsync(id);
-                if (user == null)
-                {
-                    return NotFound();
-                }
+                Products = products,
+                Categories = new SelectList(categories, "Value", "Text", categoryId),
+                Subcategories = new SelectList(subcategories, "Value", "Text"),
+                MinPrice = minPrice,
+                MaxPrice = maxPrice,
+                CurrentPage = page,
+                TotalPages = totalPages,
+                CategoryId = categoryId,
+                SubcategoryIds = subcategoryIds,
+                SearchProductname = searchProduct
+            };
 
+            // Set up ViewBag data
+            ViewBag.CurrentSort = sortOrder;
+            ViewBag.Subcategories = subcategories;
+            ViewBag.SortOptions = new List<SelectListItem> {
+        new SelectListItem { Text = "Name (A-Z)", Value = "name_asc" },
+        new SelectListItem { Text = "Name (Z-A)", Value = "name_desc" },
+        new SelectListItem { Text = "Price (Low to High)", Value = "price_asc" },
+        new SelectListItem { Text = "Price (High to Low)", Value = "price_desc" }
+    };
 
-                user.FirstName = u.FirstName;
-                user.LastName = u.LastName;
-                user.Email = u.Email;
-                user.Phone = u.Phone;
-                user.Gender = u.Gender;
-                user.Password = u.Password;
-
-                if (u.Profile != null)
-                {
-
-                    // new photo file code
-                    string filename = Guid.NewGuid().ToString() + "_" + u.Profile.FileName;
-                    string folder = Path.Combine(env.WebRootPath, "Images");
-                    string filepath = Path.Combine(folder, filename);
-                    using (var fileStream = new FileStream(filepath, FileMode.Create))
-                    {
-                        await u.Profile.CopyToAsync(fileStream);
-                    }
-                    // Deleting the old photo
-                    if (!string.IsNullOrEmpty(user.Photo))
-                    {
-                        string oldFilePath = Path.Combine(env.WebRootPath, "Images", user.Photo);
-                        try
-                        {
-                            if (System.IO.File.Exists(oldFilePath))
-                            {
-                                System.IO.File.Delete(oldFilePath);
-                            }
-                        }
-                        catch (IOException ex)
-                        {
-                            Console.WriteLine($"Error deleting file: {ex.Message}");
-                        }
-                    }
-                    user.Photo = filename;
-
-                }
-                else
-                {
-                    user.Photo = user.Photo;
-                }
-
-
-                await context.SaveChangesAsync();
-
-
-                return RedirectToAction("Index");
-            }
-
-
-            return View(u);
+            return View(viewModel);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> ToggleStatus(int id)
+        [HttpGet]
+        public async Task<JsonResult> GetSubcategories(int categoryId)
         {
-            var user = await context.Userlogins.FindAsync(id);
-            if (user == null)
+            var subcategories = await context.Subcategories
+                .Where(s => s.CategoryId == categoryId)
+                .Select(s => new { value = s.SubcategoryId, text = s.Name })
+                .ToListAsync();
+
+            return Json(subcategories);
+        }
+
+        [HttpGet]
+        public async Task<JsonResult> GetPriceRange()
+        {
+            var priceRange = await context.Products
+                .Where(p => p.Status)
+                .Select(p => new
+                {
+                    MinPrice = context.Products.Min(p => p.CalculatedSellingPrice),
+                    MaxPrice = context.Products.Max(p => p.CalculatedSellingPrice)
+                })
+                .FirstOrDefaultAsync();
+
+            return Json(priceRange);
+        }
+
+        // details page code 
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            var product = await context.Products
+                .Include(p => p.ProductImages)
+                .Include(p => p.Category)
+                .Include(p => p.Subcategory)
+                .FirstOrDefaultAsync(p => p.ProductId == id);
+
+            if (product == null)
             {
                 return NotFound();
             }
+            // getting relted products
+            var relatedProducts = await context.Products
+                .Include(p => p.ProductImages)
+                .Where(p => p.CategoryId == product.CategoryId && p.ProductId != id)
+                .Take(4)
+                .ToListAsync();
 
-            user.IsActive = !user.IsActive;
 
-            await context.SaveChangesAsync();
+            ViewBag.relatedProducts = relatedProducts;
 
-            return Json(new { isActive = user.IsActive });
+            return View(product);
         }
-
         public IActionResult Privacy()
         {
             return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }

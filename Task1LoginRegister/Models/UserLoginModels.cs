@@ -36,6 +36,8 @@ namespace Task1LoginRegister.Models
         [DataType(DataType.Password)]
         [DisplayName("Confirm Password")]
         public string ConfirmPassword { get; set; }
+        public string Role { get; set; } = "User";
+
         public bool IsActive { get; set; } = true;
         public string? Photo { get; set; }
     }

@@ -1,87 +1,40 @@
-﻿@model IEnumerable<Task1LoginRegister.Models.Userlogin>
-
+﻿@model IEnumerable<Task1LoginRegister.Models.Product>
 @{
-    ViewData["Title"] = "List Of Users";
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
 }
-
-<!-- Include DataTables CSS and JS from CDN -->
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
-
-<h1 class="text-center mt-4">User List</h1>
-
-<div class="container">
-    <div class="table-responsive">
-        <table class="table" id="userTable">
-            <thead>
-                <tr>
-                    <th>@Html.DisplayNameFor(model => model.FirstName)</th>
-                    <th>@Html.DisplayNameFor(model => model.LastName)</th>
-                    <th>@Html.DisplayNameFor(model => model.Email)</th>
-                    <th>@Html.DisplayNameFor(model => model.Phone)</th>
-                    <th>@Html.DisplayNameFor(model => model.Photo)</th>
-                    <th>@Html.DisplayNameFor(model => model.Gender)</th>
-                    <th>@Html.DisplayNameFor(model => model.Password)</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td>@Html.DisplayFor(modelItem => item.FirstName)</td>
-                        <td>@Html.DisplayFor(modelItem => item.LastName)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Email)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Phone)</td>
-                        <td>
-                            <img src="~/Images/@item.Photo" height="50" width="50" alt="Photo" />
-                        </td>
-                        <td>@Html.DisplayFor(modelItem => item.Gender)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Password)</td>
-                        <td>
-                            <button class="btn @(item.IsActive ? "btn-success" : "btn-danger") btn-sm" data-id="@item.Id">
-                                @(item.IsActive ? "Activate" : "Deactivate")
-                            </button>
-                        </td>
-                        <td>
-                            <div class="d-flex flex-column flex-sm-row gap-2">
-                                <a class="btn btn-warning btn-sm w-100" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
-                                <a class="btn btn-danger btn-sm w-100" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                            </div>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+<link href="~/css/featuredproducts.css" rel="stylesheet" />
+<div class="banner">
+    <div id="mainCarousel" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-indicators">
+            <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="0" class="active"></button>
+            <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="1"></button>
+        </div>
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <img src="/images/banner1.jpg" class="d-block w-100" alt="Banner 1">
+            </div>
+            <div class="carousel-item">
+                <img src="/images/banner3.jpg" class="d-block w-100" alt="Banner 2" />
+            </div>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#mainCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#mainCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
     </div>
 </div>
-@section Scripts {
- 
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script>
-        $(document).ready(function () {
-           
-            $("#userTable").DataTable();
-        });
 
-        $(document).on("click", ".btn", function () {
-            var button = $(this);
-            var userId = button.data("id");
-
-            $.ajax({
-                type: "Post",
-                url: "@Url.Action("ToggleStatus", "Home")",
-                data: { id: userId },
-                success: function (data) {
-                    if (data.isActive) {
-                        button.removeClass("btn-danger").addClass("btn-success").text("Activate");
-                    } else {
-                        button.removeClass("btn-success").addClass("btn-danger").text("Deactivate");
-                    }
-                }
-            });
-        });
-    </script>
-
-}
+<div class="container my-5 main">
+    <h2 class="section-title text-center mb-4">Featured Products</h2>
+    <div class="row">
+        @foreach (var product in Model)
+        {
+            <partial name="_ProductPartialView" model="product" view-data='new ViewDataDictionary(ViewData) { { "ColumnClass", "col-lg-3 col-md-6 col-sm-6" } }' />
+        }
+    </div>
+</div>
