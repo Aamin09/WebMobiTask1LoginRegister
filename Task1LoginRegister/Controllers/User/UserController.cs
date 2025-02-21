@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Task1LoginRegister.DTOs;
 using Task1LoginRegister.Models;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Task1LoginRegister.Controllers.User
 {
@@ -28,7 +29,8 @@ namespace Task1LoginRegister.Controllers.User
             return View(products);
         }
 
-        public async Task<IActionResult> Products(int? categoryId, int? subcategoryId, decimal? minPrice, decimal? maxPrice, string sortOrder, int page = 1)
+        public async Task<IActionResult> Products(int? categoryId, string subcategoryIds, decimal? minPrice,
+     decimal? maxPrice, string sortOrder, string searchProduct, int page = 1)
         {
             var data = context.Products
                 .Include(p => p.ProductImages)
@@ -36,57 +38,59 @@ namespace Task1LoginRegister.Controllers.User
                 .Include(p => p.Subcategory)
                 .Where(p => p.Status);
 
-            // category filter
+         
             if (categoryId.HasValue)
             {
                 data = data.Where(p => p.CategoryId == categoryId);
             }
 
-            // subcategory filter
-            if (subcategoryId.HasValue)
+            if (!string.IsNullOrEmpty(subcategoryIds))
             {
-                data = data.Where(p => p.SubcategoryId == subcategoryId);
+                var selectedIds = subcategoryIds.Split(',')
+                    .Where(s => !string.IsNullOrEmpty(s))
+                    .Select(int.Parse)
+                    .ToList();
+
+                if (selectedIds.Any())
+                {
+                    data = data.Where(p => selectedIds.Contains(p.SubcategoryId));
+                }
             }
 
-            // price range filter
+            if (!string.IsNullOrEmpty(searchProduct))
+            {
+                data = data.Where(p => p.Name.ToLower().StartsWith(searchProduct.ToLower()) || p.Description.ToLower().StartsWith(searchProduct.ToLower()));
+            }
+
             if (minPrice.HasValue)
             {
                 data = data.Where(p => p.CalculatedSellingPrice >= minPrice);
             }
-
             if (maxPrice.HasValue)
             {
                 data = data.Where(p => p.CalculatedSellingPrice <= maxPrice);
             }
 
-            switch (sortOrder)
+            // sorting
+            data = sortOrder switch
             {
-                case "name_desc":
-                    data = data.OrderByDescending(p => p.Name);
-                    break;
-                case "price_asc":
-                    data = data.OrderBy(p => p.CalculatedSellingPrice);
-                    break;
-                case "price_desc":
-                    data = data.OrderByDescending(p => p.CalculatedSellingPrice);
-                    break;
-                default:
-                    data = data.OrderBy(p => p.Name);
-                    break;
-            }
+                "name_desc" => data.OrderByDescending(p => p.Name),
+                "price_asc" => data.OrderBy(p => p.CalculatedSellingPrice),
+                "price_desc" => data.OrderByDescending(p => p.CalculatedSellingPrice),
+                _ => data.OrderBy(p => p.Name)
+            };
 
-            // pagination logic code
-            var totalProducts = await data.CountAsync();
-            var totalPages = (int)Math.Ceiling(totalProducts / (double)PageSize);
-
+            var totalItems = await data.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalItems / (double)PageSize);
             page = Math.Max(1, Math.Min(page, totalPages));
 
+            // paginated results
             var products = await data
                 .Skip((page - 1) * PageSize)
                 .Take(PageSize)
                 .ToListAsync();
 
-            // categories data the dropdown
+            // categories for dropdown
             var categories = await context.Categories
                 .Select(c => new SelectListItem
                 {
@@ -95,45 +99,41 @@ namespace Task1LoginRegister.Controllers.User
                 })
                 .ToListAsync();
 
-            // subcategories data for the selected category
-            var subcategories = categoryId.HasValue
-                ? await context.Subcategories
-                    .Where(s => s.CategoryId == categoryId)
-                    .Select(s => new SelectListItem
-                    {
-                        Value = s.SubcategoryId.ToString(),
-                        Text = s.Name
-                    })
-                    .ToListAsync()
-                : new List<SelectListItem>();
+            //  subcategories for selected category
+            var subcategories = await context.Subcategories
+                .Where(s => categoryId == null || s.CategoryId == categoryId)
+                .Select(s => new SelectListItem
+                {
+                    Value = s.SubcategoryId.ToString(),
+                    Text = s.Name
+                })
+                .ToListAsync();
 
-
-            var finalData = new ProductListViewModel
+            var viewModel = new ProductListViewModel
             {
                 Products = products,
                 Categories = new SelectList(categories, "Value", "Text", categoryId),
-                Subategories = new SelectList(subcategories, "Value", "Text", subcategoryId),
+                Subcategories = new SelectList(subcategories, "Value", "Text"),
                 MinPrice = minPrice,
                 MaxPrice = maxPrice,
                 CurrentPage = page,
                 TotalPages = totalPages,
                 CategoryId = categoryId,
-                SubcategoryId = subcategoryId
+                SubcategoryIds= subcategoryIds ,
+                SearchProductname=searchProduct
             };
 
-            // ViewBag for sorting options
+            // Set up ViewBag data
             ViewBag.CurrentSort = sortOrder;
-            ViewBag.CategoryId = categoryId;
-            ViewBag.SubcategoryId = subcategoryId;
+            ViewBag.Subcategories = subcategories;
             ViewBag.SortOptions = new List<SelectListItem> {
-                new SelectListItem { Text = "Name (A-Z)", Value = "name_asc" },   
-                new SelectListItem { Text = "Name (Z-A)", Value = "name_desc" },
-                new SelectListItem { Text = "Price (Low to High)", Value = "price_asc" },
-                new SelectListItem { Text = "Price (High to Low)", Value = "price_desc" }
-            };
+        new SelectListItem { Text = "Name (A-Z)", Value = "name_asc" },
+        new SelectListItem { Text = "Name (Z-A)", Value = "name_desc" },
+        new SelectListItem { Text = "Price (Low to High)", Value = "price_asc" },
+        new SelectListItem { Text = "Price (High to Low)", Value = "price_desc" }
+    };
 
-
-            return View(finalData);
+            return View(viewModel);
         }
 
         [HttpGet]

@@ -6,24 +6,26 @@
 }
 
 <style>
-   
+
     .product-image {
-        height: 250px; 
-        width:100%;
-        object-fit: cover; 
+        height: 250px;
+        width: 100%;
+        object-fit: cover;
         transition: transform 0.3s ease;
     }
-  
-    .col-lg-3{
-        padding-left:10px;
+
+    .col-lg-3 {
+        padding-left: 10px;
     }
-    .form-select{
-        font-size:0.95rem;
+
+    .form-select {
+        font-size: 0.95rem;
     }
+
     .product-image:hover {
         transform: scale(1.1);
     }
- 
+
     .product-card {
         display: flex;
         flex-direction: column;
@@ -34,7 +36,7 @@
 
         .product-card:hover {
             border: 2px solid #007bff;
-            box-shadow: 0px 4px 12px rgba(0, 123, 255, 0.5); 
+            box-shadow: 0px 4px 12px rgba(0, 123, 255, 0.5);
         }
 
 
@@ -61,32 +63,38 @@
         flex-grow: 1;
     }
 
-    .justify-content-between {
-        font-size:1.1rem;
+    .text-muted {
+        font-size: 1rem;
     }
+
+    .justify-content-between {
+        font-size: 1.1rem;
+    }
+
     .pagination .page-item.active .page-link {
         background-color: #007bff;
         border-color: #007bff;
     }
 
     .main {
-        max-width: 100%; 
+        max-width: 100%;
         padding-left: 60px;
         padding-right: 60px;
     }
 
 
     /* Media Queries for Small Devices */
-    @@media (max-width: 480px) { 
-        
+    @@media (max-width: 480px) {
+
         .main {
-            padding-left: 0; 
+            padding-left: 0;
             padding-right: 0;
         }
-        .col-sm-6{
-            width:50%;
-            padding-left:0;
-            padding-right:0;
+
+        .col-sm-6 {
+            width: 50%;
+            padding-left: 0;
+            padding-right: 0;
         }
 
         .card-img-top {
@@ -98,16 +106,16 @@
         }
 
         .card {
-            height: auto; 
-            margin-left:0;
-            margin-right:0;
+            height: auto;
+            margin-left: 0;
+            margin-right: 0;
         }
 
-        .card-body{
-            padding-left:10px;
-            padding-right:10px;
-
+        .card-body {
+            padding-left: 10px;
+            padding-right: 10px;
         }
+
         .card-title {
             font-size: 0.89rem;
         }
@@ -121,26 +129,26 @@
             font-size: 0.95rem;
         }
 
-          
+
         .pagination .page-link {
             font-size: 0.7rem;
         }
     }
 
     /* Media Queries for Tablets */
-    @@media (max-width: 768px) { 
+    @@media (max-width: 768px) {
         .main {
-            padding-left: 10px; 
-            padding-right: 10px; 
+            padding-left: 10px;
+            padding-right: 10px;
         }
 
         .product-image {
-            height: 350px; 
+            height: 350px;
             object-fit: cover;
         }
 
         .card {
-            height: auto; 
+            height: auto;
         }
 
         .pagination {
@@ -149,19 +157,19 @@
     }
 
     /* Media Queries for iPad Mini/Pro */
-    @@media (max-width: 1024px) { 
+    @@media (max-width: 1024px) {
         .main {
-            padding-left: 5px; 
-            padding-right: 5px; 
+            padding-left: 5px;
+            padding-right: 5px;
         }
 
         .product-image {
-            height: 320px; 
+            height: 320px;
             object-fit: cover;
         }
 
         .card {
-            height: auto; 
+            height: auto;
         }
 
         .pagination .page-link {
@@ -178,48 +186,62 @@
                 <h4>Filters</h4>
                 <hr />
                 <form method="get" id="filterForm">
-                    <!-- Category Filter -->
                     <div class="filter-section mb-4">
-                        <h6 class="filter-title">Categories</h6>
-                        <select name="categoryId" id="catDropdown" class="form-select" onchange="this.form.submit()">
-                            <option value="">All Categories</option>
-                            @foreach (var category in Model.Categories)
-                            {
-                                <option value="@category.Value" selected="@(category.Value == Model.CategoryId?.ToString() ? "selected" : null)">
-                                    @category.Text
-                                </option>
-                            }
-                        </select>
+                        <h6 class="filter-title">Search</h6>
+                        <input type="text" name="searchProduct" id="searchProduct" class="form-control" placeholder="Search products..." value="@Model.SearchProductname">
                     </div>
-
-                    <!-- Subcategory Filter -->
-                    <div class="filter-section mb-4">
-                        <h6 class="filter-title">Subcategories</h6>
-                        <select name="subcategoryId" id="subcatDropdown" class="form-select" onchange="this.form.submit()">
-                            <option value="">All Subcategories</option>
-                            @if (Model.CategoryId.HasValue)
-                            {
-                                foreach (var subcategory in Model.Subategories)
+                        <!-- Category Filter -->
+                        <div class="filter-section mb-4">
+                            <h6 class="filter-title">Categories</h6>
+                            <select name="categoryId" id="catDropdown" class="form-select" onchange="this.form.submit()">
+                                <option value="">All Categories</option>
+                                @foreach (var category in Model.Categories)
                                 {
-                                    <option value="@subcategory.Value" selected="@(subcategory.Value == Model.SubcategoryId?.ToString() ? "selected" : null)">
-                                        @subcategory.Text
+                                    <option value="@category.Value" selected="@(category.Value == Model.CategoryId?.ToString() ? "selected" : null)">
+                                        @category.Text
                                     </option>
                                 }
-                            }
-                        </select>
-                    </div>
-
-                    <!-- Price Range Filter -->
-                    <div class="filter-section mb-4">
-                        <h6 class="filter-title">Price Range</h6>
-                        <div class="d-flex gap-3">
-                            <input type="number" name="minPrice" class="form-control" placeholder="Min" value="@Model.MinPrice">
-                            <input type="number" name="maxPrice" class="form-control" placeholder="Max" value="@Model.MaxPrice">
+                            </select>
                         </div>
-                    </div>
 
-                    <!-- Apply Filters Button -->
-                    <button type="submit" class="btn btn-primary w-100 mt-2">Apply Filters</button>
+                        <input type="hidden" id="selectedSubcategoriesInput" name="subcategoryIds" value="@Model.SubcategoryIds" />
+
+                        <div class="filter-section mb-4">
+                            <h6 class="filter-title">Subcategories</h6>
+                            @if (Model.CategoryId.HasValue)
+                            {
+                                var selectedIds = !string.IsNullOrEmpty(Model.SubcategoryIds)
+                                ? Model.SubcategoryIds.Split(',').Select(id => int.Parse(id)).ToList()
+                                : new List<int>();
+
+                                @foreach (var subcategory in ViewBag.Subcategories)
+                                {
+                                    <div class="form-check">
+                                        <input type="checkbox"
+                                               class="form-check-input subcategory-checkbox"
+                                               id="subcat-@subcategory.Value"
+                                               value="@subcategory.Value"
+                                        @(selectedIds.Contains(int.Parse(subcategory.Value.ToString())) ? "checked" : "")>
+                                        <label class="form-check-label" for="subcat-@subcategory.Value">
+                                            @subcategory.Text
+                                        </label>
+                                    </div>
+                                }
+                            }
+                        </div>
+
+                        <!-- Price Range Filter -->
+                        <div class="filter-section mb-4">
+                            <h6 class="filter-title">Price Range</h6>
+                            <div class="d-flex gap-3">
+                                <input type="number" name="minPrice" class="form-control" placeholder="Min" value="@Model.MinPrice">
+                                <input type="number" name="maxPrice" class="form-control" placeholder="Max" value="@Model.MaxPrice">
+                            </div>
+                        </div>
+
+                        <!-- Apply Filters Button -->
+                        
+                        <button type="submit" class="btn btn-primary w-100 mt-2">Apply Filters</button>
                 </form>
             </div>
         </div>
@@ -243,15 +265,16 @@
                         </div>
                         <!-- Hidden fields to maintain filter state -->
                         <input type="hidden" name="categoryId" value="@Model.CategoryId" />
-                        <input type="hidden" name="subcategoryId" value="@Model.SubcategoryId" />
+                        <input type="hidden" name="searchProduct" value="@Model.SearchProductname" />
+                        <input type="hidden" name="subcategoryIds" value="@Model.SubcategoryIds" />
                         <input type="hidden" name="minPrice" value="@Model.MinPrice" />
                         <input type="hidden" name="maxPrice" value="@Model.MaxPrice" />
                     </form>
                 </div>
             </div>
-        
+
             <!-- Product Grid -->
-            <div class="row" >
+            <div class="row">
                 @foreach (var product in Model.Products)
                 {
                     <partial name="_ProductPartialView" model="product" view-data='new ViewDataDictionary(ViewData) { { "ColumnClass", "col-lg-4 col-md-6 col-sm-6" } }' />
@@ -265,7 +288,7 @@
                     @for (int i = 1; i <= Model.TotalPages; i++)
                     {
                         <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
-                            <a class="page-link" href="?page=@i&categoryId=@Model.CategoryId&subcategoryId=@Model.SubcategoryId&minPrice=@Model.MinPrice&maxPrice=@Model.MaxPrice&sortOrder=@ViewBag.CurrentSort">@i</a>
+                            <a class="page-link" href="?page=@i&categoryId=@Model.CategoryId&subcategoryId=@Model.SubcategoryIds&minPrice=@Model.MinPrice&maxPrice=@Model.MaxPrice&sortOrder=@ViewBag.CurrentSort&searchProduct=@Model.SearchProductname">@i</a>
                         </li>
                     }
                 </ul>
@@ -276,44 +299,28 @@
 
 @section Scripts {
     <script>
-        function loadSubcategoriesData() {
-            var categoryId = $("#catDropdown").val();
-            var subcatDropdown = $("#subcatDropdown");
+         $(document).ready(function () {
+            const $form = $('#filterForm');
+            const $subcategoriesInput = $('#selectedSubcategoriesInput');
 
-            // clearing the subcategory data before fetching new data
-            subcatDropdown.empty();
-            subcatDropdown.append('<option value="" selected>All Subcategories</option>');
+            $('.subcategory-checkbox').on('change', function () {
+                let selectedSubcategories = [];
 
-            if (categoryId) {
-                $.ajax({
-                    url: "/User/GetSubcategories?categoryId=" + categoryId,
-                    type: "GET",
-                    success: function (data) {
-                        $.each(data, function (index, subcategory) {
-                            subcatDropdown.append('<option value="' + subcategory.value + '">' + subcategory.text + '</option>');
-                        });
-
-                        // Set the selected subcategory if it exists
-                        var selectedSubcategoryId = "@Model.SubcategoryId";
-                        if (selectedSubcategoryId) {
-                            subcatDropdown.val(selectedSubcategoryId);
-                        }
-                    },
-                    error: function () {
-                        alert("Failed to load subcategories.");
-                    }
+                // Getting all checked subcategories
+                $('.subcategory-checkbox:checked').each(function () {
+                    selectedSubcategories.push($(this).val());
                 });
-            }
-        }
 
-        $(document).ready(function () {
-            var categoryId = $("#catDropdown").val();
-            if (categoryId) {
-                loadSubcategoriesData();
-            }
+                // Updating hidden input value
+                $subcategoriesInput.val(selectedSubcategories.join(','));
+                $form.submit();
+            });
 
-            $("#catDropdown").change(function () {
-                loadSubcategoriesData();
+            // category dropdown value change
+            $('#catDropdown').on('change', function () {
+                // Clearing subcategory selections when category changes
+                $subcategoriesInput.val('');
+                $form.submit();
             });
         });
     </script>
