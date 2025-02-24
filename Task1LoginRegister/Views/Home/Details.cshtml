@@ -28,9 +28,9 @@
 
     .main-product-media {
         max-width: 100%;
-        width:100%;
+        width: 100%;
         height: 450px;
-        object-fit:contain;
+        object-fit: contain;
         border: 2px solid #ddd;
         padding: 5px;
         border-radius: 10px;
@@ -41,8 +41,8 @@
         display: flex;
         gap: 10px;
         padding: 5px;
-        overflow-x:scroll;
-        padding-left:80px;
+        overflow-x: scroll;
+        padding-left: 80px;
     }
 
     .thumbnail-img {
@@ -120,7 +120,6 @@
         .container-fluid {
             padding: 10px;
         }
-
     }
 
     /* Small Mobile Devices */
@@ -134,16 +133,17 @@
             height: 45px;
         }
 
-        .details-section, table{
-            padding:0;
-            margin:0;
+        .details-section, table {
+            padding: 0;
+            margin: 0;
         }
+
         .container-fluid {
             padding: 5px;
         }
 
-        .related-products{
-            margin:10px;
+        .related-products {
+            margin: 10px;
         }
     }
 
@@ -225,22 +225,37 @@
                     </h5>
                     <div class="d-block">
                         <div>You Save @((Model.Price - Model.CalculatedSellingPrice).ToString("C"))</div>
-                        <div>Get it by Tomorrow </div>
+                        @{
+                            if (Model.DeliveryCharge > 0)
+                            {
+                                <div class="fw-bold">@Html.DisplayNameFor(m => m.DeliveryCharge) : <span class="text-success">@Model.DeliveryCharge.ToString("C")</span>  </div>
+                            }
+                            else
+                            {
+                                <div class="text-success fw-bold">Free Delivery </div>
+                            }
+
+                            <div>Get it by : @DateTime.Now.AddDays(2).ToString("dddd, dd MMMM yyyy") </div>
+                        }
                     </div>
                     <div class="buy-details mb-4 mt-3">
-                        <div class="quantity-input d-flex mb-2">
-                            <button type="button" class="quantity-btn minus" onclick="decrementQuantity()">
-                                <i class="fas fa-minus"></i>
-                            </button>
-                            <input type="number" id="quantityInput" name="quantity" min="1"
-                                   value="1" class="form-control" onchange="validateQuantity(this)">
-                            <button type="button" class="quantity-btn plus" onclick="incrementQuantity()">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                        </div>
-                        <div>
-                            <button asp-action="Cart" asp-controller="Cart" class="btn btn-buy text-white">Add To Cart</button>
-                        </div>
+                        <form asp-action="AddToCart" asp-controller="Cart" method="post">
+
+                            <div class="quantity-input d-flex mb-2">
+                                <input type="hidden" name="productId" value="@Model.ProductId" />
+                                <button type="button" class="quantity-btn minus">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <input type="number" id="quantityInput" name="quantity" min="1" value="1" class="form-control quantity">
+                                <button type="button" class="quantity-btn plus">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+
+                            <div>
+                                <button type="submit" class="btn btn-buy text-white">Add To Cart</button>
+                            </div>
+                        </form>
                     </div>
                     <div class="product-details">
                         <h3 class="text-dark">Product details</h3>
@@ -294,50 +309,51 @@
 
             </div>
         </div>
-       </div> 
+    </div>
     <div class="related-products mt-5">
         <h2 class="section-title text-center mb-4">Related Products</h2>
         <div class="row">
             @foreach (var product in ViewBag.relatedProducts)
             {
-                <partial name="_ProductPartialView" model="product" view-data='new ViewDataDictionary(ViewData) { { "ColumnClass", "col-lg-2 col-md-4 col-sm-6" } }' />
+                <partial name="_ProductPartialView" model="product" view-data='new ViewDataDictionary(ViewData) { { "ColumnClass", "col-lg-3 col-md-4 col-sm-6" } }' />
             }
         </div>
     </div>
 </div>
 
+@section Scripts {
+    <script>
+             $(document).ready(function () {
+            $(".plus").click(function () {
+                let input = $(this).closest(".quantity-input").find(".quantity");
+                let newValue = parseInt(input.val()) + 1;
+                input.val(newValue).trigger("change");
+            });
 
-<script>
-    function changeMainMedia(mediaUrl, type) {
-        const mainDisplay = document.getElementById('mainDisplay');
+            $(".minus").click(function () {
+                let input = $(this).closest(".quantity-input").find(".quantity");
+                let newValue = parseInt(input.val()) - 1;
+                if (newValue >= 1) {  // Prevent quantity going below 1
+                    input.val(newValue).trigger("change");
+                }
+            });
+        });
 
-        if (type === 'image') {
-            mainDisplay.innerHTML = `<img id="mainImage" src="${mediaUrl}" class="img-fluid main-product-media" alt="Main Product Image">`;
-        } else if (type === 'video') {
-            mainDisplay.innerHTML = `
-                <video id="mainVideo" class="img-fluid main-product-media" controls autoplay loop>
-                    <source src="${mediaUrl}" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-            `;
+    </script>
+    <script>
+        function changeMainMedia(mediaUrl, type) {
+            const mainDisplay = document.getElementById('mainDisplay');
+
+            if (type === 'image') {
+                mainDisplay.innerHTML = `<img id="mainImage" src="${mediaUrl}" class="img-fluid main-product-media" alt="Main Product Image">`;
+            } else if (type === 'video') {
+                mainDisplay.innerHTML = `
+                    <video id="mainVideo" class="img-fluid main-product-media" controls autoplay loop>
+                        <source src="${mediaUrl}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                `;
+            }
         }
-    }
-
-    function incrementQuantity() {
-        let quantityInput = document.getElementById('quantityInput');
-        quantityInput.value = parseInt(quantityInput.value) + 1;
-    }
-
-    function decrementQuantity() {
-        let quantityInput = document.getElementById('quantityInput');
-        if (quantityInput.value > 1) {
-            quantityInput.value = parseInt(quantityInput.value) - 1;
-        }
-    }
-
-    function validateQuantity(input) {
-        if (input.value < 1) {
-            input.value = 1;
-        }
-    }
-</script>
+    </script>
+}

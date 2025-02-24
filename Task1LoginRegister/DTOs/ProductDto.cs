@@ -46,6 +46,10 @@ namespace Task1LoginRegister.DTOs
         [DisplayName("Subcategory")]
         public int SubcategoryId { get; set; }
 
+        [Required]
+        [DisplayName("Delivery Charge")]
+        public decimal DeliveryCharge { get; set; } = 0;
+
         public string? PrimaryImageUrl { get; set; }
 
         public List<ProductImageDto> ExistingGalleryImages { get; set; } = new List<ProductImageDto>();

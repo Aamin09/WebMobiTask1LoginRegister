@@ -60,6 +60,8 @@
 
     .col-lg-3, .col-md-6 {
         width: 100%;
+        padding-left: 5px;
+        padding-right: 5px;
         margin-bottom: 1rem;
     }
 
@@ -77,9 +79,15 @@
     .col-lg-3, .col-md-6 {
         width: 50%;
         margin-bottom: 20px;
+        padding-left: 5px;
+        padding-right: 5px;
     }
     .card-title {
         font-size: 1rem;
+    }
+    .main {
+        padding-left: 0px;
+        padding-right: 0px;
     }
 
     .card {
@@ -92,13 +100,26 @@
     .carousel-item img {
         height: 350px;
     }
-
+   
     .product-image {
         height: 200px;
     }
-
-    .col-lg-3, .col-md-6 {
-        width: 100%;
+    .main {
+        padding-left: 0px;
+        padding-right: 0px;
+    }
+    .justify-content-between{
+        font-size:13px;
+    }
+    .btn-outline-primary {
+        font-size: 0.8rem;
+    }
+    
+    .col-sm-6 {
+        width: 49%;
+        padding-left: 0px;
+        padding-right: 0px;
+       
     }
 }
 

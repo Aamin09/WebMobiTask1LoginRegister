@@ -34,5 +34,7 @@ public partial class Userlogin
     public string Password { get; set; } = null!;
     public string Role { get; set; } = "User";
     public bool IsActive { get; set; }
+    public virtual ICollection<Cart> Carts { get; set; }
+
 
 }

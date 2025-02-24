@@ -1,0 +1,317 @@
+﻿@model IEnumerable<Task1LoginRegister.Models.Cart>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+<style>
+    .price-section {
+        position: sticky;
+        top: 20px;
+        z-index: 100;
+    }
+
+    .main {
+        padding-right: 20px;
+        padding-left: 40px;
+    }
+
+    .product-image, .product-video {
+        max-width: 100%;
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        border: 2px solid #ddd;
+        padding: 5px;
+        border-radius: 10px;
+    }
+
+    .quantity {
+        text-align: center;
+        width: 65px;
+        padding: 5px;
+        font-size: 16px;
+        outline: none;
+    }
+
+    .btn-outline-secondary {
+        cursor: pointer;
+        width: 40px;
+        border: none;
+        transition: background-color 0.2s, box-shadow 0.2s;
+    }
+
+        .btn-outline-secondary:focus {
+            box-shadow: none;
+        }
+
+
+    .d-flex.border {
+        border: 1px solid #dee2e6; 
+        border-radius: 8px;
+        overflow: hidden;
+        max-width: 100%;
+    }
+    input[type="number"] {
+        border: none;
+        text-align: center;
+        font-size: 14px;
+    }
+
+    @@media screen and (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+
+        .main {
+            padding: 10px;
+        }
+
+        .product-details p.small, .quantity-price {
+            font-size: 16px;
+        }
+
+        .quantity {
+            width: 55px;
+            font-size: 15px;
+        }
+
+        .btn-outline-secondary {
+            width: 40px; 
+            font-size: 15px;
+            padding: 4px;
+        }
+
+        .quantity-price {
+            font-size: 16px;
+        }
+    }
+
+    @@media (max-width: 767px) {
+        .main {
+            padding: 10px;
+        }
+        h5{
+            font-size:large;
+        }
+        p{
+           font-size:medium;
+        }
+        .product-details p.small {
+            font-size: 12px; 
+            max-width: 100%; 
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+            display: block;
+        }
+
+        .quantity {
+            width: 50px;
+            font-size: 15px;
+        }
+
+        .btn-outline-secondary {
+            width: 35px; 
+            font-size: 15px;
+            padding: 4px;
+        }
+        .quantity-price {
+            font-size: 16px;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .main {
+            padding: 5px;
+        }
+        .col-lg-8, .col-lg-4 {
+            padding: 5px;
+            margin: 0;
+        }
+
+        .quantity {
+            width: 40px;
+            font-size: 14px;
+        }
+
+        .btn-outline-secondary {
+            width: 25px;
+            font-size: 12px;
+            padding: 3px; 
+        }
+        .product-details p.small {
+            font-size: 14px;
+            max-width: 100%; 
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+        }
+    }
+</style>
+
+
+<div class="container-fluid main">
+    <div class="row">
+        
+        <div class="col-lg-8">
+            <h4 class="mb-3">My Cart (@Model.Count() Items)</h4>
+            <div class="card">
+                <div class="card-body">
+                    @if (Model.Count() > 0)
+                    {
+                    @foreach (var item in Model)
+                    {
+                        <div class="row border-bottom py-3 d-flex align-items-center cart-item">
+                            <div class="col-4 col-sm-3 col-md-2">
+                                @if (item.Product.ProductImages != null && item.Product.ProductImages.Any())
+                                {
+                                    var primaryMedia = item.Product.ProductImages.FirstOrDefault(img => img.IsPrimaryImage);
+                                    if (primaryMedia != null)
+                                    {
+                                        var fileExtension = System.IO.Path.GetExtension(primaryMedia.ImageUrl)?.ToLower();
+
+                                        if (fileExtension == ".jpg" || fileExtension == ".jpeg" || fileExtension == ".png" || fileExtension == ".gif" || fileExtension == ".webp")
+                                        {
+                                            // Display image
+                                            <a href="/Home/Details/@item.ProductId">
+                                                <img src="@primaryMedia.ImageUrl" class="product-image img-fluid" alt="Primary Product Image">
+                                            </a>
+                                        }
+                                        else if (fileExtension == ".mp4" || fileExtension == ".webm" || fileExtension == ".ogg")
+                                        {
+                                            // Display video
+                                            <a href="/Home/Details/@item.ProductId">
+                                                <video class="product-video img-fluid" controls autoplay loop>
+                                                    <source src="@primaryMedia.ImageUrl" type="video/@fileExtension.Substring(1)">
+                                                    Your browser does not support the video tag.
+                                                </video>
+                                            </a>
+                                        }
+
+                                    }
+                                }
+                            </div>
+                            <div class="col-8 col-sm-5 col-md-6 product-details">
+                                <h5><a href="/Home/Details/@item.ProductId" class="text-decoration-none text-dark" target="_blank" rel="noopener noreferrer">@item.Product.Name</a></h5>
+                                <p class="small"><a href="/Home/Details/@item.ProductId" class="text-decoration-none text-dark">@item.Product.ShortDescription</a></p>
+                                <h6 class="d-flex gap-3 align-items-center flex-wrap">
+                                    <span class="text-black fw-bold">@item.Product.CalculatedSellingPrice.ToString("C")</span>
+                                    <span class="text-muted text-decoration-line-through">@item.Product.Price.ToString("C")</span>
+                                    <span class="fw-bold btn btn-success btn-sm">
+                                        @item.Product.SellingPricePercent.ToString("0")% off
+                                    </span>
+                                </h6>
+                                @{
+                                    if (item.Product.DeliveryCharge > 0)
+                                    {
+                                        <p class="text-success small">Delivery in 2 days, @DateTime.Now.AddDays(2).ToString("ddd") | <span class="text-success fw-bold">@item.Product.DeliveryCharge.ToString("C")</span>  </p>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-success small">Delivery in 2 days, @DateTime.Now.AddDays(2).ToString("ddd") | <strong>Free</strong> </p>
+                                    }
+                                }
+                            </div>
+                            <div class="col-4 col-md-2 d-flex align-items-center justify-content-center">
+                                <div class="d-flex border rounded-3 overflow-hidden">
+                                    <button class="btn btn-outline-secondary btn-sm decrement" type="button">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <input type="number" data-cartid="@item.CartId" name="quantity" value="@item.Quantity" min="1"
+                                           class="form-control quantity text-center border-0">
+                                    <button class="btn btn-outline-secondary btn-sm increment " type="button">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+
+
+                            <div class="col-8 col-md-2 text-end">
+                                @* <p class="fw-bold quantity-price">@((item.Quantity * item.Price).ToString("C"))</p>  *@
+                                <form asp-action="RemoveFromCart" method="post">
+                                    <input type="hidden" name="cartId" value="@item.CartId" />
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">Remove</button>
+                                </form>
+                            </div>
+                        </div>
+                    }
+                    }
+                    else
+                    {
+                        <div class="col-lg-8">
+                            <h3>Your cart is empty</h3>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+       
+        <div class="col-lg-4">
+            <div class="card price-section">
+                <div class="card-body">
+                    <h5 class="fw-bold">Price Details</h5>
+                    <hr />
+                    <p>Price (@Model.Count() Items): <span class="float-end">@Model.Sum(x => x.Quantity * x.Product.Price).ToString("C")</span></p>
+                    <p>Discount: <span class="float-end text-success">- @Model.Sum(x => x.Quantity * (x.Product.Price - x.Product.CalculatedSellingPrice)).ToString("C")</span></p>
+                    @{
+                        var dcharge = Model.FirstOrDefault(x => x.Product.DeliveryCharge > 0);
+                        if (dcharge != null)
+                        {
+                            <p>Delivery Charges: <span class="float-end text-success fw-bold">@dcharge.Product.DeliveryCharge.ToString("C")</span></p>
+                        }
+                        else
+                        {
+                            <p>Delivery Charges: <strong>Free</strong> </p>
+                        }
+                    }
+                    <hr>
+                    <h5 class="fw-bold">Total Amount: <span class="float-end">@Model.Sum(x => x.Quantity * x.Product.Price + x.Product.DeliveryCharge).ToString("C")</span></h5>
+                    <p class="text-success">You will save @Model.Sum(x => x.Quantity * (x.Product.Price - x.Product.CalculatedSellingPrice)).ToString("C") on this order</p>
+                    <button class="btn btn-warning w-100 mt-2">Place Order</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+                 $(".increment").click(function () {
+            let input = $(this).closest(".cart-item").find(".quantity");
+            let newValue = parseInt(input.val()) + 1;
+            input.val(newValue).trigger("change");
+        });
+
+        $(".decrement").click(function () {
+            let input = $(this).closest(".cart-item").find(".quantity");
+            let newValue = parseInt(input.val()) - 1;
+            if (newValue > 0) {
+                input.val(newValue).trigger("change");
+            }
+        });
+            $(".quantity").on("change", function () {
+                var cartId = $(this).data("cartid");
+                var quantity = $(this).val();
+
+                $.ajax({
+                    url: "@Url.Action("UpdateQuantity", "Cart")",
+                    type: "POST",
+                    data: { cartId: cartId, quantity: quantity },
+                    success: function (response) {
+                        if (response.success) {
+                            location.reload();
+                        } else {
+                            alert("Error updating quantity!");
+                        }
+                    },
+                    error: function () {
+                        alert("Something went wrong.");
+                    }
+                });
+            });
+        });
+    </script>
+}

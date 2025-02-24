@@ -19,9 +19,10 @@ public partial class WebMobiTask1DbContext : DbContext
 
     public virtual DbSet<Product> Products { get; set; }
     public virtual DbSet<Category> Categories { get; set; }
-    public virtual DbSet<Subcategory> Subcategories {  get; set; }
+    public virtual DbSet<Subcategory> Subcategories { get; set; }
     public virtual DbSet<ProductImage> ProductImages { get; set; }
-   
+
+    public virtual DbSet<Cart> Carts { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Userlogin>(entity =>
@@ -49,6 +50,11 @@ public partial class WebMobiTask1DbContext : DbContext
             entity.Property(e => e.Photo).IsUnicode(false);
         });
 
+        modelBuilder.Entity<Cart>()
+            .HasIndex(c => new { c.UserId, c.ProductId })
+             .IsUnique();
+
+
         // Product Price Configuration
         modelBuilder.Entity<Product>()
             .Property(p => p.Price)
@@ -61,6 +67,14 @@ public partial class WebMobiTask1DbContext : DbContext
         modelBuilder.Entity<Product>()
             .Property(p => p.CalculatedSellingPrice)
             .HasColumnType("decimal(18,2)");
+
+        modelBuilder.Entity<Cart>()
+            .Property(p => p.Price)
+            .HasColumnType("decimal(18,2)");
+
+        modelBuilder.Entity<Product>()
+           .Property(p => p.DeliveryCharge)
+           .HasColumnType("decimal(18,2)");
 
         // Product - Category Relationship 
         modelBuilder.Entity<Product>()
@@ -89,6 +103,19 @@ public partial class WebMobiTask1DbContext : DbContext
             .HasForeignKey(pi => pi.ProductId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        // Cart and user relationship
+        modelBuilder.Entity<Cart>()
+            .HasOne(c => c.User)
+            .WithMany(p => p.Carts)
+            .HasForeignKey(c => c.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // product cart relationship
+        modelBuilder.Entity<Cart>()
+            .HasOne(c => c.Product)
+            .WithMany(p => p.Carts)
+            .HasForeignKey(c => c.ProductId)
+            .OnDelete(DeleteBehavior.Cascade);
         modelBuilder.Entity<ProductImage>(entity =>
         {
             entity.ToTable("ProductImages");

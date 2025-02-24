@@ -37,6 +37,10 @@ namespace Task1LoginRegister.DTOs
         [Required]
         [DisplayName("Gallery Images")]
         public ICollection<IFormFile> GalleryImages { get; set; }
+        [Required]
+        [DisplayName("Delivery Charge")]
+        public decimal DeliveryCharge { get; set; } = 0;
+
 
         [Required(ErrorMessage = "Category is required.")]
         [DisplayName("Category")]
