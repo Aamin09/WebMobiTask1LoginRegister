@@ -39,6 +39,10 @@ namespace Task1LoginRegister.Models
         public decimal CalculatedSellingPrice { get; set; }
         [Required]
         public bool Status { get; set; }
+        [Required]
+        [DisplayName("Delivery Charge")]
+        public decimal DeliveryCharge { get; set; } = 0;
+
 
         [Required]
         [DisplayName("Category")]
@@ -54,5 +58,6 @@ namespace Task1LoginRegister.Models
 
         public virtual ICollection<ProductImage> ProductImages  { get; set; }   
 
+        public virtual ICollection<Cart> Carts { get; set; }    
     }
 }

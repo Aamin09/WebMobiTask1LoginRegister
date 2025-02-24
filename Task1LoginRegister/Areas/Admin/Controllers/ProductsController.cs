@@ -90,6 +90,7 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                         Status = model.Status,
                         CategoryId = model.CategoryId,
                         SubcategoryId = model.SubcategoryId,
+                        DeliveryCharge=model.DeliveryCharge,
                     };
 
                     context.Add(product);
@@ -179,7 +180,8 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                 Status = product.Status,
                 CategoryId = product.CategoryId,
                 SubcategoryId = product.SubcategoryId,
-                PrimaryImageUrl = product.ProductImages.FirstOrDefault(pi => pi.IsPrimaryImage)?.ImageUrl
+                PrimaryImageUrl = product.ProductImages.FirstOrDefault(pi => pi.IsPrimaryImage)?.ImageUrl,
+                DeliveryCharge=product.DeliveryCharge,
             };
 
             // Reload existing images for the model
@@ -227,6 +229,7 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                 product.CategoryId = model.CategoryId;
                 product.SubcategoryId = model.SubcategoryId;
                 product.CalculatedSellingPrice = model.Price - model.Price * model.SellingPricePercentage / 100;
+                product.DeliveryCharge= model.DeliveryCharge;
 
                 // deleting gallery image based on the checkbox selection 
                 if (model.ImagesToDelete != null && model.ImagesToDelete.Any())

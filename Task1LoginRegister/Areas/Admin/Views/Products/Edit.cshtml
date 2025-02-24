@@ -90,11 +90,22 @@
                             </div>
                         </div>
 
+                        <div class="row">
+
+                            <div class="form-group mb-3">
+                                <label asp-for="DeliveryCharge" class="form-label fw-bold">Delivery Charge</label>
+                                <input asp-for="DeliveryCharge" class="form-control" type="number" step="0.01" placeholder="Enter price" />
+                                <span asp-validation-for="DeliveryCharge" class="text-danger"></span>
+                            </div>
+
+
+                        </div>
                         <div class="form-group form-check mb-3">
                             <input asp-for="Status" class="form-check-input" type="checkbox" id="Status" />
                             <label asp-for="Status" class="form-check-label fw-bold" for="Status">Active</label>
                         </div>
                     </div>
+                   
                 </div>
             </div>
 
@@ -126,14 +137,14 @@
                                     else if (fileExtension == ".mp4" || fileExtension == ".webm" || fileExtension == ".ogg")
                                     {
                                         // Display video
-                                        <video class="img-fluid rounded mb-2"  controls autoplay loop>
+                                        <video class="img-fluid rounded mb-2" controls autoplay loop>
                                             <source src="@Model.PrimaryImageUrl" type="video/@fileExtension.Substring(1)">
                                             Your browser does not support the video tag.
                                         </video>
                                     }
                                     else
                                     {
-                                        // Default placeholder if file type is unknown
+                    // Default placeholder if file type is unknown
                                         <img src="https://via.placeholder.com/300x300?text=No+Image" class="img-fluid rounded mb-2" alt="No Image Available" />
                                     }
                                 }
@@ -198,7 +209,7 @@
                 subcategorySelect.empty().append('<option value="">Select Subcategory</option>');
 
                 if (categoryId) {
-                    $.get('/Products/GetSubCategories', { categoryId: categoryId }, function (data) {
+                    $.get('/Admin/Products/GetSubCategories', { categoryId: categoryId }, function (data) {
                         $.each(data, function (i, item) {
                             subcategorySelect.append($('<option>', {
                                 value: item.subcategoryId,

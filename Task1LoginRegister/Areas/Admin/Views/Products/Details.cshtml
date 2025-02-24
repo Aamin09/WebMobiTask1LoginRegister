@@ -5,6 +5,9 @@
 }
 
 <style>
+    th{
+        white-space:nowrap;
+    }
   @@media (max-width: 1000px) and (min-width: 768px) {
     .product-image-container, .product-details-container {
         flex: 1 1 100%; /* Make both sections take up full width on medium screens */
@@ -167,6 +170,10 @@ h2 {
                         <tr>
                             <th>Calculated Selling Price</th>
                             <td>@Model.CalculatedSellingPrice.ToString("C")</td>
+                        </tr>
+                        <tr>
+                            <th>Delivery Charge</th>
+                            <td>@Model.DeliveryCharge.ToString("C")</td>
                         </tr>
                         <tr>
                             <th>Status</th>

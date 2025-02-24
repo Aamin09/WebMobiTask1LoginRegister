@@ -4,7 +4,9 @@
     ViewData["Title"] = "Delete Product and Product Images";
 }
     <style>
- 
+    th {
+        white-space: nowrap;
+    }
     @@media (max-width: 776px) {
         /* Small screen adjustments */
 
@@ -60,6 +62,10 @@
                     <tr>
                         <th>Calculated Selling Price</th>
                         <td>@Model.CalculatedSellingPrice.ToString("C")</td>
+                    </tr>
+                    <tr>
+                        <th>Delivery Charge</th>
+                        <td>@Model.DeliveryCharge.ToString("C")</td>
                     </tr>
                     <tr>
                         <th>Status</th>
