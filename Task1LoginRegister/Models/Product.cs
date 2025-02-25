@@ -31,11 +31,11 @@ namespace Task1LoginRegister.Models
         public decimal Price { get; set; }
         [Required]
         [Range(0,100)]
-        [DisplayName("S.P. Percentage")]
+        [DisplayName("Discount (%)")]
         public decimal SellingPricePercent { get; set; }
         [Required]
         [Range(0, double.MaxValue)]
-        [DisplayName("Final Selling Price")]
+        [DisplayName("Selling Price")]
         public decimal CalculatedSellingPrice { get; set; }
         [Required]
         public bool Status { get; set; }
@@ -58,6 +58,9 @@ namespace Task1LoginRegister.Models
 
         public virtual ICollection<ProductImage> ProductImages  { get; set; }   
 
-        public virtual ICollection<Cart> Carts { get; set; }    
+        public virtual ICollection<Cart> Carts { get; set; }
+
+        public virtual ICollection<OrderItem> OrderItems { get; set; } 
+
     }
 }

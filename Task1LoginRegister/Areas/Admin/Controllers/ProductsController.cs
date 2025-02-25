@@ -27,6 +27,7 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
             var data = await context.Products
                 .Include(p => p.Category)
                 .Include(p => p.Subcategory)
+                .ThenInclude(g=>g.Taxes)
                 .Include(p => p.ProductImages).ToListAsync();
             return View(data);
         }
@@ -43,6 +44,7 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                 .Include(p => p.ProductImages)
                 .Include(p => p.Category)
                 .Include(p => p.Subcategory)
+                .ThenInclude(g=>g.Taxes)
                 .FirstOrDefaultAsync(p => p.ProductId == id);
 
             if (product == null)
@@ -405,6 +407,7 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                 .Include(p => p.ProductImages)
                 .Include(p => p.Category)
                 .Include(p => p.Subcategory)
+                .ThenInclude(g=>g.Taxes)
                 .FirstOrDefaultAsync(p => p.ProductId == id);
 
             if (product == null)

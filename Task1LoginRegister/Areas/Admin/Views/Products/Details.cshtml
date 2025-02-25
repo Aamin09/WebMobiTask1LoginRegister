@@ -160,21 +160,37 @@ h2 {
                             <td>@Model.SKU</td>
                         </tr>
                         <tr>
-                            <th>Price</th>
-                            <td>@Model.Price.ToString("C")</td>
+                            <th class="text-start">Price:</th>
+                            <td class="">@Model.Price.ToString("C")</td>
                         </tr>
                         <tr>
-                            <th>Selling Price Percent</th>
-                            <td>@Model.SellingPricePercent.ToString("0.##") %</td>
+                            <th class="text-start">Discount %:</th>
+                            <td class="">@Model.SellingPricePercent.ToString("0.##") % - @((Model.SellingPricePercent * Model.CalculatedSellingPrice / 100).ToString("C"))</td>
                         </tr>
                         <tr>
-                            <th>Calculated Selling Price</th>
-                            <td>@Model.CalculatedSellingPrice.ToString("C")</td>
+                            <th class="text-start">Before Tax:</th>
+                            <td class="fw-bold">@Model.CalculatedSellingPrice.ToString("C")</td>
                         </tr>
-                        <tr>
-                            <th>Delivery Charge</th>
-                            <td>@Model.DeliveryCharge.ToString("C")</td>
-                        </tr>
+                        @if (Model.Subcategory?.Taxes != null)
+                        {
+                            <tr>
+                                <th class="text-start">CGST:</th>
+                                <td>@Model.Subcategory.Taxes.CGST.ToString("0.##") % - @((Model.Subcategory.Taxes.CGST * Model.CalculatedSellingPrice / 100).ToString("C"))</td>
+                            </tr>
+                            <tr>
+                                <th class="text-start">SGST:</th>
+                                <td>@Model.Subcategory.Taxes.SGST.ToString("0.##") % - @((Model.Subcategory.Taxes.SGST * Model.CalculatedSellingPrice / 100).ToString("C"))</td>
+                            </tr>
+                            <tr>
+                                <th>Delivery Charge</th>
+                                <td>@Model.DeliveryCharge.ToString("C")</td>
+                            </tr>
+                            <tr>
+                                <th class="text-start">Final Amount:</th>
+                                <td class="fw-bold">@((Model.CalculatedSellingPrice + Model.DeliveryCharge + (Model.Subcategory.Taxes.SGST * 2 * Model.CalculatedSellingPrice / 100)).ToString("C"))</td>
+                            </tr>
+                        }
+
                         <tr>
                             <th>Status</th>
                             <td>@(Model.Status ? "Active" : "Inactive")</td>
@@ -186,6 +202,14 @@ h2 {
                         <tr>
                             <th>Subcategory</th>
                             <td>@Model.Subcategory.Name</td>
+                        </tr>
+                        <tr>
+                            <th>CGST</th>
+                            <td>@Model.Subcategory.Taxes.CGST %</</td>
+                        </tr>
+                        <tr>
+                            <th>SGST</th>
+                            <td>@Model.Subcategory.Taxes.SGST %</td>
                         </tr>
                     </tbody>
                 </table>

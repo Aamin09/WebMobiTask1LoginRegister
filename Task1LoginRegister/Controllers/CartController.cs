@@ -29,7 +29,7 @@ namespace Task1LoginRegister.Controllers
             }
 
 
-            var cartItems = context.Carts.Where(c=>c.UserId== user.Id).Include(p=>p.Product).ThenInclude(pi=>pi.ProductImages).ToList();
+            var cartItems = context.Carts.Where(c=>c.UserId== user.Id).Include(p=>p.Product).ThenInclude(pi=>pi.ProductImages).Include(p => p.Product).ThenInclude(pi => pi.Subcategory).ThenInclude(s => s.Taxes).ToList();
             int cartCount = cartItems.Count;
             ViewBag.CartItemCount = cartCount > 0 ? cartCount.ToString() : ""; 
 
@@ -121,5 +121,27 @@ namespace Task1LoginRegister.Controllers
             }
             return RedirectToAction("Index");
         }
+
+        public IActionResult GetCartCount()
+        {
+            var userEmail = User.Identity.Name ?? HttpContext.Session.GetString("UserSession");
+
+            if (string.IsNullOrEmpty(userEmail))
+            {
+                return RedirectToAction("Login", "Login");
+            }
+
+            var user = context.Userlogins.FirstOrDefault(u => u.Email == userEmail);
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Login");
+            }
+            int cartCount = context.Carts
+                .Where(c => c.UserId == user.Id)
+                .Count(); // Count unique products
+
+            return Json(new { count = cartCount }); 
+        }
+
     }
 }

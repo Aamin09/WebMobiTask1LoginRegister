@@ -46,7 +46,7 @@
                         </li>
                     </ul>
                     <ul class="navbar-nav ms-auto">
-                        @if (Context.Session.GetString("UserSession") == null && !User.Identity.IsAuthenticated)
+                        @if (!User.Identity.IsAuthenticated && Context.Session.GetString("UserSession") == null)
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-white" asp-area="" asp-controller="Login" asp-action="Login">Login</a>
@@ -71,17 +71,15 @@
                         }
                         <li class="nav-item position-relative">
                             <a class="nav-link text-white d-flex align-items-center" asp-action="Index" asp-controller="Cart" title="Cart">
-                                @if (!string.IsNullOrEmpty(ViewBag.CartItemCount))
-                                {
-                                    <span id="cart-count" class="badge bg-danger rounded-circle position-absolute translate-middle" style="margin-left:25px; margin-top:8px;padding-left:5px;padding-right:5px;">
-                                        @ViewBag.CartItemCount
-                                    </span>
-                                }
+                                <span id="cart-count" class="badge bg-danger rounded-circle position-absolute translate-middle" style="margin-left:25px; margin-top:8px;padding-left:5px;padding-right:5px;">
+                                    0
+                                </span>
                                 <img src="https://img.icons8.com/?size=100&id=9671&format=png&color=FFFFFF"
                                      alt="Cart" class="ms-2" width="24" height="24">
                                 <span class="ms-1">Cart</span>
                             </a>
                         </li>
+
 
 
                     </ul>
@@ -129,6 +127,32 @@
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/js/all.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        function updateCartCount() {
+            $.ajax({
+                url: "/Cart/GetCartCount", 
+                type: "GET",
+                success: function (response) {
+                    let cartCount = response.count;
+
+                    if (cartCount > 0) {
+                        $("#cart-count").text(cartCount).show(); 
+                    } else {
+                        $("#cart-count").hide();
+                    }
+                },
+                error: function () {
+                    console.error("Error fetching cart count");
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            updateCartCount(); 
+        });
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 
 </body>

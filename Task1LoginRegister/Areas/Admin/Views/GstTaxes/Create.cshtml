@@ -1,0 +1,78 @@
+﻿@model Task1LoginRegister.Models.GstTax
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Create</h1>
+
+<h4>GstTax</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <!-- Category Selection -->
+            <div class="form-group">
+                <label for="CategoryId" class="control-label">Category</label>
+                <select id="CategoryId" name="CategoryId" class="form-control">
+                    <option value="">Select Category</option>
+                    @foreach (var category in ViewBag.Categories)
+                    {
+                        <option value="@category.Value">@category.Text</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <label asp-for="SubcategoryId" class="control-label">Subcategory</label>
+                <select asp-for="SubcategoryId" class="form-control">
+                    <option value="">Select Subcategory</option>
+                </select>
+                <span asp-validation-for="SubcategoryId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CGST" class="control-label"></label>
+                <input asp-for="CGST" class="form-control" />
+                <span asp-validation-for="CGST" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SGST" class="control-label"></label>
+                <input asp-for="SGST" class="form-control" />
+                <span asp-validation-for="SGST" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+            $("#CategoryId").change(function () {
+                var categoryId = $(this).val();
+                if (categoryId) {
+                    $.getJSON("/Admin/GstTaxes/GetSubcategories", { categoryId: categoryId }, function (data) {
+                        var subcategoryDropdown = $("#SubcategoryId");
+                        subcategoryDropdown.empty();
+                        subcategoryDropdown.append('<option value="">Select Subcategory</option>');
+                        $.each(data, function (index, item) {
+                            subcategoryDropdown.append('<option value="' + item.subcategoryId + '">' + item.name + '</option>');
+                        });
+                    });
+                } else {
+                    $("#SubcategoryId").empty().append('<option value="">Select Subcategory</option>');
+                }
+            });
+        });
+    </script>
+}

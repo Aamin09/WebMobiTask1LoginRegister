@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Task1LoginRegister.Models;
 
 namespace Task1LoginRegister.Models;
 
@@ -21,6 +22,9 @@ public partial class WebMobiTask1DbContext : DbContext
     public virtual DbSet<Category> Categories { get; set; }
     public virtual DbSet<Subcategory> Subcategories { get; set; }
     public virtual DbSet<ProductImage> ProductImages { get; set; }
+    public virtual DbSet<Order> Orders { get; set; }
+    public virtual DbSet<OrderItem> OrderItems { get; set; }
+    public virtual DbSet<DeliveryAddress> DeliveryAddresses { get; set; }
 
     public virtual DbSet<Cart> Carts { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -53,7 +57,22 @@ public partial class WebMobiTask1DbContext : DbContext
         modelBuilder.Entity<Cart>()
             .HasIndex(c => new { c.UserId, c.ProductId })
              .IsUnique();
+        //Order configuration 
+        modelBuilder.Entity<Order>()
+            .HasIndex(c =>  c.OrderNumber)
+             .IsUnique();
 
+        modelBuilder.Entity<Order>()
+         .Property(p => p.TotalAmount)
+         .HasColumnType("decimal(18,2)");
+
+        modelBuilder.Entity<OrderItem>()
+          .Property(p => p.Price)
+          .HasColumnType("decimal(18,2)");
+
+        modelBuilder.Entity<OrderItem>()
+          .Property(p => p.TotalPrice)
+          .HasColumnType("decimal(18,2)");
 
         // Product Price Configuration
         modelBuilder.Entity<Product>()
@@ -76,12 +95,27 @@ public partial class WebMobiTask1DbContext : DbContext
            .Property(p => p.DeliveryCharge)
            .HasColumnType("decimal(18,2)");
 
+        modelBuilder.Entity<GstTax>()
+          .Property(p => p.CGST)
+          .HasColumnType("decimal(18,2)");
+
+        modelBuilder.Entity<GstTax>()
+      .Property(p => p.SGST)
+      .HasColumnType("decimal(18,2)");
+
         // Product - Category Relationship 
         modelBuilder.Entity<Product>()
             .HasOne(p => p.Category)
             .WithMany(c => c.Products)
             .HasForeignKey(p => p.CategoryId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // Subcategory and Gst
+        modelBuilder.Entity<Subcategory>()
+              .HasOne(s => s.Taxes)
+              .WithOne(g => g.Subcategory)
+              .HasForeignKey<GstTax>(g => g.SubcategoryId)
+              .OnDelete(DeleteBehavior.Cascade);
 
         // Product - Subcategory Relationship
         modelBuilder.Entity<Product>()
@@ -116,6 +150,36 @@ public partial class WebMobiTask1DbContext : DbContext
             .WithMany(p => p.Carts)
             .HasForeignKey(c => c.ProductId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // Userlogin and Orders (One-to-Many)
+        modelBuilder.Entity<Order>()
+            .HasOne(o => o.User)
+            .WithMany(u => u.Orders)
+            .HasForeignKey(o => o.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Userlogin and DeliveryAddresses (One-to-Many)
+        modelBuilder.Entity<DeliveryAddress>()
+            .HasOne(d => d.User)
+            .WithMany(u => u.DeliveryAddresses)
+            .HasForeignKey(d => d.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Product and OrderItem (One-to-Many)
+        modelBuilder.Entity<OrderItem>()
+            .HasOne(oi => oi.Product)
+            .WithMany(p => p.OrderItems)
+            .HasForeignKey(oi => oi.ProductId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Order and OrderItem (One-to-Many)
+        modelBuilder.Entity<OrderItem>()
+            .HasOne(oi => oi.Order)
+            .WithMany(o => o.OrderItems)
+            .HasForeignKey(oi => oi.OrderId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+
         modelBuilder.Entity<ProductImage>(entity =>
         {
             entity.ToTable("ProductImages");
@@ -154,4 +218,6 @@ public partial class WebMobiTask1DbContext : DbContext
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+
+public DbSet<Task1LoginRegister.Models.GstTax> GstTax { get; set; } = default!;
 }

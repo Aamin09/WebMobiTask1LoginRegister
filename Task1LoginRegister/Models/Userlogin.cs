@@ -36,5 +36,8 @@ public partial class Userlogin
     public bool IsActive { get; set; }
     public virtual ICollection<Cart> Carts { get; set; }
 
+    public virtual ICollection<Order> Orders { get; set; } // Relationship with Order
+
+    public virtual ICollection<DeliveryAddress> DeliveryAddresses { get; set; } // Relationship with DeliveryAddress
 
 }

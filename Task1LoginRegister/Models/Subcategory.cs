@@ -16,6 +16,8 @@ namespace Task1LoginRegister.Models
 
         [ForeignKey("CategoryId")]
         public virtual Category Category { get; set; }
+
+        public virtual GstTax Taxes { get; set; }
         public virtual ICollection<Product> Products { get; set; } = new List<Product>();
     }
 }

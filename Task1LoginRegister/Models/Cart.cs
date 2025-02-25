@@ -24,9 +24,28 @@ namespace Task1LoginRegister.Models
         [Required]
         public decimal Price { get; set; }
         [NotMapped]
-        public decimal TotalPrice=> (Price*Quantity) + Product.DeliveryCharge;
+        public decimal TotalPrice=> (Price*Quantity) + Product.DeliveryCharge ;
 
         public DateTime CreatedAt { get; set; }=DateTime.Now;
-        public bool IsActive { get; set; } = true; 
+        public bool IsActive { get; set; } = true;
+        [NotMapped]
+        public decimal TotalGST
+        {
+            get
+            {
+                var taxes = Product?.Subcategory?.Taxes;
+                if (taxes == null) return 0; 
+                return ((Price * Quantity) * ((taxes.CGST + taxes.SGST) / 100));
+            }
+        }
+        [NotMapped]
+        public decimal FinalPrice
+        {
+            get
+            {
+                return (Price * Quantity) + TotalGST + (Product?.DeliveryCharge ?? 0);
+            }
+        }
+
     }
 }

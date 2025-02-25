@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Task1LoginRegister.Models;
 
@@ -11,9 +12,11 @@ using Task1LoginRegister.Models;
 namespace Task1LoginRegister.Migrations
 {
     [DbContext(typeof(WebMobiTask1DbContext))]
-    partial class WebMobiTask1DbContextModelSnapshot : ModelSnapshot
+    [Migration("20250225052912_AddedGSTtable")]
+    partial class AddedGSTtable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -80,68 +83,6 @@ namespace Task1LoginRegister.Migrations
                     b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("Task1LoginRegister.Models.DeliveryAddress", b =>
-                {
-                    b.Property<int>("AddressId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AddressId"));
-
-                    b.Property<string>("City")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Country")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<bool>("IsDefault")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("State")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Street")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ZipCode")
-                        .IsRequired()
-                        .HasMaxLength(6)
-                        .HasColumnType("nvarchar(6)");
-
-                    b.HasKey("AddressId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("DeliveryAddresses");
-                });
-
             modelBuilder.Entity("Task1LoginRegister.Models.GstTax", b =>
                 {
                     b.Property<int>("GSTId")
@@ -162,7 +103,7 @@ namespace Task1LoginRegister.Migrations
                     b.Property<int>("SubcategoryId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("UpdatedAt")
+                    b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("GSTId");
@@ -171,81 +112,6 @@ namespace Task1LoginRegister.Migrations
                         .IsUnique();
 
                     b.ToTable("GstTax");
-                });
-
-            modelBuilder.Entity("Task1LoginRegister.Models.Order", b =>
-                {
-                    b.Property<int>("OrderId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderId"));
-
-                    b.Property<int>("DeliveryAddressId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("OrderDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("OrderNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("OrderStatus")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("TotalAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("OrderId");
-
-                    b.HasIndex("DeliveryAddressId");
-
-                    b.HasIndex("OrderNumber")
-                        .IsUnique();
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Orders");
-                });
-
-            modelBuilder.Entity("Task1LoginRegister.Models.OrderItem", b =>
-                {
-                    b.Property<int>("OrderItemId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderItemId"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("OrderId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("TotalPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("OrderItemId");
-
-                    b.HasIndex("OrderId");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("OrderItems");
                 });
 
             modelBuilder.Entity("Task1LoginRegister.Models.Product", b =>
@@ -455,17 +321,6 @@ namespace Task1LoginRegister.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Task1LoginRegister.Models.DeliveryAddress", b =>
-                {
-                    b.HasOne("Task1LoginRegister.Models.Userlogin", "User")
-                        .WithMany("DeliveryAddresses")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Task1LoginRegister.Models.GstTax", b =>
                 {
                     b.HasOne("Task1LoginRegister.Models.Subcategory", "Subcategory")
@@ -475,44 +330,6 @@ namespace Task1LoginRegister.Migrations
                         .IsRequired();
 
                     b.Navigation("Subcategory");
-                });
-
-            modelBuilder.Entity("Task1LoginRegister.Models.Order", b =>
-                {
-                    b.HasOne("Task1LoginRegister.Models.DeliveryAddress", "DeliveryAddress")
-                        .WithMany()
-                        .HasForeignKey("DeliveryAddressId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Task1LoginRegister.Models.Userlogin", "User")
-                        .WithMany("Orders")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("DeliveryAddress");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Task1LoginRegister.Models.OrderItem", b =>
-                {
-                    b.HasOne("Task1LoginRegister.Models.Order", "Order")
-                        .WithMany("OrderItems")
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Task1LoginRegister.Models.Product", "Product")
-                        .WithMany("OrderItems")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Order");
-
-                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("Task1LoginRegister.Models.Product", b =>
@@ -563,16 +380,9 @@ namespace Task1LoginRegister.Migrations
                     b.Navigation("Subcategories");
                 });
 
-            modelBuilder.Entity("Task1LoginRegister.Models.Order", b =>
-                {
-                    b.Navigation("OrderItems");
-                });
-
             modelBuilder.Entity("Task1LoginRegister.Models.Product", b =>
                 {
                     b.Navigation("Carts");
-
-                    b.Navigation("OrderItems");
 
                     b.Navigation("ProductImages");
                 });
@@ -588,10 +398,6 @@ namespace Task1LoginRegister.Migrations
             modelBuilder.Entity("Task1LoginRegister.Models.Userlogin", b =>
                 {
                     b.Navigation("Carts");
-
-                    b.Navigation("DeliveryAddresses");
-
-                    b.Navigation("Orders");
                 });
 #pragma warning restore 612, 618
         }
