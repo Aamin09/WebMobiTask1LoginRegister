@@ -1,0 +1,88 @@
+﻿@model Task1LoginRegister.Models.Order
+@{
+    var hidePaymentDetails = ViewData["HidePaymentDetails"] as bool? ?? false;
+}
+
+<div class="card mt-4" id="orderDetails">
+    <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">Order Details</h4>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h5>Shipping Address</h5>
+                <hr />
+                <address>
+                    <strong>Customer Name: @Model.DeliveryAddress.FullName</strong><br>
+                    @Model.DeliveryAddress.Street<br>
+                    @Model.DeliveryAddress.City, @Model.DeliveryAddress.State - @Model.DeliveryAddress.ZipCode, @Model.DeliveryAddress.Country<br>
+                    <strong>Phone:</strong> @Model.DeliveryAddress.PhoneNumber<br>
+                    <strong>Email:</strong> @Model.DeliveryAddress.Email<br>
+                </address>
+            </div>
+            <div class="col-md-6">
+                <h5>Order Summary</h5>
+                <hr />
+                <p><strong>Order Date:</strong> @Model.OrderDate.ToString("MMM dd, yyyy")</p>
+                <p><strong>Payment Method:</strong> @Model.PaymentMethod</p>
+
+                @if (!hidePaymentDetails)
+                {
+                    <p><strong>Payment Status:</strong> @Model.PaymentStatus</p>
+                    <p><strong>Transaction ID:</strong> @Model.PaymentId</p>
+                    <p><strong>Order Status:</strong> @Model.OrderStatus</p>
+                }
+            </div>
+        </div>
+
+        <h5 class="mt-4">Order Items</h5>
+        <hr />
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price (₹)</th>
+                        <th>Quantity</th>
+                        <th>Discount (₹)</th>
+                        <th>CGST (₹)</th>
+                        <th>SGST (₹)</th>
+                        <th>Delivery (₹)</th>
+                        <th class="text-end">Total (₹)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.OrderItems)
+                    {
+                        var cgst = ((item.Product?.Subcategory?.Taxes?.CGST ?? 0m) * (item.Product?.CalculatedSellingPrice ?? 0m)) / 100;
+                        var sgst = ((item.Product?.Subcategory?.Taxes?.SGST ?? 0m) * (item.Product?.CalculatedSellingPrice ?? 0m)) / 100;
+
+                        var discount = item.Product.Price - item.Product.CalculatedSellingPrice;
+                        var itemTotal = (item.Product.CalculatedSellingPrice * item.Quantity) + (cgst * item.Quantity) + (sgst * item.Quantity) + item.Product.DeliveryCharge;
+
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    @item.Product.Name
+                                </div>
+                            </td>
+                            <td>@item.Price</td>
+                            <td class="text-center">@item.Quantity</td>
+                            <td class="text-success">-@discount</td>
+                            <td>@cgst</td>
+                            <td>@sgst</td>
+                            <td>@(item.Product.DeliveryCharge > 0 ? item.Product.DeliveryCharge : "Free")</td>
+                            <td class="text-end">@itemTotal</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="7" class="text-end"><strong>Grand Total:</strong></td>
+                        <td class="text-end"><strong>@Model.TotalAmount.ToString("C")</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>

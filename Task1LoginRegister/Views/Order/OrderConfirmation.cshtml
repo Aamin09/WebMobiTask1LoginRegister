@@ -1,0 +1,40 @@
+﻿@model Task1LoginRegister.Models.Order
+@{
+    ViewData["Title"] = "OrderConfirmation";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+<style>
+    .product-image, .product-video{
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+    }
+    hr{
+        opacity: 1;
+        margin: 10px 0;
+    }
+</style>
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-12">
+            <div class="card border-success">
+                <div class="card-body text-center py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-check-circle text-success" style="font-size: 5rem;"></i>
+                    </div>
+                    <h2 class="mb-3">Thank You for Your Order!</h2>
+                    <p class="lead">Your order has been placed successfully.</p>
+                    <p>Order Number: <strong>@Model.OrderNumber</strong></p>
+                    <p>We'll send you a confirmation email shortly.</p>
+
+                    <div class="mt-4">
+                        <a href="/" class="btn btn-outline-primary me-2">Continue Shopping</a>
+                        <a asp-action="UserOrders" asp-controller="Order" class="btn btn-primary">View My Orders</a>
+                    </div>
+                </div>
+            </div>
+
+            <partial name="_OrderItemsTable" model="Model" />
+        </div>
+    </div>
+</div>

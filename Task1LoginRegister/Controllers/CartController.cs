@@ -1,39 +1,32 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Task1LoginRegister.Models;
+using Task1LoginRegister.Services;
 
 namespace Task1LoginRegister.Controllers
 {
     public class CartController : Controller
     {
         private readonly WebMobiTask1DbContext context;
+        private readonly UserService userService;
 
-        public CartController(WebMobiTask1DbContext context)
+        public CartController(WebMobiTask1DbContext context, UserService userService)
         {
             this.context = context;
+            this.userService = userService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> IndexAsync()
         {
-            var userEmail = User.Identity.Name ?? HttpContext.Session.GetString("UserSession");
-
-            if (string.IsNullOrEmpty(userEmail))
+            var userId = await userService.GetCurrentUserIdAsync();
+            if (userId == null)
             {
                 return RedirectToAction("Login", "Login");
             }
 
-            var user = context.Userlogins.FirstOrDefault(u => u.Email == userEmail);
-            if (user == null)
-            {
-                return RedirectToAction("Login", "Login");
-            }
-
-
-            var cartItems = context.Carts.Where(c=>c.UserId== user.Id).Include(p=>p.Product).ThenInclude(pi=>pi.ProductImages).Include(p => p.Product).ThenInclude(pi => pi.Subcategory).ThenInclude(s => s.Taxes).ToList();
+            var cartItems = context.Carts.Where(c=>c.UserId== userId && c.IsActive == true).Include(p=>p.Product).ThenInclude(pi=>pi.ProductImages).Include(p => p.Product).ThenInclude(pi => pi.Subcategory).ThenInclude(s => s.Taxes).ToList();
             int cartCount = cartItems.Count;
             ViewBag.CartItemCount = cartCount > 0 ? cartCount.ToString() : ""; 
-
-
             return View(cartItems);
         }
 
@@ -63,7 +56,7 @@ namespace Task1LoginRegister.Controllers
                 return NotFound();
             }
 
-            var cartItem = await context.Carts.FirstOrDefaultAsync(c => c.ProductId == productId && c.UserId == userId);
+            var cartItem = await context.Carts.FirstOrDefaultAsync(c => c.ProductId == productId && c.UserId == userId && c.IsActive == true);
 
             if (cartItem != null)
             {
@@ -122,22 +115,16 @@ namespace Task1LoginRegister.Controllers
             return RedirectToAction("Index");
         }
 
-        public IActionResult GetCartCount()
+        public async Task<IActionResult> GetCartCountAsync()
         {
-            var userEmail = User.Identity.Name ?? HttpContext.Session.GetString("UserSession");
-
-            if (string.IsNullOrEmpty(userEmail))
+            var userId = await userService.GetCurrentUserIdAsync();
+            if (userId == null)
             {
                 return RedirectToAction("Login", "Login");
             }
 
-            var user = context.Userlogins.FirstOrDefault(u => u.Email == userEmail);
-            if (user == null)
-            {
-                return RedirectToAction("Login", "Login");
-            }
             int cartCount = context.Carts
-                .Where(c => c.UserId == user.Id)
+                .Where(c => c.UserId == userId && c.IsActive == true)
                 .Count(); // Count unique products
 
             return Json(new { count = cartCount }); 

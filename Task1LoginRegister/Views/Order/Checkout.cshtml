@@ -1,0 +1,369 @@
+﻿@model Task1LoginRegister.DTOs.CheckoutViewDto
+@{
+    ViewData["Title"] = "Checkout";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+<style>
+    .quantity {
+        text-align: center;
+        width: 50px;
+        padding: 5px;
+        font-size: 14px;
+        outline: none;
+    }
+
+    .increment, .decrement {
+        cursor: pointer;
+        width: 30px;
+        border: none;
+        transition: background-color 0.2s, box-shadow 0.2s;
+    }
+
+        .increment, .decrement:focus {
+            box-shadow: none;
+        }
+
+
+    .d-flex.border {
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        overflow: hidden;
+        max-width: 100%;
+    }
+
+    .product-image, .product-video {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+    }
+
+</style>
+<div class="container-fluid my-4">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Shipping Address</h4>
+                </div>
+
+                <div class="card-body">
+                    <form asp-action="Checkout" method="post">
+                        @if (Model.DeliveryAddresses != null && Model.DeliveryAddresses.Any())
+                        {
+                            <div class="mb-4">
+                                <h5>Save Addresses</h5>
+                                <div class="row d-flex border">
+                                    @foreach (var address in Model.DeliveryAddresses)
+                                    {
+                                        <div class="col-md-10">
+                                            <div class="card-body">
+                                                <div class="form-check gap-4 d-flex ">
+                                                    <input type="radio" name="SelectedAddressId" id="address-@address.AddressId" value="@address.AddressId" @(address.IsDefault ? "checked" : "") />
+                                                    <label class="form-check-label w-100" for="address-@address.AddressId">
+                                                        <strong>@address.FullName</strong><br />
+                                                        @(string.IsNullOrEmpty(address.Street) ? "" : address.Street)<br />
+                                                        @address.City, @address.State - @address.ZipCode, @address.Country<br />
+                                                        Phone: @address.PhoneNumber<br />
+                                                        Email: @address.Email<br />
+                                                    </label>
+                                                </div>
+                                              
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 justify-content-center align-items-center d-flex">
+                                            <form asp-action="RemoveFromAddress" method="post">
+                                                <input type="hidden" name="addressId" value="@address.AddressId" />
+                                                <button type="submit" class="btn btn-outline-danger btn-sm">Remove</button>
+                                            </form>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="mt-3">
+                                    <button type="button" class="btn btn-outline-primary" id="showNewAddressForm">
+                                        <i class="fas fa-plus-circle"></i> Add New Address
+                                    </button>
+                                </div>
+                            </div>
+                        }
+
+                        @* New Address Form  *@
+
+                        <div id="newAddressForm" class="@(Model.DeliveryAddresses != null && Model.DeliveryAddresses.Any() ? "d-none": "")">
+                            <h5 class="mb-3">New Address</h5>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label asp-for="NewDeliveryAddress.FullName" class="form-label">Full Name</label>
+                                    <input asp-for="NewDeliveryAddress.FullName" class="form-control" />
+                                    <span asp-validation-for="NewDeliveryAddress.FullName" class="text-danger"></span>
+                                </div>
+
+                                <div class="col-12">
+                                    <label asp-for="NewDeliveryAddress.Street" class="form-label">Street</label>
+                                    <input asp-for="NewDeliveryAddress.Street" class="form-control" />
+                                    <span asp-validation-for="NewDeliveryAddress.Street" class="text-danger"></span>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label asp-for="NewDeliveryAddress.City" class="form-label">City</label>
+                                    <input asp-for="NewDeliveryAddress.City" class="form-control" />
+                                    <span asp-validation-for="NewDeliveryAddress.City" class="text-danger"></span>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label asp-for="NewDeliveryAddress.State" class="form-label">State</label>
+                                    <input asp-for="NewDeliveryAddress.State" class="form-control" />
+                                    <span asp-validation-for="NewDeliveryAddress.State" class="text-danger"></span>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label asp-for="NewDeliveryAddress.ZipCode" class="form-label">Zip Code</label>
+                                    <input type="number" maxlength="6" asp-for="NewDeliveryAddress.ZipCode" class="form-control" />
+                                    <span asp-validation-for="NewDeliveryAddress.ZipCode" class="text-danger"></span>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label asp-for="NewDeliveryAddress.Country" class="form-label">Country</label>
+                                    <input asp-for="NewDeliveryAddress.Country" class="form-control" />
+                                    <span asp-validation-for="NewDeliveryAddress.Country" class="text-danger"></span>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label asp-for="NewDeliveryAddress.PhoneNumber" class="form-label">Phone Number</label>
+                                    <input type="number" asp-for="NewDeliveryAddress.PhoneNumber" class="form-control" />
+                                    <span asp-validation-for="NewDeliveryAddress.PhoneNumber" class="text-danger"></span>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label asp-for="NewDeliveryAddress.Email" class="form-label">Email</label>
+                                    <input asp-for="NewDeliveryAddress.Email" class="form-control" />
+                                    <span asp-validation-for="NewDeliveryAddress.Email" class="text-danger"></span>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-check">
+                                        <input asp-for="NewDeliveryAddress.IsDefault" class="form-check-input" type="checkbox" />
+                                        <label asp-for="NewDeliveryAddress.IsDefault" class="form-check-label">
+                                            Set as default address
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Payment Method Section -->
+                        <div class="mt-4 pt-4 border-top">
+                            <div class="card-header bg-primary text-white">
+                                <h4 class="mb-0">Payment Method</h4>
+                            </div>
+
+                            <div class="row mt-4">
+                                <div class="col-md-6">
+                                    <div class="card border mb-3">
+                                        <div class="card-body">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="PaymentMethod" id="payment-cod" value="Cash on Delivery" checked>
+                                                <label class="form-check-label" for="payment-cod">
+                                                    <div class="d-flex align-items-center">
+                                                        <i class="fas fa-money-bill-wave fs-4 me-2"></i>
+                                                        <div>
+                                                            <strong>Cash on Delivery</strong>
+                                                            <div class="text-muted small">Pay when you receive the products</div>
+                                                        </div>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card border mb-3">
+                                        <div class="card-body">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="PaymentMethod" id="payment-online" value="Online Payment">
+                                                <label class="form-check-label" for="payment-online">
+                                                    <div class="d-flex align-items-center">
+                                                        <i class="fas fa-credit-card fs-4 me-2"></i>
+                                                        <div>
+                                                            <strong>Online Payment</strong>
+                                                            <div class="text-muted small">Pay now securely with card/UPI</div>
+                                                        </div>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="/Cart" class="btn btn-outline-secondary">Back to Cart</a>
+                            <button class="btn btn-warning" type="submit">Place Order</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- Order Summary Section -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm sticky-top" style="top: 20px;">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Order Summary</h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        @foreach (var item in Model.CartItems)
+                        {
+                            <div class="d-flex mb-3 border-bottom pb-3">
+                                <div style="width: 60px; height: 60px;">
+
+                                    @{
+                                        var primaryMedia = item.Product.ProductImages.FirstOrDefault(pi => pi.IsPrimaryImage);
+
+                                        if (primaryMedia != null)
+                                        {
+                                            var fileExtension = System.IO.Path.GetExtension(primaryMedia.ImageUrl)?.ToLower();
+
+                                            if (fileExtension == ".jpg" || fileExtension == ".jpeg" || fileExtension == ".png" || fileExtension == ".gif" || fileExtension == ".webp")
+                                            {
+                                                <!-- Display image -->
+                                                <img src="@primaryMedia.ImageUrl" class="card-img-top me-2 product-image rounded-3" alt="Primary Product Image">
+                                            }
+                                            else if (fileExtension == ".mp4" || fileExtension == ".webm" || fileExtension == ".ogg")
+                                            {
+                                                <!-- Display video -->
+                                                <video class="card-img-top me-2 product-image rounded-3" controls autoplay loop>
+                                                    <source src="@primaryMedia.ImageUrl" type="video/@fileExtension.TrimStart('.')">
+                                                    Your browser does not support the video tag.
+                                                </video>
+                                            }
+                                        }
+                                    }
+
+                                </div>
+                                <div class="ms-3 flex-grow-1">
+                                    <h6 class="mb-0">@item.Product.Name</h6>
+                                    <div class="d-flex justify-content-between">
+
+                                        <div class="d-flex mt-2 small">
+                                            <span class="text-start mt-1" style="padding-right:5px;">Qty:</span>
+                                            <span class=" d-flex border rounded-3 overflow-hidden">
+                                                <button class="btn btn-outline-secondary btn-sm decrement" type="button">
+                                                    <i class="fas fa-minus"></i>
+                                                </button>
+                                                <input type="number" data-cartid="@item.CartId" name="quantity" value="@item.Quantity" min="1"
+                                                       class="form-control quantity text-center border-0">
+                                                <button class="btn btn-outline-secondary btn-sm increment " type="button">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                            </span>
+                                        </div>
+                                        <span>@item.Product.CalculatedSellingPrice.ToString("C")</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="border-top pt-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal</span>
+                            <span>@Model.CartItems.Sum(x => x.Quantity * x.Product.Price).ToString("C")</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Discount</span>
+                            <span class="text-success">- @Model.CartItems.Sum(x => x.Quantity * (x.Product.Price - x.Product.CalculatedSellingPrice)).ToString("C")</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Delivery Charges</span>
+                            @{
+                                var deliveryCharge = Model.CartItems.FirstOrDefault(x => x.Product.DeliveryCharge > 0);
+                                if (deliveryCharge != null)
+                                {
+                                    <span>@deliveryCharge.Product.DeliveryCharge.ToString("C")</span>
+                                }
+                                else
+                                {
+                                    <span class="text-success">Free</span>
+                                }
+                            }
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>CGST</span>
+                            <span>@Model.CartItems.Sum(x => x.TotalGST > 0 ? x.TotalGST / 2 : 0).ToString("C")</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>SGST</span>
+                            <span>@Model.CartItems.Sum(x => x.TotalGST > 0 ? x.TotalGST / 2 : 0).ToString("C")</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-2">
+                            <strong>Total Amount</strong>
+                            <strong>@Model.CartItems.Sum(x => x.FinalPrice).ToString("C")</strong>
+                        </div>
+                        <div class="text-success text-center">
+                            You will save @Model.CartItems.Sum(x => x.Quantity * (x.Product.Price - x.Product.CalculatedSellingPrice)).ToString("C") on this order
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+         $(document).ready(function() {
+          
+            $(document).on("click", ".increment", function() {
+                let input = $(this).siblings(".quantity");
+                let newValue = parseInt(input.val()) + 1;
+                input.val(newValue).trigger("change");
+            });
+
+            $(document).on("click", ".decrement", function() {
+                let input = $(this).siblings(".quantity");
+                let newValue = parseInt(input.val()) - 1;
+                if (newValue > 0) {
+                    input.val(newValue).trigger("change");
+                }
+            });
+
+            $(document).on("change", ".quantity", function() {
+                var cartId = $(this).data("cartid");
+                var quantity = $(this).val();
+
+                $.ajax({
+                    url: "/Cart/UpdateQuantity",
+                    type: "POST",
+                    data: { cartId: cartId, quantity: quantity },
+                    success: function(response) {
+                        if (response.success) {
+                            location.reload();
+                        } else {
+                            alert("Error updating quantity!");
+                        }
+                    },
+                    error: function() {
+                        alert("Something went wrong.");
+                    }
+                });
+            });
+
+              // Toggle between saved addresses and new address form
+        $("#showNewAddressForm").click(function () {
+            $("#newAddressForm").toggleClass("d-none");
+
+            if (!$("#newAddressForm").hasClass("d-none")) {
+                $("input[name='SelectedAddressId']").prop("checked", false); // Unselecting existing addresses
+            }
+        });
+
+        // When an existing address is selected, hide the new address form and clear its inputs
+        $("input[name='SelectedAddressId']").change(function () {
+            $("#newAddressForm").addClass("d-none").find("input").val(""); 
+        });
+        });
+    </script>
+}

@@ -1,0 +1,74 @@
+﻿@model Task1LoginRegister.Models.Order
+@{
+    ViewData["Title"] = "Invoice";
+    ViewData["HidePaymentDetails"] = true;
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+<style>
+    .product-image, .product-video {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+    }
+
+    hr {
+        opacity: 1;
+        margin: 10px 0;
+    }
+
+  @@media print {
+    .btn, .no-print {
+        display: none !important;
+    }
+
+    @@page {
+        size: A4 landscape; 
+        margin: 0; 
+      
+    }
+}
+
+</style>
+
+<div class="container my-5">
+    <button class="btn btn-primary my-2" onclick="printInvoice()">Print / Download</button>
+
+    <div class="row justify-content-center">
+      
+        <div class="col-md-12" id="printContent">
+            <div class="company-header text-center">
+                <img src="~/Images/logo.png" class="img-fluid company-logo" style="width:80px;height:50px;" alt="Store Logo">
+                <h4>Sky Mart</h4>
+                <p>Your Trusted Online Marketplace</p>
+                <p><strong>Email:</strong> support@skymart.com | <strong>Contact:</strong> +91 98765 43210</p>
+                <hr />
+            </div>
+            @if (Model.OrderStatus == "Completed" && Model.PaymentStatus == "Paid")
+            {
+                <partial name="_OrderItemsTable" model="Model" view-data="ViewData" />
+            }
+            else
+            {
+                <div class="alert alert-warning text-center" role="alert">
+                    <strong>Your order is still in processing.</strong> Please wait until it's completed.
+                </div>
+            }
+            <div class="company-footer text-center">
+                <hr />
+                <p>Sky Mart Pvt Ltd, 123, Street, Mumbai, India</p>
+                <p>Email: support@skymart.com | Website: www.skymart.com</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function printInvoice() {
+        var printContent = document.getElementById("printContent").innerHTML;
+        var originalContent = document.body.innerHTML;
+
+        document.body.innerHTML = printContent;
+        window.print();
+        document.body.innerHTML = originalContent;
+    }
+</script>

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using Task1LoginRegister.Models;
+using Task1LoginRegister.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +35,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.Cookie.Expiration = null;
     });
 
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<UserService>();
 
 builder.Services.AddSession(options =>
 {

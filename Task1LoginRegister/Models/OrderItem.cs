@@ -11,12 +11,12 @@ namespace Task1LoginRegister.Models
         [Required]
         public int OrderId { get; set; }
         [ForeignKey("OrderId")]
-        public virtual Order Order { get; set; }
+        public virtual Order? Order { get; set; }
 
         [Required]
         public int ProductId { get; set; }
         [ForeignKey("ProductId")]
-        public virtual Product Product { get; set; }
+        public virtual Product? Product { get; set; }
 
         [Required]
         public int Quantity { get; set; }

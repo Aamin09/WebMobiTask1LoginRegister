@@ -13,7 +13,7 @@ namespace Task1LoginRegister.Models
         [Required]
         public int UserId {  get; set; }
         [ForeignKey("UserId")]
-        public virtual Userlogin User { get; set; }
+        public virtual Userlogin? User { get; set; }
 
         [Required]
         public DateTime OrderDate { get; set; }= DateTime.Now;
@@ -22,10 +22,15 @@ namespace Task1LoginRegister.Models
 
         public string OrderStatus { get; set; } = "Pending";
 
+        public string? PaymentMethod { get; set; }
+
+        public string? PaymentStatus { get; set; } = "Pending";
+
+        public string? PaymentId { get; set; }
         [Required]
         public int DeliveryAddressId { get; set; }
         [ForeignKey("DeliveryAddressId")]
-        public virtual DeliveryAddress DeliveryAddress { get; set; }
+        public virtual DeliveryAddress? DeliveryAddress { get; set; }
 
         public virtual ICollection<OrderItem> OrderItems { get; set; }
     }

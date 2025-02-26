@@ -1,0 +1,91 @@
+﻿@model IEnumerable<Task1LoginRegister.Models.Order>
+@{
+    ViewData["Title"] = "My Orders";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+
+<style>
+    .order-card {
+        border-left: 5px solid #007bff;
+    }
+
+    .product-image {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 5px;
+    }
+</style>
+
+<div class="container my-3">
+    <h2 class="mb-4">My Orders</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center">
+            <h4>No Orders Found</h4>
+            <p>You haven't placed any orders yet.</p>
+            <a href="/" class="btn btn-primary">Start Shopping</a>
+        </div>
+    }
+    else
+    {
+        @foreach (var order in Model)
+        {
+            <div class="card order-card mb-4">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Order #@order.OrderNumber</h5>
+                    <span>@order.OrderDate.ToString("MMM dd, yyyy")</span>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Order Status:</strong> @order.OrderStatus</p>
+                            <p><strong>Payment Status:</strong> @order.PaymentStatus</p>
+                            <p><strong>Payment Method:</strong> @order.PaymentMethod</p>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <p><strong>Total Amount:</strong> ₹@order.TotalAmount.ToString("0.00")</p>
+                            <a asp-action="Invoice" asp-controller="Order" asp-route-orderId="@order.OrderId" class="btn btn-outline-primary btn-sm">View Details</a>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    @foreach (var item in order.OrderItems)
+                    {
+                        <div class="d-flex orderItems align-items-center mb-2">
+                            @{
+                                var primaryMedia = item.Product.ProductImages.FirstOrDefault(pi => pi.IsPrimaryImage);
+
+                                if (primaryMedia != null)
+                                {
+                                    var fileExtension = System.IO.Path.GetExtension(primaryMedia.ImageUrl)?.ToLower();
+
+                                    if (fileExtension == ".jpg" || fileExtension == ".jpeg" || fileExtension == ".png" || fileExtension == ".gif" || fileExtension == ".webp")
+                                    {
+                                        <!-- Display image -->
+                                        <img src="@primaryMedia.ImageUrl" class="card-img-top me-2 product-image rounded-3" alt="Primary Product Image">
+                                    }
+                                    else if (fileExtension == ".mp4" || fileExtension == ".webm" || fileExtension == ".ogg")
+                                    {
+                                        <!-- Display video -->
+                                        <video class="card-img-top me-2 product-image rounded-3" controls autoplay loop>
+                                            <source src="@primaryMedia.ImageUrl" type="video/@fileExtension.TrimStart('.')">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    }
+                                }
+                            }
+                            <div>
+                                <p class="mb-1"><strong>@item.Product.Name</strong></p>
+                                <p class="mb-0">Price: ₹@item.Product.CalculatedSellingPrice | Qty: @item.Quantity</p>
+                            </div>
+                        </div>
+                        <hr>
+                    }
+                </div>
+            </div>
+        }
+    }
+</div>

@@ -10,7 +10,7 @@ namespace Task1LoginRegister.Models
         [Required]
         public int UserId { get; set; }
         [ForeignKey("UserId")]
-        public virtual Userlogin User { get; set; }
+        public virtual Userlogin? User { get; set; }
 
         [Required, StringLength(100)]
         public string FullName { get; set; }

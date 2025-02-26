@@ -60,7 +60,8 @@ namespace Task1LoginRegister.Models
 
         public virtual ICollection<Cart> Carts { get; set; }
 
-        public virtual ICollection<OrderItem> OrderItems { get; set; } 
+        public virtual ICollection<OrderItem> OrderItems { get; set; }
+
 
     }
 }
