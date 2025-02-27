@@ -23,8 +23,8 @@ if (!Directory.Exists(uploadDirectory))
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        options.LoginPath = "/Login/Login";
-        options.LogoutPath = "/Login/Logout";
+        options.LoginPath = "/Account/Login";
+        options.LogoutPath = "/Account/Logout";
         options.AccessDeniedPath = "/Home/AccessDenied";
 
         // Expire cookie when browser is closed

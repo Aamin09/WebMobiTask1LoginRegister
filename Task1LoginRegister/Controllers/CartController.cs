@@ -16,12 +16,12 @@ namespace Task1LoginRegister.Controllers
             this.userService = userService;
         }
 
-        public async Task<IActionResult> IndexAsync()
+        public async Task<IActionResult> Index()
         {
             var userId = await userService.GetCurrentUserIdAsync();
             if (userId == null)
             {
-                return RedirectToAction("Login", "Login");
+                return RedirectToAction("Login", "Account");
             }
 
             var cartItems = context.Carts.Where(c=>c.UserId== userId && c.IsActive == true).Include(p=>p.Product).ThenInclude(pi=>pi.ProductImages).Include(p => p.Product).ThenInclude(pi => pi.Subcategory).ThenInclude(s => s.Taxes).ToList();
@@ -54,6 +54,24 @@ namespace Task1LoginRegister.Controllers
             if (product == null)
             {
                 return NotFound();
+            }
+
+            // removing old cart items from the table which orders is completed 
+            var orderedProductIds = await context.OrderItems
+                .Where(oi => oi.Order.OrderStatus == "Completed" && oi.Order.PaymentStatus == "Paid")
+                .Select(oi => oi.ProductId)
+                .Distinct()
+                .ToListAsync();
+
+            var itemsToRemove = await context.Carts
+                .Where(c => orderedProductIds.Contains(c.ProductId) && c.IsActive && c.UserId == userId)
+                .ToListAsync();
+
+
+            if (itemsToRemove.Any())
+            {
+                context.Carts.RemoveRange(itemsToRemove);
+                await context.SaveChangesAsync();
             }
 
             var cartItem = await context.Carts.FirstOrDefaultAsync(c => c.ProductId == productId && c.UserId == userId && c.IsActive == true);
@@ -120,7 +138,7 @@ namespace Task1LoginRegister.Controllers
             var userId = await userService.GetCurrentUserIdAsync();
             if (userId == null)
             {
-                return RedirectToAction("Login", "Login");
+                return RedirectToAction("Login", "Account");
             }
 
             int cartCount = context.Carts

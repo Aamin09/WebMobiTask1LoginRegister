@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Task1LoginRegister.Models;
 
@@ -11,9 +12,11 @@ using Task1LoginRegister.Models;
 namespace Task1LoginRegister.Migrations
 {
     [DbContext(typeof(WebMobiTask1DbContext))]
-    partial class WebMobiTask1DbContextModelSnapshot : ModelSnapshot
+    [Migration("20250227065031_remove_unique_productId")]
+    partial class remove_unique_productId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

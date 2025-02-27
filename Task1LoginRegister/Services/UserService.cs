@@ -28,5 +28,20 @@ namespace Task1LoginRegister.Services
             return user?.Id;
         }
 
+        public string GetUserName()
+        {
+            var email = httpContextAccessor.HttpContext?.User.Identity.IsAuthenticated == true
+                ? httpContextAccessor.HttpContext.User.Identity.Name
+                : httpContextAccessor.HttpContext.Session.GetString("UserSession");
+
+            if (!string.IsNullOrEmpty(email))
+            {
+                var user = context.Userlogins.FirstOrDefault(x => x.Email == email);
+                return user?.FirstName ?? "User";
+            }
+
+            return "Guest";
+        }
+
     }
 }

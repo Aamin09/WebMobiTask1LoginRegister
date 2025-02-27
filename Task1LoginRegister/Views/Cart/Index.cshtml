@@ -294,41 +294,5 @@
 
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function () {
-                 $(".increment").click(function () {
-            let input = $(this).closest(".cart-item").find(".quantity");
-            let newValue = parseInt(input.val()) + 1;
-            input.val(newValue).trigger("change");
-        });
-
-        $(".decrement").click(function () {
-            let input = $(this).closest(".cart-item").find(".quantity");
-            let newValue = parseInt(input.val()) - 1;
-            if (newValue > 0) {
-                input.val(newValue).trigger("change");
-            }
-        });
-            $(".quantity").on("change", function () {
-                var cartId = $(this).data("cartid");
-                var quantity = $(this).val();
-
-                $.ajax({
-                    url: "@Url.Action("UpdateQuantity", "Cart")",
-                    type: "POST",
-                    data: { cartId: cartId, quantity: quantity },
-                    success: function (response) {
-                        if (response.success) {
-                            location.reload();
-                        } else {
-                            alert("Error updating quantity!");
-                        }
-                    },
-                    error: function () {
-                        alert("Something went wrong.");
-                    }
-                });
-            });
-        });
-    </script>
+    <script src="~/js/quantityincrement.js"></script>
 }

@@ -71,10 +71,7 @@
                                             </div>
                                         </div>
                                         <div class="col-md-2 justify-content-center align-items-center d-flex">
-                                            <form asp-action="RemoveFromAddress" method="post">
-                                                <input type="hidden" name="addressId" value="@address.AddressId" />
-                                                <button type="submit" class="btn btn-outline-danger btn-sm">Remove</button>
-                                            </form>
+                                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeAddress('@address.AddressId')">Remove</button>
                                         </div>
                                     }
                                 </div>
@@ -267,7 +264,7 @@
                     </div>
 
                     <div class="border-top pt-3">
-                        <div class="d-flex justify-content-between mb-2">
+                        <div class="d-flex justify-content-between mb-2 fw-bold">
                             <span>Subtotal</span>
                             <span>@Model.CartItems.Sum(x => x.Quantity * x.Product.Price).ToString("C")</span>
                         </div>
@@ -313,45 +310,30 @@
 </div>
 
 @section Scripts {
+    <script src="~/js/quantityincrement.js"></script>
     <script>
          $(document).ready(function() {
-          
-            $(document).on("click", ".increment", function() {
-                let input = $(this).siblings(".quantity");
-                let newValue = parseInt(input.val()) + 1;
-                input.val(newValue).trigger("change");
-            });
-
-            $(document).on("click", ".decrement", function() {
-                let input = $(this).siblings(".quantity");
-                let newValue = parseInt(input.val()) - 1;
-                if (newValue > 0) {
-                    input.val(newValue).trigger("change");
-                }
-            });
-
-            $(document).on("change", ".quantity", function() {
-                var cartId = $(this).data("cartid");
-                var quantity = $(this).val();
-
+       
+        function removeAddress(addressId) {
+            if (confirm("Are you sure you want to remove this address?")) {
                 $.ajax({
-                    url: "/Cart/UpdateQuantity",
-                    type: "POST",
-                    data: { cartId: cartId, quantity: quantity },
+                    url: '/RemoveFromAddress',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ addressId: addressId }),
                     success: function(response) {
-                        if (response.success) {
-                            location.reload();
-                        } else {
-                            alert("Error updating quantity!");
+                        if (response) {
+                            location.reload(); 
                         }
                     },
-                    error: function() {
-                        alert("Something went wrong.");
+                    error: function(xhr, status, error) {
+                        console.error("Error removing address:", error);
+                        alert("An error occurred while removing the address. Please try again.");
                     }
                 });
-            });
-
-              // Toggle between saved addresses and new address form
+            }
+        }
+         // Toggle between saved addresses and new address form
         $("#showNewAddressForm").click(function () {
             $("#newAddressForm").toggleClass("d-none");
 

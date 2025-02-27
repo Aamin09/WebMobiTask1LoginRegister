@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Task1LoginRegister.DTOs;
@@ -7,6 +8,7 @@ using Task1LoginRegister.Services;
 
 namespace Task1LoginRegister.Controllers
 {
+    [Authorize]
     public class OrderController : Controller
     {
         private readonly WebMobiTask1DbContext context;
@@ -23,7 +25,7 @@ namespace Task1LoginRegister.Controllers
             var userId = await userService.GetCurrentUserIdAsync();
             if (userId == null)
             {
-                return RedirectToAction("Login", "Login");
+                return RedirectToAction("Login", "Account");
             }
 
             var cartItems = await context.Carts
@@ -58,7 +60,7 @@ namespace Task1LoginRegister.Controllers
             var userId = await userService.GetCurrentUserIdAsync();
             if (userId == null)
             {
-                return RedirectToAction("Login", "Login");
+                return RedirectToAction("Login", "Account");
             }
 
             var cartItems = await context.Carts
@@ -150,7 +152,7 @@ namespace Task1LoginRegister.Controllers
             var userId = await userService.GetCurrentUserIdAsync();
             if (userId == null)
             {
-                return RedirectToAction("Login", "Login");
+                return RedirectToAction("Login", "Account");
             }
 
             var order = await context.Orders
@@ -177,7 +179,7 @@ namespace Task1LoginRegister.Controllers
             var userId = await userService.GetCurrentUserIdAsync();
             if (userId == null)
             {
-                return RedirectToAction("Login", "Login");
+                return RedirectToAction("Login", "Account");
             }
 
             var orders = await context.Orders
@@ -196,7 +198,7 @@ namespace Task1LoginRegister.Controllers
             var userId = await userService.GetCurrentUserIdAsync();
             if (userId == null)
             {
-                return RedirectToAction("Login", "Login");
+                return RedirectToAction("Login", "Account");
             }
 
             var order = await context.Orders
