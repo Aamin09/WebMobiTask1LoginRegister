@@ -171,7 +171,26 @@ h2 {
                             <th class="text-start">Before Tax:</th>
                             <td class="fw-bold">@Model.CalculatedSellingPrice.ToString("C")</td>
                         </tr>
-                        @if (Model.Subcategory?.Taxes != null)
+                        @if (Model.Subcategory?.Taxes == null || (Model.Subcategory.Taxes.CGST == 0 && Model.Subcategory.Taxes.SGST == 0))
+                        {
+                            <tr>
+                                <th class="text-start">CGST:</th>
+                                <td>0.00 %</td>
+                            </tr>
+                            <tr>
+                                <th class="text-start">SGST:</th>
+                                <td>0.00 %</td>
+                            </tr>
+                            <tr>
+                                <th>Delivery Charge</th>
+                                <td>@Model.DeliveryCharge.ToString("C")</td>
+                            </tr>
+                            <tr>
+                                <th class="text-start">Final Amount:</th>
+                                <td class="fw-bold">@((Model.CalculatedSellingPrice + Model.DeliveryCharge).ToString("C"))</td>
+                            </tr>
+                        }
+                        else
                         {
                             <tr>
                                 <th class="text-start">CGST:</th>
@@ -202,14 +221,6 @@ h2 {
                         <tr>
                             <th>Subcategory</th>
                             <td>@Model.Subcategory.Name</td>
-                        </tr>
-                        <tr>
-                            <th>CGST</th>
-                            <td>@Model.Subcategory.Taxes.CGST %</</td>
-                        </tr>
-                        <tr>
-                            <th>SGST</th>
-                            <td>@Model.Subcategory.Taxes.SGST %</td>
                         </tr>
                     </tbody>
                 </table>

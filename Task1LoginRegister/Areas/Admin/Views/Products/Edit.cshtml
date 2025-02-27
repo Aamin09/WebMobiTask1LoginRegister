@@ -199,29 +199,5 @@
     @{
         await Html.PartialAsync("_ValidationScriptsPartial");
     }
-    <script>
-        $(document).ready(function () {
-            var selectedSubcategoryId = '@Model.SubcategoryId';
-
-            $('#CategoryId').change(function () {
-                var categoryId = $(this).val();
-                var subcategorySelect = $('#SubcategoryId');
-                subcategorySelect.empty().append('<option value="">Select Subcategory</option>');
-
-                if (categoryId) {
-                    $.get('/Admin/Products/GetSubCategories', { categoryId: categoryId }, function (data) {
-                        $.each(data, function (i, item) {
-                            subcategorySelect.append($('<option>', {
-                                value: item.subcategoryId,
-                                text: item.name,
-                                selected: item.subcategoryId == selectedSubcategoryId
-                            }));
-                        });
-                    });
-                }
-            });
-
-            $('#CategoryId').change();
-        });
-    </script>
+    <script src="~/js/categorysubcategoryload.js"></script>
 }

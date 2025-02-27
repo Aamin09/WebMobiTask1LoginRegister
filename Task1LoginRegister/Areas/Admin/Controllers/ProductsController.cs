@@ -41,11 +41,11 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
             }
 
             var product = await context.Products
-                .Include(p => p.ProductImages)
-                .Include(p => p.Category)
-                .Include(p => p.Subcategory)
-                .ThenInclude(g=>g.Taxes)
-                .FirstOrDefaultAsync(p => p.ProductId == id);
+                   .Include(p => p.ProductImages)
+                   .Include(p => p.Category)
+                   .Include(p => p.Subcategory)
+                   .ThenInclude(g => g.Taxes)
+                   .FirstOrDefaultAsync(p => p.ProductId == id);
 
             if (product == null)
             {
