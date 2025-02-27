@@ -55,7 +55,7 @@ public partial class WebMobiTask1DbContext : DbContext
         });
 
         modelBuilder.Entity<Cart>()
-            .HasIndex(c => new { c.UserId, c.ProductId })
+            .HasIndex(c => c.UserId )
              .IsUnique();
         //Order configuration 
         modelBuilder.Entity<Order>()

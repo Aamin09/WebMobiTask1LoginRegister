@@ -6,12 +6,12 @@ using Task1LoginRegister.Models;
 
 namespace Task1LoginRegister.Controllers
 {
-    public class LoginController : Controller
+    public class AccountController : Controller
     {
-        private readonly ILogger<LoginController> _logger;
+        private readonly ILogger<AccountController> _logger;
         private readonly WebMobiTask1DbContext context;
         public readonly IWebHostEnvironment env;
-        public LoginController(WebMobiTask1DbContext _context, IWebHostEnvironment _env, ILogger<LoginController> logger)
+        public AccountController(WebMobiTask1DbContext _context, IWebHostEnvironment _env, ILogger<AccountController> logger)
         {
             context = _context;
             env = _env;
@@ -26,7 +26,7 @@ namespace Task1LoginRegister.Controllers
             if (User.Identity.IsAuthenticated)
             {
                 ViewBag.LoginMessage = "You are already logged in.";
-                return RedirectToAction("Index", "User");
+                return RedirectToAction("Index", "Home");
             }
 
 
@@ -83,7 +83,7 @@ namespace Task1LoginRegister.Controllers
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             HttpContext.Session.Clear(); // Clear session
             Response.Cookies.Delete(".AspNetCore.Cookies"); // Ensure authentication cookie is deleted
-            return RedirectToAction("Login", "Login");
+            return RedirectToAction("Login", "Account");
         }
 
 
@@ -120,7 +120,7 @@ namespace Task1LoginRegister.Controllers
                     };
                     await context.Userlogins.AddAsync(userlogin);
                     await context.SaveChangesAsync();
-                    return RedirectToAction("Login", "Login");
+                    return RedirectToAction("Login", "Account");
                 }
             }
             return View(u);
