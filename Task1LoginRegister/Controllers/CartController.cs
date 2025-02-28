@@ -58,7 +58,7 @@ namespace Task1LoginRegister.Controllers
 
             // removing old cart items from the table which orders is completed 
             var orderedProductIds = await context.OrderItems
-                .Where(oi => oi.Order.OrderStatus == "Completed" && oi.Order.PaymentStatus == "Paid")
+                .Where(oi => oi.Order.OrderStatus == "Delivered" && oi.Order.PaymentStatus == "Paid")
                 .Select(oi => oi.ProductId)
                 .Distinct()
                 .ToListAsync();

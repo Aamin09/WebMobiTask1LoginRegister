@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Task1LoginRegister.Models;
+using Task1LoginRegister.Services;
 
 namespace Task1LoginRegister.Controllers
 {
@@ -11,10 +12,13 @@ namespace Task1LoginRegister.Controllers
         private readonly ILogger<AccountController> _logger;
         private readonly WebMobiTask1DbContext context;
         public readonly IWebHostEnvironment env;
-        public AccountController(WebMobiTask1DbContext _context, IWebHostEnvironment _env, ILogger<AccountController> logger)
+        private readonly UserService userService;
+
+        public AccountController(WebMobiTask1DbContext _context, IWebHostEnvironment _env,UserService userService, ILogger<AccountController> logger)
         {
             context = _context;
             env = _env;
+            this.userService = userService;
             _logger = logger;
         }
 
@@ -124,6 +128,25 @@ namespace Task1LoginRegister.Controllers
                 }
             }
             return View(u);
+        }
+
+        public async Task<IActionResult> UserOrders()
+        {
+            var userId = await userService.GetCurrentUserIdAsync();
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var orders = await context.Orders
+                .Where(o => o.UserId == userId)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                    .ThenInclude(p => p.ProductImages)
+                .OrderByDescending(o => o.OrderDate)
+                .ToListAsync();
+
+            return View(orders);
         }
     }
 }

@@ -174,25 +174,6 @@ namespace Task1LoginRegister.Controllers
             return View(order);
         }
 
-        public async Task<IActionResult> UserOrders()
-        {
-            var userId = await userService.GetCurrentUserIdAsync();
-            if (userId == null)
-            {
-                return RedirectToAction("Login", "Account");
-            }
-
-            var orders = await context.Orders
-                .Where(o => o.UserId == userId)
-                .Include(o => o.OrderItems)
-                    .ThenInclude(oi => oi.Product)
-                    .ThenInclude(p => p.ProductImages)
-                .OrderByDescending(o => o.OrderDate)
-                .ToListAsync();
-
-            return View(orders);
-        }
-
         public async Task<IActionResult> Invoice(int orderId)
         {
             var userId = await userService.GetCurrentUserIdAsync();
