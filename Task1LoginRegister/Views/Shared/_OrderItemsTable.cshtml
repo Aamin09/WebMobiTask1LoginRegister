@@ -66,13 +66,13 @@
                                     @item.Product.Name
                                 </div>
                             </td>
-                            <td>@item.Price</td>
+                            <td>@item.Price.ToString("N2")</td>
                             <td class="text-center">@item.Quantity</td>
                             <td class="text-success">-@discount</td>
-                            <td>@cgst</td>
-                            <td>@sgst</td>
-                            <td>@(item.Product.DeliveryCharge > 0 ? item.Product.DeliveryCharge : "Free")</td>
-                            <td class="text-end">@itemTotal</td>
+                            <td>@cgst.ToString("N2")</td>
+                            <td>@sgst.ToString("N2")</td>
+                            <td>@(item.Product.DeliveryCharge > 0 ? item.Product.DeliveryCharge.ToString("N2") : "Free")</td>
+                            <td class="text-end">@itemTotal.ToString("N2")</td>
                         </tr>
                     }
                 </tbody>
