@@ -3,85 +3,160 @@
 @{
     ViewData["Title"] = "User Details";
 }
-
 <div class="container mt-5">
-    <h2 class="mb-4">User Details</h2>
-
-    <!-- User Information -->
-    <div class="card mb-4">
-        <div class="card-header bg-primary text-white">
-            <h4 class="mb-0">Personal Information</h4>
-        </div>
+    <div class="card shadow mb-4">
         <div class="card-body">
-            <div class="row">
-                <!-- Profile Photo -->
-                <div class="col-md-3 text-center">
-                    <div class="profile-photo-container">
-                        <img src="~/images/@Model.Photo" alt="Profile Photo" class="img-fluid rounded-circle" style="width: 150px; height: 150px; object-fit: cover;" />
-                    </div>
-                </div>
-
-                <!-- User Details -->
-                <div class="col-md-9">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <p><strong>First Name:</strong> @Model.FirstName</p>
-                            <p><strong>Last Name:</strong> @Model.LastName</p>
-                            <p><strong>Email:</strong> @Model.Email</p>
-                            <p><strong>Phone:</strong> @Model.Phone</p>
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-2 col-sm-3 text-center text-sm-start mb-3 mb-sm-0">
+                            <img src="~/images/@Model.Photo" alt="@Model.FirstName @Model.LastName"
+                                 class="rounded-circle img-thumbnail" style="width: 100px; height: 100px; object-fit: cover;">
                         </div>
-                        <div class="col-md-6">
-                            <p><strong>Gender:</strong> @Model.Gender</p>
-                            <p><strong>Role:</strong> @Model.Role</p>
-                            <p>
-                                <strong>Status:</strong>
-                                <span class="badge @(Model.IsActive ? "bg-success" : "bg-danger")">
+
+                        <div class="col-md-7 col-sm-6 mb-sm-1">
+                            <h2 class="mb-1">@Model.FirstName @Model.LastName</h2>
+                            <div class="d-flex flex-column flex-sm-row gap-2 text-muted">
+                                <div><i class="fas fa-envelope me-2"></i>@Model.Email</div>
+                                <div class="d-none d-sm-block"></div>
+                                <div><i class="fas fa-phone me-2"></i>@Model.Phone</div>
+                            </div>
+                            <div class="mt-2">
+                                <span class="badge userstatus @(Model.IsActive ? "bg-success":"bg-danger")">
                                     @(Model.IsActive ? "Active" : "Inactive")
                                 </span>
-                            </p>
+                                <span class="badge bg-info ms-2">@Model.Role</span>
+                                <span class="badge bg-secondary ms-2">ID: #@Model.Id</span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 col-sm-3 text-center text-sm-end">
+                          
+                            <div class="dropdown d-inline-block ms-0 ms-sm-2 mt-2 mt-sm-1">
+                                <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-cog me-2"></i>Actions
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a asp-action="Edit" asp-controller="Home" asp-route-id="@Model.Id" class="dropdown-item"><i class="fas fa-edit me-2"></i>Edit Customer</a></li>
+                                    <li><a class="dropdown-item" href="mailto:@Model.Email"><i class="fas fa-envelope me-2"></i>Email Customer</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item dropdown-toggle-status text-@(Model.IsActive ? "danger" : "success")"
+                                           href="#"
+                                           data-id="@Model.Id"
+                                           data-url="@Url.Action("ToggleStatus", "Home")">
+                                            <i class="fas fa-@(Model.IsActive ? "ban" : "check-circle") me-2"></i>
+                                            @(Model.IsActive ? "Deactivate" : "Activate") Account
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Delivery Addresses -->
-    <div class="card">
-        <div class="card-header bg-success text-white">
-            <h4 class="mb-0">Delivery Addresses</h4>
-        </div>
-
-        <div class="card-body">
-
-            @if (Model.DeliveryAddresses != null && Model.DeliveryAddresses.Any())
-            {
-                <div class="mb-4">
-                    <h5>Delivery Addresses</h5>
-                    <div class="row d-flex border">
-                        @foreach (var address in Model.DeliveryAddresses)
-                        {
-                            <div class="col-md-12">
-                                <div class="card-body">
-                                    <div class="form-check gap-4 d-flex ">
-                                        <label class="form-check-label w-100" for="address-@address.AddressId">
-                                            <strong>@address.FullName</strong><br />
-                                            @(string.IsNullOrEmpty(address.Street) ? "" : address.Street)<br />
-                                            @address.City, @address.State - @address.ZipCode, @address.Country<br />
-                                            <strong>Phone:</strong> @address.PhoneNumber<br />
-                                            <strong>Email:</strong> @address.Email
-
-                                            <br />
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                            <hr />
-                        }
+            <div class="card shadow mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-user-circle me-2"></i>Personal Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold">Full Name:</div>
+                        <div class="col-sm-8">@Model.FirstName @Model.LastName</div>
                     </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold">Email:</div>
+                        <div class="col-sm-8">@Model.Email</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold">Phone:</div>
+                        <div class="col-sm-8">@Model.Phone</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold">Gender:</div>
+                        <div class="col-sm-8">@Model.Gender</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delivery Addresses Section -->
+            <div class="card shadow submain">
+                <div class="card-header bg-success d-flex flex-column flex-sm-row justify-content-between align-items-center text-white">
+                    <h5 class="mb-sm-2"><i class="fas fa-map-marker-alt me-2"></i>Delivery Addresses</h5>
+                </div>
+
+                <div class="card-body">
+                    @if (Model.DeliveryAddresses != null && Model.DeliveryAddresses.Any())
+                    {
+                        <div class="mb-4">
+                            <h5>Save Addresses</h5>
+                            <div class="row d-flex border">
+                                @foreach (var address in Model.DeliveryAddresses)
+                                {
+                                    <div class="col-md-6">
+                                        <div class="card-body">
+                                            <div class="form-check gap-4 d-flex">
+                                                <label class="form-check-label w-100" for="address-@address.AddressId">
+                                                    <strong>@address.FullName</strong><br />
+                                                    @(string.IsNullOrEmpty(address.Street) ? "" : address.Street)<br />
+                                                    @address.City, @address.State - @address.ZipCode, @address.Country<br />
+                                                    Phone: @address.PhoneNumber<br />
+                                                    Email: @address.Email<br />
+                                                </label>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <hr />
+                                }
+                            </div>
+                            <div class="mt-3">
+                            </div>
+                        </div>
+                    }
 
                 </div>
-            }
+            </div>
         </div>
     </div>
 </div>
+<style>
+    .card {
+        border: none;
+        border-radius: 10px;
+    }
+
+    .card-header {
+        border-radius: 10px 10px 0 0;
+    }
+
+    .img-thumbnail {
+        border: 3px solid #007bff;
+    }
+
+    .badge {
+        font-size: 0.9rem;
+        padding: 0.5rem 0.75rem;
+    }
+
+    .btn {
+        border-radius: 20px;
+    }
+
+    .alert {
+        border-radius: 10px;
+    }
+
+    @@media (max-width:767px) {
+        .container, .main {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .card-body, .imageclass {
+            padding-left: 5px;
+            padding-right: 5px;
+        }
+    }
+</style>

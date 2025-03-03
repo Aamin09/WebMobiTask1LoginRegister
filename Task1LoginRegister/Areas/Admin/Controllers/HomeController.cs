@@ -96,7 +96,8 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                 Photo = user.Photo,
                 Password = user.Password,
                 ConfirmPassword = user.Password,
-                IsActive = user.IsActive
+                IsActive = user.IsActive,
+                Role=user.Role,
             };
 
             return View(model);
@@ -120,7 +121,7 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                 user.Phone = u.Phone;
                 user.Gender = u.Gender;
                 user.Password = u.Password;
-
+                user.Role = u.Role;
                 if (u.Profile != null)
                 {
 
