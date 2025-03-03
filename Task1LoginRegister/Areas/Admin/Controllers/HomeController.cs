@@ -183,7 +183,19 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
             return Json(new { isActive = user.IsActive });
         }
 
+        public async Task<IActionResult> Details(int id)
+        {
+            var user = await context.Userlogins
+                .Include(u => u.DeliveryAddresses) // Include delivery addresses
+                .FirstOrDefaultAsync(u => u.Id == id);
 
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return View(user);
+        }
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

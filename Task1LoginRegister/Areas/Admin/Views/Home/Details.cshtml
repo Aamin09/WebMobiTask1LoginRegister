@@ -1,0 +1,87 @@
+﻿@model Task1LoginRegister.Models.Userlogin
+
+@{
+    ViewData["Title"] = "User Details";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4">User Details</h2>
+
+    <!-- User Information -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Personal Information</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <!-- Profile Photo -->
+                <div class="col-md-3 text-center">
+                    <div class="profile-photo-container">
+                        <img src="~/images/@Model.Photo" alt="Profile Photo" class="img-fluid rounded-circle" style="width: 150px; height: 150px; object-fit: cover;" />
+                    </div>
+                </div>
+
+                <!-- User Details -->
+                <div class="col-md-9">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>First Name:</strong> @Model.FirstName</p>
+                            <p><strong>Last Name:</strong> @Model.LastName</p>
+                            <p><strong>Email:</strong> @Model.Email</p>
+                            <p><strong>Phone:</strong> @Model.Phone</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Gender:</strong> @Model.Gender</p>
+                            <p><strong>Role:</strong> @Model.Role</p>
+                            <p>
+                                <strong>Status:</strong>
+                                <span class="badge @(Model.IsActive ? "bg-success" : "bg-danger")">
+                                    @(Model.IsActive ? "Active" : "Inactive")
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delivery Addresses -->
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0">Delivery Addresses</h4>
+        </div>
+
+        <div class="card-body">
+
+            @if (Model.DeliveryAddresses != null && Model.DeliveryAddresses.Any())
+            {
+                <div class="mb-4">
+                    <h5>Delivery Addresses</h5>
+                    <div class="row d-flex border">
+                        @foreach (var address in Model.DeliveryAddresses)
+                        {
+                            <div class="col-md-12">
+                                <div class="card-body">
+                                    <div class="form-check gap-4 d-flex ">
+                                        <label class="form-check-label w-100" for="address-@address.AddressId">
+                                            <strong>@address.FullName</strong><br />
+                                            @(string.IsNullOrEmpty(address.Street) ? "" : address.Street)<br />
+                                            @address.City, @address.State - @address.ZipCode, @address.Country<br />
+                                            <strong>Phone:</strong> @address.PhoneNumber<br />
+                                            <strong>Email:</strong> @address.Email
+
+                                            <br />
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr />
+                        }
+                    </div>
+
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,275 @@
+﻿@model IEnumerable<Task1LoginRegister.Models.Order>
+@{
+    ViewData["Title"] = "CustomerOrders";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+
+    var customer = ViewBag.Customer as Task1LoginRegister.Models.Userlogin;
+}
+<style>
+    @@media (max-width:767px){
+        .container-fluid{
+            padding-left:0;
+            padding-right: 0;
+        }
+    }
+</style>
+<div class="container-fluid p-4">
+    <!--customer information -->
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-2 col-sm-3 text-center text-sm-start mb-3 mb-sm-0">
+                    <img src="~/images/@customer.Photo" alt="@customer.FirstName @customer.LastName"
+                         class="rounded-circle img-thumbnail" style="width: 100px; height: 100px; object-fit: cover;">
+                </div>
+
+                <div class="col-md-7 col-sm-6 mb-sm-1">
+                    <h2 class="mb-1">@customer.FirstName @customer.LastName</h2>
+                    <div class="d-flex flex-column flex-sm-row gap-2 text-muted">
+                        <div><i class="fas fa-envelope me-2"></i>@customer.Email</div>
+                        <div class="d-none d-sm-block"></div>
+                        <div><i class="fas fa-phone me-2"></i>@customer.Phone</div>
+                    </div>
+                    <div class="mt-2">
+                        <span class="badge userstatus @(customer.IsActive ? "bg-success":"bg-danger")">
+                            @(customer.IsActive ? "Active" : "Inactive")
+                        </span>
+                        <span class="badge bg-info ms-2">@customer.Role</span>
+                        <span class="badge bg-secondary ms-2">ID: #@customer.Id</span>
+                    </div>
+                </div>
+
+                <div class="col-md-3 col-sm-3 text-center text-sm-end">
+                    <a asp-action="Details" asp-controller="Home" asp-route-id="@customer.Id" class="btn btnalert-primary mb-2 mb-sm-1">
+                        <i class="fas fa-user me-2"></i>View Profile
+                    </a>
+                    <div class="dropdown d-inline-block ms-0 ms-sm-2 mt-2 mt-sm-1">
+                        <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-cog me-2"></i>Actions
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a asp-action="Edit" asp-controller="Home" asp-route-id="@customer.Id" class="dropdown-item"><i class="fas fa-edit me-2"></i>Edit Customer</a></li>
+                            <li><a class="dropdown-item" href="mailto:@customer.Email"><i class="fas fa-envelope me-2"></i>Email Customer</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item dropdown-toggle-status text-@(customer.IsActive ? "danger" : "success")"
+                                   href="#"
+                                   data-id="@customer.Id"
+                                   data-url="@Url.Action("ToggleStatus", "Home")">
+                                    <i class="fas fa-@(customer.IsActive ? "ban" : "check-circle") me-2"></i>
+                                    @(customer.IsActive ? "Deactivate" : "Activate") Account
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- total orders and date -->
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-lg-3 col-md-6 mb-3 mb-lg-1">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-primary rounded p-2 text-white">
+                                <i class="fas fa-shopping-bag fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-0">Total Orders</h6>
+                            <h4 class="mb-0">@ViewBag.TotalOrders</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-3 mb-lg-1">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-success rounded p-2 text-white">
+                                <i class="fas fa-inr fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-0">Total Spent</h6>
+                            <h4 class="mb-0">@Model.Sum(o => o.TotalAmount).ToString("N2")</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-3 mb-lg-1">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-info rounded p-2 text-white">
+                                <i class="fas fa-calendar-alt fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-0">First Order</h6>
+                            <h6 class="mb-0">@(Model.Any() ? Model.OrderBy(o => o.OrderDate).First().OrderDate.ToString("MMM dd, yyyy") : "N/A")</h6>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-3 mb-lg-1">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-warning rounded p-2 text-white">
+                                <i class="fas fa-clock fa-2x text-black"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-0">Last Order</h6>
+                            <h6 class="mb-0">@(Model.Any() ? Model.OrderByDescending(o => o.OrderDate).First().OrderDate.ToString("MMM dd, yyyy") : "N/A")</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-shopping-bag me-2"></i>Order History</h5>
+       
+        <div>
+                <form method="get" class="d-flex">
+                    <input type="hidden" name="userId" value="@customer.Id" />
+                    <select name="status" class="form-select form-select-sm" onchange="this.form.submit()" style="width:auto">
+                        <option value="" selected="@(ViewBag.CurrentStatus == null ? "selected" : null)">All Statuses</option>
+                        <option value="Pending" selected="@(ViewBag.CurrentStatus == "Pending" ? "selected" : null)">Pending</option>
+                        <option value="Processing" selected="@(ViewBag.CurrentStatus == "Processing" ? "selected" : null)">Processing</option>
+                        <option value="Shipped" selected="@(ViewBag.CurrentStatus == "Shipped" ? "selected" : null)">Shipped</option>
+                        <option value="Delivered" selected="@(ViewBag.CurrentStatus == "Delivered" ? "selected" : null)">Delivered</option>
+                        <option value="Cancelled" selected="@(ViewBag.CurrentStatus == "Cancelled" ? "selected" : null)">Cancelled</option>
+                    </select>
+                </form>
+        </div>
+        </div>
+    </div>
+    
+    <div class="card-body p-0 mt-3">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover mb-1" id="orderTables">
+                <thead class="bg-primary text-white">
+                    <tr>
+                        <th>Order #</th>
+                        <th>Date</th>
+                        <th>Amount (<i class="fas fa-inr"></i>)</th>
+                        <th>Items</th>
+                        <th>Payment</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <a asp-action="OrderDetails" asp-route-id="@item.OrderId" class="fw-bold text-primary">
+                                    #@item.OrderNumber
+                                </a>
+                            </td>
+                            <td>
+                                <div>@item.OrderDate.ToString("MMM dd, yyyy")</div>
+                                <small class="text-muted">@item.OrderDate.ToString("hh:mm tt")</small>
+                            </td>
+                            <td class="fw-bold">@item.TotalAmount.ToString("N2")</td>
+                            <td>
+                                <span class="badge bg-secondary">@item.OrderItems.Count items</span>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-column">
+                                    <span>@item.PaymentMethod</span>
+                                    @if(item.PaymentStatus == "Paid"){
+                                        <span class="badge bg-success mt-1">Paid</span>
+                                    }
+                                    else if(item.PaymentStatus == "Failed"){
+                                        <span class="badge bg-danger mt-1">Failed</span>
+                                    }
+                                    else{
+                                        <span class="badge bg-warning text-dark mt-1">@item.PaymentStatus</span>
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                @switch(item.OrderStatus){
+                                    case "Pending":
+                                        <span class="badge bg-warning text-dark">Pending</span>
+                                        break;
+                                    case "Processing":
+                                        <span class="badge bg-info">Processing</span>
+                                        break;
+                                    case "Shipped":
+                                        <span class="badge bg-primary">Shipped</span>
+                                        break;
+                                    case "Delivered":
+                                        <span class="badge bg-success">Delivered</span>
+                                        break;
+                                    case "Cancelled":
+                                        <span class="badge bg-danger">Cancelled</span>
+                                        break;
+                                    default:
+                                        <span class="badge bg-secondary">@item.OrderStatus</span>
+                                        break;
+                                }
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a asp-action="OrderDetails" asp-route-id="@item.OrderId" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-eye d-sm-inline me-sm-1"></i><span class="d-md-inline">View</span>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        
+                    }
+                    }
+                    else
+                    {
+                    <tr>
+                        <td colspan="7" class="text-center py-5">
+                            <div class="d-flex flex-column align-items-center">
+                                <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">No orders found</h5>
+                                <p class="text-muted">This customer hasn't placed any orders yet.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script src="~/js/usertogglestatus.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Check if the table has data (rows other than the "No orders found" row)
+            const table = $("#orderTables");
+            const hasData = table.find("tbody tr").length > 1; 
+
+            if (hasData) {
+                // Initialize DataTable only if there is data
+                let isScroll = false;
+                if (window.innerWidth < 1080) {
+                    isScroll = true;
+                }
+
+                table.DataTable({
+                    responsive: true,
+                    autoWidth: false,
+                    scrollX: isScroll,
+                });
+            } else {
+                table.removeClass("dataTable"); 
+            }
+        });
+    </script>
+}

@@ -22,7 +22,7 @@
     }
 
     @@page {
-        size: A4 landscape; 
+        size: A4; 
         margin: 0; 
       
     }
@@ -43,7 +43,7 @@
                 <p><strong>Email:</strong> support@skymart.com | <strong>Contact:</strong> +91 98765 43210</p>
                 <hr />
             </div>
-            @if (Model.OrderStatus == "Completed" && Model.PaymentStatus == "Paid")
+            @if (Model.OrderStatus == "Delivered" && Model.PaymentStatus == "Paid")
             {
                 <partial name="_OrderItemsTable" model="Model" view-data="ViewData" />
             }
