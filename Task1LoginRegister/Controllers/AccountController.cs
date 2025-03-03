@@ -14,7 +14,7 @@ namespace Task1LoginRegister.Controllers
         public readonly IWebHostEnvironment env;
         private readonly UserService userService;
 
-        public AccountController(WebMobiTask1DbContext _context, IWebHostEnvironment _env,UserService userService, ILogger<AccountController> logger)
+        public AccountController(WebMobiTask1DbContext _context, IWebHostEnvironment _env, UserService userService, ILogger<AccountController> logger)
         {
             context = _context;
             env = _env;
@@ -51,7 +51,7 @@ namespace Task1LoginRegister.Controllers
                 }
                 // cookie for user authentication
                 var claims = new List<System.Security.Claims.Claim>
-                { 
+                {
                     new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Name, u.Email),
                     new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Role, data.Role)
                 };
@@ -147,6 +147,26 @@ namespace Task1LoginRegister.Controllers
                 .ToListAsync();
 
             return View(orders);
+        }
+
+        public async Task<IActionResult> MyProfile()
+        {
+            var userId = await userService.GetCurrentUserIdAsync();
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var user = await context.Userlogins
+                .Include(u => u.DeliveryAddresses)
+                .FirstOrDefaultAsync(u=> u.Id== userId);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+            
+            return View(user);
         }
     }
 }

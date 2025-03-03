@@ -1,0 +1,57 @@
+﻿@model Task1LoginRegister.Models.DeliveryAddress
+
+<div class="mb-3">
+    <label asp-for="FullName" class="form-label">Full Name</label>
+    <input asp-for="FullName" class="form-control" />
+    <span asp-validation-for="FullName" class="text-danger"></span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="Street" class="form-label">Street Address</label>
+    <input asp-for="Street" class="form-control" />
+    <span asp-validation-for="Street" class="text-danger"></span>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label asp-for="City" class="form-label">City</label>
+        <input asp-for="City" class="form-control" />
+        <span asp-validation-for="City" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="State" class="form-label">State</label>
+        <input asp-for="State" class="form-control" />
+        <span asp-validation-for="State" class="text-danger"></span>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label asp-for="ZipCode" class="form-label">Zip Code</label>
+        <input asp-for="ZipCode" class="form-control" maxlength="6" />
+        <span asp-validation-for="ZipCode" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="Country" class="form-label">Country</label>
+        <input asp-for="Country" class="form-control" />
+        <span asp-validation-for="Country" class="text-danger"></span>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label asp-for="PhoneNumber" class="form-label">Phone Number</label>
+        <input asp-for="PhoneNumber" class="form-control" maxlength="10" />
+        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="Email" class="form-label">Email</label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+</div>
+
+<div class="mb-3 form-check">
+    <input asp-for="IsDefault" class="form-check-input" id="isDefault" />
+    <label asp-for="IsDefault" class="form-check-label">Set as default address</label>
+</div>

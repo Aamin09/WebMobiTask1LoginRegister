@@ -52,24 +52,13 @@ body {
     font-size: 0.85rem;
 }
 
-/* Button Styling */
-.btn-primary {
-   background: linear-gradient(90deg, #007bff, #00c6ff);
-       border: none;
-    font-size: 1.2rem;
-}
-
-    .btn-primary:hover {
-        background-color: #0056b3;
-    }
-
 /* Responsive Styling */
 @media (max-width: 768px) {
     .card-header h3 {
         font-size: 1.25rem;
     }
 
-    .btn-primary {
+    .btn {
         font-size: 1rem;
     }
 
@@ -96,7 +85,7 @@ body {
         font-size: 1.2rem;
     }
 
-    .btn-primary {
+    .btn{
         font-size: 0.9rem;
         padding: 10px;
     }
