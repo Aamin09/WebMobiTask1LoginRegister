@@ -24,11 +24,12 @@ namespace Task1LoginRegister.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var cartItems = context.Carts.Where(c=>c.UserId== userId && c.IsActive == true).Include(p=>p.Product).ThenInclude(pi=>pi.ProductImages).Include(p => p.Product).ThenInclude(pi => pi.Subcategory).ThenInclude(s => s.Taxes).ToList();
+            var cartItems = context.Carts.Where(c => c.UserId == userId && c.IsActive == true).Include(p => p.Product).ThenInclude(pi => pi.ProductImages).Include(p => p.Product).ThenInclude(pi => pi.Subcategory).ThenInclude(s => s.Taxes).ToList();
             int cartCount = cartItems.Count;
-            ViewBag.CartItemCount = cartCount > 0 ? cartCount.ToString() : ""; 
+            ViewBag.CartItemCount = cartCount > 0 ? cartCount.ToString() : "";
             return View(cartItems);
         }
+
 
         [HttpPost]
         public async Task<IActionResult> AddToCart(int productId, int quantity)
@@ -54,24 +55,6 @@ namespace Task1LoginRegister.Controllers
             if (product == null)
             {
                 return NotFound();
-            }
-
-            // removing old cart items from the table which orders is completed 
-            var orderedProductIds = await context.OrderItems
-                .Where(oi => oi.Order.OrderStatus == "Delivered" && oi.Order.PaymentStatus == "Paid")
-                .Select(oi => oi.ProductId)
-                .Distinct()
-                .ToListAsync();
-
-            var itemsToRemove = await context.Carts
-                .Where(c => orderedProductIds.Contains(c.ProductId) && c.IsActive && c.UserId == userId)
-                .ToListAsync();
-
-
-            if (itemsToRemove.Any())
-            {
-                context.Carts.RemoveRange(itemsToRemove);
-                await context.SaveChangesAsync();
             }
 
             var cartItem = await context.Carts.FirstOrDefaultAsync(c => c.ProductId == productId && c.UserId == userId && c.IsActive == true);
@@ -101,7 +84,7 @@ namespace Task1LoginRegister.Controllers
         public async Task<IActionResult> UpdateQuantity(int cartId, int quantity)
         {
             var cartItem = await context.Carts
-                .Include(c => c.Product)  
+                .Include(c => c.Product)
                 .FirstOrDefaultAsync(c => c.CartId == cartId);
 
             if (cartItem == null)
@@ -128,7 +111,7 @@ namespace Task1LoginRegister.Controllers
             if (cartItem != null)
             {
                 context.Carts.Remove(cartItem);
-                await  context.SaveChangesAsync();
+                await context.SaveChangesAsync();
             }
             return RedirectToAction("Index");
         }
@@ -145,7 +128,7 @@ namespace Task1LoginRegister.Controllers
                 .Where(c => c.UserId == userId && c.IsActive == true)
                 .Count(); // Count unique products
 
-            return Json(new { count = cartCount }); 
+            return Json(new { count = cartCount });
         }
 
     }
