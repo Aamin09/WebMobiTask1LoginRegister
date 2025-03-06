@@ -3,26 +3,10 @@
     var columnClass = ViewData["ColumnClass"] as string ?? "col-lg-3 col-md-6 col-sm-6";
 }
 <div class="@columnClass mt-3">
-    <div class="card product-card shadow-sm rounded-3 d-flex flex-column h-100">
+    <div class="card product-card shadow-sm rounded-4 d-flex flex-column h-100">
         <div class="position-relative">
             @{
-                var primaryMedia = Model.ProductImages.FirstOrDefault(pi => pi.IsPrimaryImage);
-                if (primaryMedia != null)
-                {
-                    var fileExtension = System.IO.Path.GetExtension(primaryMedia.ImageUrl)?.ToLower();
-
-                    if (fileExtension == ".jpg" || fileExtension == ".jpeg" || fileExtension == ".png" || fileExtension == ".gif" || fileExtension == ".webp")
-                    {
-                        <img src="@primaryMedia.ImageUrl" class="card-img-top product-image rounded-3" alt="Primary Product Image">
-                    }
-                    else if (fileExtension == ".mp4" || fileExtension == ".webm" || fileExtension == ".ogg")
-                    {
-                        <video class="card-img-top product-image rounded-3" controls autoplay loop>
-                            <source src="@primaryMedia.ImageUrl" type="video/@fileExtension.Substring(1)">
-                            Your browser does not support the video tag.
-                        </video>
-                    }
-                }
+                <partial name="_ProductImageVideoPartialView" model="@Model" />
             }
 
 

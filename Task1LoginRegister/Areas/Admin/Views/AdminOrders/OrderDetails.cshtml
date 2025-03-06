@@ -5,6 +5,9 @@
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 <style>
+    .img-thumbnail {
+        border: 3px solid #007bff;
+    }
     @@media (max-width:767px){
         .container-fluid {
             padding-left: 0;
@@ -187,7 +190,7 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center mb-3">
                         <div class="flex-shrink-0">
-                            <img src="~/Images/@Model.User.Photo" alt="Profile" class="rounded-circle" style="width:64px; height:64px; object-fit:cover" />
+                            <img src="~/Images/@Model.User.Photo" alt="Profile" class="rounded-circle img-thumbnail" style="width:64px; height:64px; object-fit:cover" />
                         </div>
                         <div class="flex-grow-1 ms-3">
                             <h5 class="mb-0 fs-6">@Model.User.FirstName @Model.User.LastName</h5>

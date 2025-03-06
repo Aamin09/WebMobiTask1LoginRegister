@@ -169,33 +169,7 @@
                         {
                             <div class="row border-bottom py-3 d-flex align-items-center cart-item">
                                 <div class="col-4 col-sm-3 col-md-2">
-                                    @if (item.Product.ProductImages != null && item.Product.ProductImages.Any())
-                                    {
-                                        var primaryMedia = item.Product.ProductImages.FirstOrDefault(img => img.IsPrimaryImage);
-                                        if (primaryMedia != null)
-                                        {
-                                            var fileExtension = System.IO.Path.GetExtension(primaryMedia.ImageUrl)?.ToLower();
-
-                                            if (fileExtension == ".jpg" || fileExtension == ".jpeg" || fileExtension == ".png" || fileExtension == ".gif" || fileExtension == ".webp")
-                                            {
-                                                // Display image
-                                                <a href="/Home/Details/@item.ProductId">
-                                                    <img src="@primaryMedia.ImageUrl" class="product-image img-fluid" alt="Primary Product Image">
-                                                </a>
-                                            }
-                                            else if (fileExtension == ".mp4" || fileExtension == ".webm" || fileExtension == ".ogg")
-                                            {
-                                                // Display video
-                                                <a href="/Home/Details/@item.ProductId">
-                                                    <video class="product-video img-fluid" controls autoplay loop>
-                                                        <source src="@primaryMedia.ImageUrl" type="video/@fileExtension.Substring(1)">
-                                                        Your browser does not support the video tag.
-                                                    </video>
-                                                </a>
-                                            }
-
-                                        }
-                                    }
+                                    <partial name="_ProductImageVideoPartialView" model="@item.Product" />
                                 </div>
                                 <div class="col-8 col-sm-5 col-md-6 product-details">
                                     <h5><a href="/Home/Details/@item.ProductId" class="text-decoration-none text-dark" target="_blank" rel="noopener noreferrer">@item.Product.Name</a></h5>
@@ -245,8 +219,13 @@
                     }
                     else
                     {
-                        <div class="col-lg-8">
-                            <h3>Your cart is empty</h3>
+                        <div class="col">
+                            <div class="alert alert-info text-center">
+                                <h4>No Items Found</h4>
+                                <p>You haven't added any items into cart yet.</p>
+                                <a asp-action="Products" asp-controller="Home" class="btn btn-primary">Start Shopping</a>
+                            </div>
+                            
                         </div>
                     }
                 </div>

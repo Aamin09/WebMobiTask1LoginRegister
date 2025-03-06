@@ -39,7 +39,7 @@ namespace Task1LoginRegister.Controllers
             if (string.IsNullOrEmpty(userEmail))
             {
                 string returnUrl = Url.Action("Details", "Home", new { id = productId });
-                return RedirectToAction("Login", "Login", new { returnUrl });
+                return RedirectToAction("Login", "Account", new { returnUrl });
             }
 
             var user = await context.Userlogins.FirstOrDefaultAsync(x => x.Email == userEmail);

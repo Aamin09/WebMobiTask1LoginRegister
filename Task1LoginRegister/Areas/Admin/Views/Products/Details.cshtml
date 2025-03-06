@@ -107,29 +107,7 @@ h2 {
         <!-- Product Image -->
         <div class="col-lg-5 col-md-5 col-sm-12 mb-4 product-image-container">
             <div class="card">
-                @if (Model.ProductImages != null && Model.ProductImages.Any())
-                {
-                    var primaryMedia = Model.ProductImages.FirstOrDefault(img => img.IsPrimaryImage);
-                    if (primaryMedia != null)
-                    {
-                        var fileExtension = System.IO.Path.GetExtension(primaryMedia.ImageUrl)?.ToLower();
-
-                        if (fileExtension == ".jpg" || fileExtension == ".jpeg" || fileExtension == ".png" || fileExtension == ".gif" || fileExtension == ".webp")
-                        {
-                            // Display image
-                            <img src="@primaryMedia.ImageUrl" class="product-image img-fluid" alt="Primary Product Image">
-                        }
-                        else if (fileExtension == ".mp4" || fileExtension == ".webm" || fileExtension == ".ogg")
-                        {
-                            // Display video
-                            <video class="product-video img-fluid" controls autoplay loop>
-                                <source src="@primaryMedia.ImageUrl" type="video/@fileExtension.Substring(1)">
-                                Your browser does not support the video tag.
-                            </video>
-                        }
-                       
-                    }
-                }
+                <partial name="_ProductImageVideoPartialView" model="@Model" />
             </div>
         </div>
 
