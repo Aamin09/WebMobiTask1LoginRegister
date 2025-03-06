@@ -254,14 +254,15 @@
                         <div class="d-flex justify-content-between mb-2">
                             <span>Delivery Charges</span>
                             @{
-                                var deliveryCharge = Model.CartItems.FirstOrDefault(x => x.Product.DeliveryCharge > 0);
-                                if (deliveryCharge != null)
+                                var highestDeliverycharge = Model.CartItems.Where(x => x.Product.DeliveryCharge > 0)
+                                .Max(x => (decimal?)x.Product.DeliveryCharge) ?? 0;
+                                if (highestDeliverycharge >0)
                                 {
-                                    <span>@deliveryCharge.Product.DeliveryCharge.ToString("C")</span>
+                                     <span class="float-end text-success fw-bold">@highestDeliverycharge.ToString("C")</span>
                                 }
                                 else
                                 {
-                                    <span class="text-success">Free</span>
+                                   <strong class="float-end text-success fw-bold">Free</strong>
                                 }
                             }
                         </div>
@@ -276,7 +277,12 @@
                         <hr>
                         <div class="d-flex justify-content-between mb-2">
                             <strong>Total Amount</strong>
-                            <strong>@Model.CartItems.Sum(x => x.FinalPrice).ToString("C")</strong>
+                            <strong>
+                                @{
+                                    var totalAmount = Model.CartItems.Sum(x => x.TotalPrice + x.TotalGST) + highestDeliverycharge;
+                                }
+                                @totalAmount.ToString("C")
+                            </strong>
                         </div>
                         <div class="text-success text-center">
                             You will save @Model.CartItems.Sum(x => x.Quantity * (x.Product.Price - x.Product.CalculatedSellingPrice)).ToString("C") on this order

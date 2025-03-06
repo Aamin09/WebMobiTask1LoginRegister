@@ -6,152 +6,152 @@
 }
 <style>
     .price-section {
-        position: sticky;
-        top: 20px;
-        z-index: 100;
+    position: sticky;
+    top: 20px;
+    z-index: 100;
     }
 
     .main {
-        padding-right: 20px;
-        padding-left: 40px;
+    padding-right: 20px;
+    padding-left: 40px;
     }
 
     .product-image, .product-video {
-        max-width: 100%;
-        width: 100%;
-        height: 150px;
-        object-fit: cover;
-        border: 2px solid #ddd;
-        padding: 5px;
-        border-radius: 10px;
+    max-width: 100%;
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border: 2px solid #ddd;
+    padding: 5px;
+    border-radius: 10px;
     }
 
     .quantity {
-        text-align: center;
-        width: 65px;
-        padding: 5px;
-        font-size: 16px;
-        outline: none;
+    text-align: center;
+    width: 65px;
+    padding: 5px;
+    font-size: 16px;
+    outline: none;
     }
 
     .btn-outline-secondary {
-        cursor: pointer;
-        width: 40px;
-        border: none;
-        transition: background-color 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    width: 40px;
+    border: none;
+    transition: background-color 0.2s, box-shadow 0.2s;
     }
 
-        .btn-outline-secondary:focus {
-            box-shadow: none;
-        }
+    .btn-outline-secondary:focus {
+    box-shadow: none;
+    }
 
 
     .d-flex.border {
-        border: 1px solid #dee2e6;
-        border-radius: 8px;
-        overflow: hidden;
-        max-width: 100%;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+    max-width: 100%;
     }
 
     input[type="number"] {
-        border: none;
-        text-align: center;
-        font-size: 14px;
+    border: none;
+    text-align: center;
+    font-size: 14px;
     }
 
     @@media screen and (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
 
-        .main {
-            padding: 10px;
-        }
+    .main {
+    padding: 10px;
+    }
 
-        .product-details p.small, .quantity-price {
-            font-size: 16px;
-        }
+    .product-details p.small, .quantity-price {
+    font-size: 16px;
+    }
 
-        .quantity {
-            width: 55px;
-            font-size: 15px;
-        }
+    .quantity {
+    width: 55px;
+    font-size: 15px;
+    }
 
-        .btn-outline-secondary {
-            width: 40px;
-            font-size: 15px;
-            padding: 4px;
-        }
+    .btn-outline-secondary {
+    width: 40px;
+    font-size: 15px;
+    padding: 4px;
+    }
 
-        .quantity-price {
-            font-size: 16px;
-        }
+    .quantity-price {
+    font-size: 16px;
+    }
     }
 
     @@media (max-width: 767px) {
-        .main {
-            padding: 10px;
-        }
+    .main {
+    padding: 10px;
+    }
 
-        h5 {
-            font-size: large;
-        }
+    h5 {
+    font-size: large;
+    }
 
-        p {
-            font-size: medium;
-        }
+    p {
+    font-size: medium;
+    }
 
-        .product-details p.small {
-            font-size: 12px;
-            max-width: 100%;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: block;
-        }
+    .product-details p.small {
+    font-size: 12px;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    }
 
-        .quantity {
-            width: 50px;
-            font-size: 15px;
-        }
+    .quantity {
+    width: 50px;
+    font-size: 15px;
+    }
 
-        .btn-outline-secondary {
-            width: 35px;
-            font-size: 15px;
-            padding: 4px;
-        }
+    .btn-outline-secondary {
+    width: 35px;
+    font-size: 15px;
+    padding: 4px;
+    }
 
-        .quantity-price {
-            font-size: 16px;
-        }
+    .quantity-price {
+    font-size: 16px;
+    }
     }
 
     @@media (max-width: 576px) {
-        .main {
-            padding: 5px;
-        }
+    .main {
+    padding: 5px;
+    }
 
-        .col-lg-8, .col-lg-4 {
-            padding: 5px;
-            margin: 0;
-        }
+    .col-lg-8, .col-lg-4 {
+    padding: 5px;
+    margin: 0;
+    }
 
-        .quantity {
-            width: 40px;
-            font-size: 14px;
-        }
+    .quantity {
+    width: 40px;
+    font-size: 14px;
+    }
 
-        .btn-outline-secondary {
-            width: 25px;
-            font-size: 12px;
-            padding: 3px;
-        }
+    .btn-outline-secondary {
+    width: 25px;
+    font-size: 12px;
+    padding: 3px;
+    }
 
-        .product-details p.small {
-            font-size: 14px;
-            max-width: 100%;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: block;
-        }
+    .product-details p.small {
+    font-size: 14px;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    }
     }
 </style>
 
@@ -198,7 +198,7 @@
                                             <i class="fas fa-minus"></i>
                                         </button>
                                         <input type="number" data-cartid="@item.CartId" name="quantity" value="@item.Quantity" min="1"
-                                               class="form-control quantity text-center border-0">
+                                        class="form-control quantity text-center border-0">
                                         <button class="btn btn-outline-secondary btn-sm increment " type="button">
                                             <i class="fas fa-plus"></i>
                                         </button>
@@ -225,7 +225,7 @@
                                 <p>You haven't added any items into cart yet.</p>
                                 <a asp-action="Products" asp-controller="Home" class="btn btn-primary">Start Shopping</a>
                             </div>
-                            
+
                         </div>
                     }
                 </div>
@@ -242,10 +242,11 @@
                         <p>Price (@Model.Count() Items): <span class="float-end">@Model.Sum(x => x.Quantity * x.Product.Price).ToString("C")</span></p>
                         <p>Discount: <span class="float-end text-success">- @Model.Sum(x => x.Quantity * (x.Product.Price - x.Product.CalculatedSellingPrice)).ToString("C")</span></p>
                         @{
-                            var dcharge = Model.FirstOrDefault(x => x.Product.DeliveryCharge > 0);
-                            if (dcharge != null)
+                            var highestDeliverycharge = Model.Where(x => x.Product.DeliveryCharge > 0)
+                            .Max(x => (decimal?)x.Product.DeliveryCharge) ?? 0;
+                            if (highestDeliverycharge > 0)
                             {
-                                <p>Delivery Charges: <span class="float-end text-success fw-bold">@dcharge.Product.DeliveryCharge.ToString("C")</span></p>
+                                <p>Delivery Charges: <span class="float-end text-success fw-bold">@highestDeliverycharge.ToString("C")</span></p>
                             }
                             else
                             {
@@ -260,7 +261,16 @@
                         <p>SGST: <span class="float-end">@Model.Sum(x => x.TotalGST > 0 ? x.TotalGST / 2 : 0).ToString("C")</span></p>
 
                         <hr>
-                        <h5 class="fw-bold">Total Amount: <span class="float-end">@Model.Sum(x => x.Quantity * x.Product.Price + x.Product.DeliveryCharge + x.TotalGST).ToString("C")</span></h5>
+                        <h5 class="fw-bold">
+                            Total Amount:
+                            <span class="float-end">
+                                @{
+                                    var totalAmount = Model.Sum(x => x.TotalPrice + x.TotalGST) + highestDeliverycharge;
+                                }
+                                @totalAmount.ToString("C")
+                            </span>
+                        </h5>
+
                         <p class="text-success">You will save @Model.Sum(x => x.Quantity * (x.Product.Price - x.Product.CalculatedSellingPrice)).ToString("C") on this order</p>
                         <button class="btn btn-warning w-100 mt-2">Place Order</button>
 

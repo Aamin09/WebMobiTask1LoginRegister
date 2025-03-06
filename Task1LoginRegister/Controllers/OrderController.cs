@@ -103,7 +103,7 @@ namespace Task1LoginRegister.Controllers
                 }
             }
 
-            decimal totalAmount = cartItems.Sum(c => c.FinalPrice);
+            decimal totalAmount = cartItems.Sum(c => c.TotalPrice);
 
             var order = new Order
             {
