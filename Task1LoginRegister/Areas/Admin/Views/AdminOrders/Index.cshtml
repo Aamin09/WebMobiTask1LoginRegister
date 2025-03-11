@@ -10,6 +10,69 @@
         <h2><i class="fas fa-shopping-cart mt-2"></i> Orders Management</h2>
     </div>
 
+    <!-- total orders and date -->
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-lg-3 col-md-6 mb-3 mb-lg-1">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-primary rounded p-2 text-white">
+                                <i class="fas fa-shopping-bag fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-0">Total Orders</h6>
+                            <h4 class="mb-0">@(Model.Any() ? Model.Select(o => o.OrderId).Count().ToString() : 0)</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-3 mb-lg-1">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-success rounded p-2 text-white">
+                                <i class="fas fa-inr fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-0">Total Amount</h6>
+                            <h4 class="mb-0">@Model.Sum(o => o.TotalAmount).ToString("N2")</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-3 mb-lg-1">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-success rounded p-2 text-white">
+                                <i class="fas fa-check-circle fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-0">Total Delivered</h6>
+                            <h4 class="mb-0">@(Model.Any() ? Model.Where(o=>o.OrderStatus=="Delivered").Count().ToString(): 0)</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-3 mb-lg-1">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-warning rounded p-2 text-white">
+                                <i class="fas fa-clock fa-2x text-black"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-0">Pending Order</h6>
+                            <h4 class="mb-0">@(Model.Any() ? Model.Where(o => o.OrderStatus != "Delivered").Count().ToString() : 0)</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="card shadow">
         <div class="card-body">
             <div class="table-responsive">

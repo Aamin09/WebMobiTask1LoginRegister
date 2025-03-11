@@ -37,7 +37,7 @@
                                     <i class="fas fa-cog me-2"></i>Actions
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a asp-action="Edit" asp-controller="Home" asp-route-id="@Model.Id" class="dropdown-item"><i class="fas fa-edit me-2"></i>Edit Customer</a></li>
+                                    <li><a asp-area="Admin" asp-action="Edit" asp-controller="Home" asp-route-id="@Model.Id" class="dropdown-item"><i class="fas fa-edit me-2"></i>Edit Customer</a></li>
                                     <li><a class="dropdown-item" href="mailto:@Model.Email"><i class="fas fa-envelope me-2"></i>Email Customer</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
