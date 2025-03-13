@@ -162,8 +162,9 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
-            $("#orderTable").DataTable({
-            });
-        });
+             $("#orderTable").DataTable({
+                 "order": [[0, "desc"]] // Set the default sorting column (0 = first column, change if needed)
+             });
+         });
     </script>
 }

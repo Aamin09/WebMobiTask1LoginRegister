@@ -38,6 +38,9 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<UserService>();
 
+// for razorpay payments
+builder.Services.AddScoped<RazorPayService>();
+
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);

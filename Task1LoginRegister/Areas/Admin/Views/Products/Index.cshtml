@@ -5,9 +5,9 @@
 }
 <style>
     .product-image{
-        max-width: 100px;
-        height:auto;
-        max-height:130px;
+    max-width: 100px;
+    height:auto;
+    max-height:130px;
     }
 </style>
 
@@ -17,6 +17,88 @@
     <h5 class="mb-3">Want to manage Categories?</h5>
     <a asp-action="Index" asp-controller="CategorySubcategory" class="btn btn-dark text-white btn-md"><i class="fas fa-box-open"></i> Go to Category and Subcategory Dashboard</a>
 </div>
+
+<div class="card shadow mb-4">
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col-lg-3 col-md-6 mb-3 mb-lg-1">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-primary rounded p-2 text-white">
+                            <i class="fas fa-shopping-bag fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-0">Total Products</h6>
+                        <h4 class="mb-0">@(Model.Any() ? Model.Select(p => p.ProductId).Count().ToString() : 0)</h4>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6 mb-3 mb-lg-1">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-success rounded p-2 text-white">
+                            <i class="fas fa-inr fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-0">Total Revenue</h6>
+                        <h4 class="mb-0">@Model.Sum(p=>p.OrderItems.Sum(oi=>oi.Quantity * oi.Price)).ToString("N2")</h4>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6 mb-3 mb-lg-1">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="rounded p-2 text-dark" style="background-color: #FFD700;">
+                            <i class="fas fa-crown text-dark fa-2x"></i>
+                        </div>
+
+
+
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-0">Most Selling Product</h6>
+                        @{
+                            var mostSellingProduct = Model
+                            .OrderByDescending(p => p.OrderItems.Sum(oi => oi.Quantity))
+                            .FirstOrDefault();
+                            var nosales = Model.OrderByDescending(p => p.OrderItems.Sum(oi => oi.Quantity)).Count();
+                        }
+
+                        @if (mostSellingProduct != null)
+                        {
+                            <h6 class="mb-0">@mostSellingProduct.Name </h6>
+                            <h6 class="mb-0">No. of sales: @nosales </h6>
+                        }
+                        else
+                        {
+                            <h6 class="mb-0">No Sales Yet</h6>
+                        }
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6 mb-3 mb-lg-1">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-success rounded p-2 text-white">
+                            <i class="fas fa-check-circle fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-0">Total Delivered</h6>
+                        <h4 class="mb-0">@(Model.Any() ? Model.Sum(p => p.OrderItems.Count(oi => oi.Order.OrderStatus == "Delivered")).ToString() : "0")</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <p class="text-right mt-2">
     <a asp-action="Create" class="btn btn-primary btn-md"><i class="fas fa-plus-circle"></i> Create New Product</a>
 </p>

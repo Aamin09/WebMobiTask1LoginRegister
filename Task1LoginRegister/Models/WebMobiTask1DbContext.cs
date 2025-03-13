@@ -26,6 +26,8 @@ public partial class WebMobiTask1DbContext : DbContext
     public virtual DbSet<OrderItem> OrderItems { get; set; }
     public virtual DbSet<DeliveryAddress> DeliveryAddresses { get; set; }
 
+    public virtual DbSet<RazorpayOrderModel> RazorpayOrders { get; set; }
+
     public virtual DbSet<Cart> Carts { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -102,6 +104,17 @@ public partial class WebMobiTask1DbContext : DbContext
         modelBuilder.Entity<GstTax>()
       .Property(p => p.SGST)
       .HasColumnType("decimal(18,2)");
+
+        modelBuilder.Entity<RazorpayOrderModel>()
+       .Property(p => p.Amount)
+       .HasColumnType("decimal(18,2)");
+
+        // order razor pay relationship 
+        modelBuilder.Entity<Order>()
+            .HasOne(o => o.RazorpayOrder)
+            .WithOne(ro => ro.Order)
+            .HasForeignKey<RazorpayOrderModel>(ro => ro.ApplicationOrderId)
+            .OnDelete(DeleteBehavior.Cascade); // When an Order is deleted, the RazorpayOrder is also deleted
 
         // Product - Category Relationship 
         modelBuilder.Entity<Product>()

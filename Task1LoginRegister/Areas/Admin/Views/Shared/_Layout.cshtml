@@ -14,7 +14,7 @@
 
 <body>
     @* toggle button for sidebar *@
-    <button class="btn" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+    <button class="btn" id="sidebarToggle"><i class="fas fa-times"></i></button>
 
     @* sidebar  *@
     <div id="sidebar-wrapper">
@@ -127,15 +127,20 @@
 
     @* Content Wrapper *@
     <div id="content-wrapper">
-        @* top navigation *@
-        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 shadow-sm">
-            <form class="d-none d-sm-inline-block form-check-inline mr-auto ml-md-3 my-2 my-md-0 navbar-search">
+        @* top navigation *@     
+        <nav class="navbar navbar-expand navbar-light bg-gradient-navbar topbar mb-4 shadow-sm">
+            
+            <div class="d-flex flex-sm-row">
+            <a class="navbar-brand" asp-area="Admin" asp-action="Index" asp-controller="Home">
+                <img src="~/Images/logo.png" class="img-fluid navbar-logo align-middle" alt="Store Logo" style="max-height: 40px; width: auto;">
+            </a>
+                <form class="d-none d-sm-inline-block form-check-inline mr-auto ml-md-3 my-2 my-md-0 navbar-search">
                 <div class="input-group">
                     <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search" />
                     <i class="fas fa-search"></i>
                 </div>
             </form>
-
+            </div>
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item dropdown no-arrow mx-1">
                     <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -162,7 +167,7 @@
 
                 <li class="nav-item dropdown no-arrow">
                     <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <span class="d-none d-lg-inline text-gray-600 small me-2">@UserService.GetUserName()</span>
+                        <span class="d-lg-inline text-gray-600 me-2">@UserService.GetUserName()</span>
                         <img class="img-profile rounded-circle" style="width: 32px; height: 32px;" src="~/images/@UserService.GetUserImageAsync()">
                     </a>
                     <div class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
@@ -187,12 +192,12 @@
         </nav>
 
         <!-- Main Content -->
-        <div id="main-content" class="container-fluid mb-4">
+        <div id="main-content" class="container-fluid mb-5">
             @RenderBody()
         </div>
 
         <!-- Footer -->
-        <footer class="footer bg-white">
+        <footer class="footer bg-gradient-navbar">
             <div class="container my-auto">
                 <div class="text-center">
                     <span>&copy; 2025 - Your E-commerce Admin Dashboard</span>
@@ -223,9 +228,6 @@
                 $(this).css('left', 'calc(var(--sidebar-width) - 20px)');
             }
         });
-
-            // Initial button state - important to set correctly on page load
-
 
 
             // Toggle dropdowns in sidebar

@@ -12,6 +12,10 @@ html {
   box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
+.bg-gradient-navbar {
+    background: linear-gradient(90deg, #007bff, #00088b);
+}
+
 html {
   position: relative;
   min-height: 100%;
@@ -21,20 +25,16 @@ body {
   margin-bottom: 60px;
 }
 
-.bg-gradient-navbar {
-    background: linear-gradient(90deg, #007bff, #00c6ff); /* Dark blue to light blue gradient */
-}
+
 .navbar-nav .nav-link {
-    font-size: 1rem;
-    letter-spacing: 1px;
+    color: white !important;
     font-weight: 500;
-    color: #ffffff;
-    transition: color 0.3s ease, transform 0.2s ease;
+    transition: color 0.3s ease-in-out;
 }
 
+
     .navbar-nav .nav-link:hover {
-        color: #ffd700; /* Gold color on hover */
-        transform: scale(1.05);
+        color: #87CEFA !important;
     }
 
 :root {
@@ -64,7 +64,7 @@ body {
 #sidebar-wrapper {
     min-height: 100%;
     width: var(--sidebar-width);
-    background: var(--sidebar-bg);
+    background: black;
     position: absolute;
     left: 0;
     top: 0;
@@ -96,9 +96,12 @@ body {
 }
 
 .sidebar-divider {
-    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    border-top: 2px solid #ffffff !important;
     margin: 0 1rem;
+    color: white !important;
+    font-weight: bold;
 }
+
 
 .nav-item {
     position: relative;
@@ -108,7 +111,7 @@ body {
     display: flex;
     align-items: center;
     padding: 0.75rem 1rem;
-    color: var(--sidebar-text-color);
+    color: white !important;
     font-weight: 600;
     transition: all 0.2s;
     border-radius: 0.25rem;
@@ -116,7 +119,7 @@ body {
 }
 
     .nav-link:hover {
-        color: white;
+        color: #007bff !important;
         background: var(--sidebar-hover-bg);
     }
 
@@ -180,7 +183,7 @@ body {
 
 /* Toggle Button */
 #sidebarToggle {
-    background: var(--primary-color);
+    background: black;
     color: white;
     border: none;
     border-radius: 50%;
@@ -191,7 +194,7 @@ body {
     justify-content: center;
     cursor: pointer;
     position: fixed;
-    left: 10px;
+    left: 230px;
     top: 15px;
     z-index: 1000;
     transition: all 0.3s ease-in-out;
@@ -218,10 +221,13 @@ body {
     padding: 0 1rem;
 }
 
+.navbar-logo {
+    margin-left:35px;
+}
+
 .navbar-search {
     position: relative;
     width: 25rem;
-    margin-left: 40px;
 }
 
 
@@ -287,19 +293,40 @@ body {
 .footer {
     padding: 1rem 0;
     border-top: 1px solid #e3e6f0;
-    background-color: white;
     text-align: center;
     width: 100%; /* Ensure footer spans the full width */
     position: relative; /* Ensure footer stays at the bottom */
     bottom: 0;
     left: 0;
+    color: white;
+    font-size: 14px;
 }
 
+    .footer h5 {
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+
+.navbar-nav .nav-link {
+    color: white !important;
+    font-weight: 500;
+    transition: color 0.3s ease-in-out;
+}
+
+
+    .navbar-nav .nav-link:hover {
+        color: #87CEFA !important;
+    }
+
 /* Responsive Adjustments */
-@@media (max-width: 768px) {
+@media (max-width: 768px) {
     #sidebar-wrapper {
         width: 0;
         left: -250px;
+        top: 0;
+        height: 100vh;
+        transition: left 0.3s ease-in-out;
+        z-index: 1050; 
     }
 
         #sidebar-wrapper.mobile-show {
@@ -327,6 +354,7 @@ body {
     }
 
     #sidebarToggle {
+        z-index: 1150;
         display: block; /* Ensure the toggle button is visible */
         max-width: 100vh;
         left: 10px; /* Position the toggle button on the left */

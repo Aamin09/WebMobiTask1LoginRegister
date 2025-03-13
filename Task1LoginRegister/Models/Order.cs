@@ -26,6 +26,8 @@ namespace Task1LoginRegister.Models
 
         public string? PaymentStatus { get; set; } = "Pending";
 
+        public string? RazorpayOrderId { get; set; }
+
         public string? PaymentId { get; set; }
         [Required]
         public int DeliveryAddressId { get; set; }
@@ -33,5 +35,6 @@ namespace Task1LoginRegister.Models
         public virtual DeliveryAddress? DeliveryAddress { get; set; }
 
         public virtual ICollection<OrderItem> OrderItems { get; set; }
+        public virtual RazorpayOrderModel? RazorpayOrder { get; set; }
     }
 }

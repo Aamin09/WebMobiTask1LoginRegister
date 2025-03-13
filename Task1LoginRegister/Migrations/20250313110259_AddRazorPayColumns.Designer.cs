@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Task1LoginRegister.Models;
 
@@ -11,9 +12,11 @@ using Task1LoginRegister.Models;
 namespace Task1LoginRegister.Migrations
 {
     [DbContext(typeof(WebMobiTask1DbContext))]
-    partial class WebMobiTask1DbContextModelSnapshot : ModelSnapshot
+    [Migration("20250313110259_AddRazorPayColumns")]
+    partial class AddRazorPayColumns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -399,9 +402,6 @@ namespace Task1LoginRegister.Migrations
 
                     b.HasKey("OrderId");
 
-                    b.HasIndex("ApplicationOrderId")
-                        .IsUnique();
-
                     b.ToTable("RazorpayOrders");
                 });
 
@@ -604,17 +604,6 @@ namespace Task1LoginRegister.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("Task1LoginRegister.Models.RazorpayOrderModel", b =>
-                {
-                    b.HasOne("Task1LoginRegister.Models.Order", "Order")
-                        .WithOne("RazorpayOrder")
-                        .HasForeignKey("Task1LoginRegister.Models.RazorpayOrderModel", "ApplicationOrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Order");
-                });
-
             modelBuilder.Entity("Task1LoginRegister.Models.Subcategory", b =>
                 {
                     b.HasOne("Task1LoginRegister.Models.Category", "Category")
@@ -636,8 +625,6 @@ namespace Task1LoginRegister.Migrations
             modelBuilder.Entity("Task1LoginRegister.Models.Order", b =>
                 {
                     b.Navigation("OrderItems");
-
-                    b.Navigation("RazorpayOrder");
                 });
 
             modelBuilder.Entity("Task1LoginRegister.Models.Product", b =>

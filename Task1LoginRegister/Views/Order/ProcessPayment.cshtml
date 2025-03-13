@@ -1,0 +1,94 @@
+﻿@model Task1LoginRegister.Models.RazorpayOrderModel
+@{
+    ViewData["Title"] = "Complete Payment";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Complete Your Payment</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <p><i class="fas fa-info-circle"></i> You are in test mode. Use these test card details:</p>
+                        <ul>
+                            <li>Card Number: 4111 1111 1111 1111</li>
+                            <li>Expiry: Any future date</li>
+                            <li>CVV: Any 3 digits</li>
+                            <li>Name: Any name</li>
+                        </ul>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5>Order Details</h5>
+                            <p><strong>Order #:</strong> @Model.Description</p>
+                            <p><strong>Amount:</strong> @Model.Amount.ToString("C")</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Shipping To</h5>
+                            <p>
+                                <strong>@Model.Name</strong><br>
+                                @Model.Address<br>
+                                @Model.Email<br>
+                                @Model.PhoneNumber
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <button id="rzp-button" class="btn btn-warning btn-lg">Pay Now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        var options = {
+            "key": "@Model.Razorpaykey",
+            "amount": "@(Model.Amount * 100)",
+            "currency": "@Model.Currency",
+            "name": "SkyMart",
+            "description": "@Model.Description",
+            "order_id": "@Model.OrderId",
+            "prefill": {
+                "name": "@Model.Name",
+                "email": "@Model.Email",
+                "contact": "@Model.PhoneNumber"
+            },
+            "notes": {
+                "address": "@Model.Address",
+                "merchant_order_id": "@Model.ApplicationOrderId"
+            },
+            "theme": {
+                "color": "#F37254"
+            },
+            "handler": function (response) {
+                document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
+                document.getElementById('razorpay_order_id').value = response.razorpay_order_id;
+                document.getElementById('razorpay_signature').value = response.razorpay_signature;
+                document.getElementById('razorpay-form').submit();
+            }
+        };
+
+        var rzp = new Razorpay(options);
+        document.getElementById('rzp-button').onclick = function(e) {
+            rzp.open();
+            e.preventDefault();
+        }
+    </script>
+
+    <form id="razorpay-form" action="/Order/PaymentCallback" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id" />
+        <input type="hidden" name="razorpay_order_id" id="razorpay_order_id" />
+        <input type="hidden" name="razorpay_signature" id="razorpay_signature" />
+    </form>
+}

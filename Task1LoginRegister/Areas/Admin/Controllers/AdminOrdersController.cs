@@ -23,7 +23,9 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                 .Include(u => u.User)
                 .Include(d => d.DeliveryAddress)
                 .Include(o => o.OrderItems)
-                .ThenInclude(p => p.Product).ToListAsync();
+                .ThenInclude(p => p.Product)
+                 .OrderByDescending(o => o.OrderDate)
+                 .ToListAsync();
 
             return View(orders);
         }

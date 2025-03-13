@@ -25,7 +25,7 @@
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark bg-gradient-navbar py-2">
             <div class="container">
-                <a class="navbar-brand" asp-action="Index" asp-controller="User">
+                <a class="navbar-brand" asp-action="Index" asp-controller="Home">
                     <img src="~/Images/logo.png" class="img-fluid align-middle" alt="Store Logo" style="max-height: 40px; width: auto;">
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,7 +55,7 @@
                             <li class="nav-item">
                                 <a class="nav-link text-white" asp-area="" asp-controller="Account" asp-action="SignUp">SignUp</a>
                             </li>
-                     
+
                         }
                         else
                         {
@@ -64,7 +64,8 @@
                             <li class="nav-item">
                                 <div class="btn-group">
                                     <a type="button" class="nav-link text-white dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                       @UserService.GetUserName()
+                                        <img class="img-profile rounded-circle" style="width: 32px; height: 32px;" src="~/images/@UserService.GetUserImageAsync()">
+                                        @UserService.GetUserName()
                                     </a>
                                     <ul class="dropdown-menu">
                                         <li><a class="dropdown-item" asp-controller="Account" asp-action="MyProfile">My Profile</a></li>
@@ -80,7 +81,7 @@
                                     <button type="submit" class="btn btn-link text-white nav-link ">Logout</button>
                                 </form>
                             </li>
-                           
+
                         }
                         <li class="nav-item position-relative">
                             <a class="nav-link text-white d-flex align-items-center" asp-action="Index" asp-controller="Cart" title="Cart">
@@ -117,9 +118,9 @@
                 <div class="col-md-4">
                     <h5>Quick Links</h5>
                     <ul class="list-unstyled">
-                        <li><a href="/privacy">Privacy Policy</a></li>
-                        <li><a href="/terms">Terms of Service</a></li>
-                        <li><a href="/contact">Contact Us</a></li>
+                        <li><a class="text-white text-decoration-none" href="/privacy">Privacy Policy</a></li>
+                        <li><a class="text-white text-decoration-none" href="/terms">Terms of Service</a></li>
+                        <li><a class="text-white text-decoration-none" href="/contact">Contact Us</a></li>
                     </ul>
                 </div>
                 <div class="col-md-4">
@@ -144,13 +145,13 @@
     <script>
         function updateCartCount() {
             $.ajax({
-                url: "/Cart/GetCartCount", 
+                url: "/Cart/GetCartCount",
                 type: "GET",
                 success: function (response) {
                     let cartCount = response.count;
 
                     if (cartCount > 0) {
-                        $("#cart-count").text(cartCount).show(); 
+                        $("#cart-count").text(cartCount).show();
                     } else {
                         $("#cart-count").hide();
                     }
@@ -162,7 +163,7 @@
         }
 
         $(document).ready(function () {
-            updateCartCount(); 
+            updateCartCount();
         });
     </script>
 

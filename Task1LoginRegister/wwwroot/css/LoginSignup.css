@@ -8,7 +8,7 @@ body {
     border-color: white;
 }
 /* Container */
-.container {
+.main {
     max-width: 100%;
     padding: 0 15px;
 }
@@ -73,7 +73,7 @@ body {
 }
 
 @media (max-width: 576px) {
-    .container {
+    .main {
         padding: 0 10px;
     }
 

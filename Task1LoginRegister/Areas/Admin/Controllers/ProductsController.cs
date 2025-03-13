@@ -26,6 +26,8 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
         {
             var data = await context.Products
                 .Include(p => p.Category)
+                .Include(p => p.OrderItems)
+                .ThenInclude(oi=>oi.Order)
                 .Include(p => p.Subcategory)
                 .ThenInclude(g=>g.Taxes)
                 .Include(p => p.ProductImages).ToListAsync();

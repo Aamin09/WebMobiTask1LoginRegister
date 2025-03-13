@@ -47,16 +47,18 @@ h1, h2, h3, h4, h5, h6 {
         margin-bottom: 20px;
     }
 
-    .footer a {
-        color: #f8f9fa;
-        text-decoration: none;
-        transition: color 0.3s ease-in-out;
-    }
+    .navbar-nav .nav-link {
+    color: white !important;
+    font-weight: 500;
+    transition: color 0.3s ease-in-out;
+}
 
-        /* Dark Blue Hover Effect */
-        .footer a:hover {
-            color: #87CEFA !important; /* Dark Blue */
-        }
+.list-unstyled a:hover {
+    color: #87CEFA;
+}
+.navbar-nav .nav-link:hover {
+    color: #87CEFA !important;
+}
 
 /* Social Media Icons */
 .social-links a {
