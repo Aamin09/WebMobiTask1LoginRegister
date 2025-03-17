@@ -15,6 +15,54 @@
         object-fit: cover;
         border-radius: 5px;
     }
+
+    .timeline {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding-left: 20px;
+        position: relative;
+    }
+
+        .timeline::before {
+            content: "";
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background-color: #007bff;
+        }
+
+    .timeline-step {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        position: relative;
+    }
+
+        .timeline-step .circle {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            margin-bottom: 15px;
+            background-color: #007bff;
+            position: relative;
+            z-index: 1;
+        }
+
+        .timeline-step.completed .circle {
+            background-color: #28a745;
+        }
+
+        .timeline-step.failed .circle {
+            background-color: #dc3545;
+        }
+
+        .timeline-step.pending .circle {
+            background-color: #ffc107;
+        }
+
 </style>
 
 <div class="container my-3">
@@ -35,13 +83,22 @@
             {
                 var orderCollapseId = $"collapse_{order.OrderId}";
                 var orderHeadingId = $"heading_{order.OrderId}";
-                <div class="accordion-item order-card mb-4" >
+                var isFirst = order == Model.First();
+
+                <div class="accordion-item order-card mb-4">
                     <h2 class="accordion-header bg-primary text-white" id="@orderHeadingId">
-                        <button class="accordion-button text-white bg-primary" type="button" data-bs-toggle="collapse" data-bs-target="#@orderCollapseId" aria-expanded="false" aria-controls="@orderCollapseId">
-                            Order #@order.OrderNumber -  @order.OrderDate.ToString("MMM dd, yyyy")
+                        <button class="accordion-button text-white bg-primary @(isFirst ? "" : "collapsed")"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#@orderCollapseId"
+                                aria-expanded="@(isFirst ? "true" : "false")"
+                                aria-controls="@orderCollapseId">
+                            Order #@order.OrderNumber - @order.OrderDate.ToString("MMM dd, yyyy")
                         </button>
                     </h2>
-                    <div id="@orderCollapseId" class="accordion-collapse collapse" aria-labelledby="@orderHeadingId" data-bs-parent="#ordersAccordion">
+                    <div id="@orderCollapseId" class="accordion-collapse collapse @(isFirst ? "show" : "")"
+                         aria-labelledby="@orderHeadingId"
+                         data-bs-parent="#ordersAccordion">
                         <div class="accordion-body">
                             <div class="row">
                                 <div class="col-md-6">
@@ -55,6 +112,42 @@
                                 </div>
                             </div>
                             <hr>
+
+                            <!-- Payment Timeline -->
+                            <div class="timeline">
+                            
+                                @if (order.PaymentStatus == "Failed" && order.PaymentMethod == "Online Payment")
+                                {
+                                    <div class="text-center mt-3">
+                                        <a asp-action="ProcessPayment" asp-controller="Payment" asp-route-orderId="@order.OrderId" class="btn btn-danger">
+                                            Complete Payment
+                                        </a>
+                                    </div>
+                                }
+                                else if (order.PaymentMethod == "Cash on Delivery" && order.PaymentStatus != "Paid")
+                                {
+                                    <div class="text-center mt-3">
+                                        <h5>Want to Pay Now?</h5>
+                                        <a asp-action="ProcessPayment" asp-controller="Payment" asp-route-orderId="@order.OrderId" class="btn btn-primary">
+                                            Pay Online
+                                        </a>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="timeline-step @(order.PaymentStatus == "Failed" ? "failed" : "completed")">
+                                        <div class="circle"></div>
+                                        <p>Payment Attempted: Razorpay</p>
+                                    </div>
+                                    <div class="timeline-step completed">
+                                        <div class="circle"></div>
+                                        <p>Payment Completed</p>
+                                    </div>
+                                }
+                            </div>
+
+                            <hr>
+
                             @foreach (var item in order.OrderItems)
                             {
                                 <div class="d-flex align-items-center mb-2">
@@ -71,5 +164,6 @@
                 </div>
             }
         </div>
+
     }
 </div>

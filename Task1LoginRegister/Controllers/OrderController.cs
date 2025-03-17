@@ -15,15 +15,11 @@ namespace Task1LoginRegister.Controllers
     {
         private readonly WebMobiTask1DbContext context;
         private readonly UserService userService;
-        private readonly RazorPayService razorPayService;
-        private readonly IConfiguration configuration;
 
-        public OrderController(WebMobiTask1DbContext context, UserService userService, RazorPayService razorPayService, IConfiguration configuration)
+        public OrderController(WebMobiTask1DbContext context, UserService userService)
         {
             this.context = context;
             this.userService = userService;
-            this.razorPayService = razorPayService;
-            this.configuration = configuration;
         }
 
         public async Task<IActionResult> Checkout()
@@ -150,108 +146,13 @@ namespace Task1LoginRegister.Controllers
 
             if (checkoutView.PaymentMethod == "Online Payment")
             {
-                return RedirectToAction("ProcessPayment", new { orderId = order.OrderId });
+                return RedirectToAction("ProcessPayment","Payment", new { orderId = order.OrderId });
             }
 
             return RedirectToAction("OrderConfirmation", new { orderId = order.OrderId });
         }
 
-        public async Task<IActionResult> ProcessPayment(int orderId)
-        {
-            var userId= await userService.GetCurrentUserIdAsync();
-            if (userId == null) return RedirectToAction("Login", "Accont");
-
-            var order= await context.Orders
-                .Include(o=>o.DeliveryAddress)
-                .FirstOrDefaultAsync(o=>o.OrderId == orderId && o.UserId == userId);
-
-            if (order == null) return NotFound();
-
-            try
-            {
-                // creating razorpay order
-                var options = razorPayService.CreateOrder(
-                    order.TotalAmount,
-                    order.OrderNumber,
-                    "INR");
-
-                // creating model for the view
-                var razorpayOrderModel = new RazorpayOrderModel
-                {
-                    OrderId = options["id"].ToString(),
-                    Razorpaykey = configuration["Razorpay:KeyId"],
-                    Amount = order.TotalAmount,
-                    Currency = "INR",
-                    Name = order.DeliveryAddress.FullName,
-                    Email = order.DeliveryAddress.Email,
-                    PhoneNumber = order.DeliveryAddress.PhoneNumber,
-                    Address = $"{order.DeliveryAddress.Street}, {order.DeliveryAddress.City}, {order.DeliveryAddress.State} - {order.DeliveryAddress.ZipCode} , {order.DeliveryAddress.Country}",
-                    Description = $"Order #{order.OrderNumber}",
-                    ApplicationOrderId = order.OrderId
-                };
-
-                // save razorpay order id to order table
-                order.RazorpayOrderId= options["id"].ToString();
-                await context.SaveChangesAsync();   
-
-                return View(razorpayOrderModel);    
-            }
-            catch (Exception ex)
-            {
-                // Log the exception
-                return RedirectToAction("PaymentFailed", new { orderId = order.OrderId, errorMessage = ex.Message });
-
-            }
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> PaymentCallback(RazorpayCallbackModel callbackModel)
-        {
-            // verifying signature to confirm the payment response is from razorpay
-            string generatedSignature = GenerateRazorpaySignature(
-                callbackModel.razorpay_order_id,
-                callbackModel.razorpay_payment_id,
-                configuration["Razorpay:KeySecret"]
-                );
-
-            if(generatedSignature == callbackModel.razorpay_signature)
-            {
-                // finding the order
-                var order = await context.Orders
-                    .FirstOrDefaultAsync(o => o.RazorpayOrderId == callbackModel.razorpay_order_id);
-
-                if(order != null)
-                {
-                    // updating payment details
-                    order.PaymentId=callbackModel.razorpay_payment_id;
-                    order.PaymentStatus = "Paid";
-                    order.OrderStatus = "Processing";
-                    await context.SaveChangesAsync();
-
-                    return RedirectToAction("OrderConfirmation", new { orderId = order.OrderId });
-                }
-            }
-
-            return RedirectToAction("PaymentFailed", new { errorMessage = "Payment verification failed" }) ;
-        }
-
-        public IActionResult PaymentFailed(int orderId, string errorMessage)
-        {
-            ViewBag.ErrorMessage=errorMessage;
-            ViewBag.OrderId= orderId;
-            return View();
-        }
-
-        private string GenerateRazorpaySignature(string orderId, string paymentId, string secret)
-        {
-            string payload= $"{orderId}|{paymentId}";
-            using(HMACSHA256 hmac= new HMACSHA256(Encoding.UTF8.GetBytes(secret)))
-            {
-                byte[] hasBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(payload));
-                return BitConverter.ToString(hasBytes).Replace("-", "").ToLower();
-            }
-        }
-
+  
         public async Task<IActionResult> OrderConfirmation(int orderId)
         {
             var userId = await userService.GetCurrentUserIdAsync();
