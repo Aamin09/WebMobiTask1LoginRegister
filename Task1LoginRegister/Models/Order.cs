@@ -36,5 +36,6 @@ namespace Task1LoginRegister.Models
 
         public virtual ICollection<OrderItem> OrderItems { get; set; }
         public virtual RazorpayOrderModel? RazorpayOrder { get; set; }
+        public virtual ICollection<RefundDetailsModel> RefundDetails { get; set; }
     }
 }

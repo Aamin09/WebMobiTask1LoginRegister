@@ -152,7 +152,7 @@
                             {
                                 <div class="d-flex align-items-center mb-2">
                                     <partial name="_ProductImageVideoPartialView" model="@item.Product" />
-                                    <div>
+                                    <div style="padding-left:10px">
                                         <p class="mb-1"><strong><a asp-action="Details" asp-controller="Home" asp-route-id="@item.ProductId" class="text-decoration-none text-black">@item.Product.Name</a></strong></p>
                                         <p class="mb-0">Price: ₹@item.Product.CalculatedSellingPrice | Qty: @item.Quantity</p>
                                     </div>
