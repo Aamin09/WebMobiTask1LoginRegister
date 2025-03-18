@@ -180,7 +180,7 @@ namespace Task1LoginRegister.Controllers
             return View(order);
         }
 
-        public async Task<IActionResult> Invoice(int orderId)
+        public async Task<IActionResult> OrderDetails(int orderId)
         {
             var userId = await userService.GetCurrentUserIdAsync();
             if (userId == null)
@@ -190,13 +190,36 @@ namespace Task1LoginRegister.Controllers
 
             var order = await context.Orders
                  .Include(o => o.DeliveryAddress)
-                .Include(o => o.OrderItems)
+                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Product)
                         .ThenInclude(p => p.ProductImages)
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Product)
                         .ThenInclude(p => p.Subcategory)
                             .ThenInclude(s => s.Taxes)
+                .FirstOrDefaultAsync(o => o.OrderId == orderId && o.UserId == userId);
+
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            ViewBag.Refund = await context.RefundDetails
+               .FirstOrDefaultAsync(r => r.OrderId == orderId);
+
+            return View(order);
+        }
+
+
+        public async Task<IActionResult> Invoice(int orderId)
+        {
+            var userId = await userService.GetCurrentUserIdAsync();
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var order = await context.Orders
                 .FirstOrDefaultAsync(o => o.OrderId == orderId && o.UserId == userId);
 
             if (order == null)
@@ -222,6 +245,46 @@ namespace Task1LoginRegister.Controllers
         private string GenerateOrderNumber()
         {
             return "ORD" + DateTime.Now.ToString("yyyyMMddHHmmss") + Guid.NewGuid().ToString().Substring(0, 5).ToUpper();
+        }
+
+
+        public async Task<IActionResult> CancelOrder(int orderId)
+        {
+            var userId = await userService.GetCurrentUserIdAsync();
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var order= await context.Orders.FirstOrDefaultAsync(o=>o.OrderId == orderId && o.UserId == userId);
+            if(order == null)  return NotFound();
+            
+            // checking if order is eligible for cancellation
+            if(order.OrderStatus == "Delivered" || order.OrderStatus == "Shipped" || order.OrderStatus == "Cancelled" || order.OrderStatus == "Cancellation Requested")
+            {
+                TempData["ErrorMessage"] = $"Order cannot be cancelled as it is already {order.OrderStatus}.";
+                return RedirectToAction("OrderDetails", new { orderId = orderId });
+            }
+
+            // If paid online, redirect to refund
+            if (order.PaymentMethod == "Online Payment" && order.PaymentStatus == "Paid")
+            {
+                return RedirectToAction("RequestRefund", "Refund", new { orderId = orderId });
+            }
+            else
+            {
+                order.OrderStatus = "Cancelled";
+                if(order.PaymentStatus == "Pending")
+                {
+                    order.PaymentStatus = "Failed";
+                }
+                await context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Your order has been cancelled successfully.";
+                return RedirectToAction("OrderDetails", new { orderId = orderId });
+            }
+
+
         }
     }
 }

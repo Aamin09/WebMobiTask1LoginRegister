@@ -32,14 +32,14 @@ namespace Task1LoginRegister.Controllers
             if (order.PaymentStatus != "Paid" || order.PaymentMethod != "Online Payment")
             {
                 TempData["ErrorMessage"] = "Only paid online orders are eligble for refund.";
-                return RedirectToAction("OrderConfirmation", "Order", new { orderId = orderId });
+                return RedirectToAction("OrderDetails", "Order", new { orderId = orderId });
             }
 
             // validating refund eligibility
             if (string.IsNullOrEmpty(order.PaymentId))
             {
                 TempData["ErrorMessage"] = "Payment Id not found for this order.";
-                return RedirectToAction("OrderConfirmation", "Order", new { orderId = orderId });
+                return RedirectToAction("OrderDetails", "Order", new { orderId = orderId });
             }
 
             // checking if refund already exisits
@@ -47,7 +47,7 @@ namespace Task1LoginRegister.Controllers
             if (existingRefund != null)
             {
                 TempData["ErrorMessage"] = $"A refund request already exists for this order with status: {existingRefund.Status}";
-                return RedirectToAction("OrderConfirmation", "Order", new { orderId = orderId });
+                return RedirectToAction("OrderDetails", "Order", new { orderId = orderId });
             }
 
             var refundModel = new RefundModel
@@ -55,8 +55,7 @@ namespace Task1LoginRegister.Controllers
                 OrderId = orderId,
                 PaymentId = order.PaymentId,
                 RefundAmount = order.TotalAmount,
-                RefundReason = "Order Cancellation by Customer",
-                OrderNumber=order.OrderNumber
+                RefundReason = "Order Cancellation by Customer"
             };
 
             return View(refundModel); 
@@ -77,7 +76,7 @@ namespace Task1LoginRegister.Controllers
             if (order.PaymentStatus != "Paid" || order.PaymentMethod != "Online Payment")
             {
                 TempData["ErrorMessage"] = "Only paid online orders are eligble for refund.";
-                return RedirectToAction("OrderConfirmation", "Order", new { orderId = model.OrderId });
+                return RedirectToAction("OrderDetails", "Order", new { orderId = model.OrderId });
             }
 
             try
@@ -102,7 +101,7 @@ namespace Task1LoginRegister.Controllers
                 await context.SaveChangesAsync();
 
                 TempData["SuccessMessage"] = "Refund request submitted successfully. Your refund code is: " + refund.SpeedCode;
-                return RedirectToAction("OrderConfirmation","Order", new { orderId = model.OrderId });  
+                return RedirectToAction("OrderDetails", "Order", new { orderId = model.OrderId });  
             }
             catch (Exception ex)
             {
@@ -124,7 +123,7 @@ namespace Task1LoginRegister.Controllers
             if(refund == null)
             {
                 TempData["ErrorMessage"] = "No refund found for this order.";
-                return RedirectToAction("OrderConfirmation", "Order", new { orderId = orderId });
+                return RedirectToAction("OrderDetails", "Order", new { orderId = orderId });
             }
 
             return View(refund);

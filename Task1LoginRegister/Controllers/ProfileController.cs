@@ -224,5 +224,19 @@ namespace Task1LoginRegister.Controllers
         {
             return _context.DeliveryAddresses.Any(e => e.AddressId == id);
         }
+
+        public async Task<IActionResult> MyRefund()
+        {
+            var userId= await userService.GetCurrentUserIdAsync();
+            if (userId == null) return RedirectToAction("Login", "Account");
+            
+            var refund= await _context.RefundDetails
+                .Include(r=>r.Order)
+                .Where(r=>r.Order.UserId == userId)
+                .OrderByDescending(r=>r.CreatedAt)
+                .ToListAsync();
+
+            return View(refund);
+        }
     }
 }

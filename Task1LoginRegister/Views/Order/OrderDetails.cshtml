@@ -1,0 +1,83 @@
+﻿@model Task1LoginRegister.Models.Order
+@{
+    ViewData["Title"] = "OrderDetails";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+    var refund = ViewBag.Refund as Task1LoginRegister.Models.RefundDetailsModel;
+}
+
+<div class="container mt-4">
+    <h2>Order Details</h2>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row">
+
+        <div class="col-md-12">
+
+            <partial name="_OrderItemsTable" model="Model" />
+
+            <!-- Refund information if exists -->
+            @if (refund != null)
+            {
+                <div class="alert alert-info mt-3">
+                    <h5>Refund Information</h5>
+                    <div class="row">
+                        <div class="col-md-4">Status:</div>
+                        <div class="col-md-8">
+                            @{
+                                string refundBadgeClass = refund.Status switch
+                                {
+                                    "Pending" => "bg-warning",
+                                    "Completed" => "bg-success",
+                                    "Rejected" => "bg-danger",
+                                    _ => "bg-secondary"
+                                };
+                            }
+                            <span class="badge @refundBadgeClass">@refund.Status</span>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-4">Refund Code:</div>
+                        <div class="col-md-8">@refund.SpeedCode</div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-4">Amount:</div>
+                        <div class="col-md-8">₹@refund.Amount.ToString("0.00")</div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-12">
+                            <a asp-controller="Refund" asp-action="RefundStatus" asp-route-orderId="@Model.OrderId" class="btn btn-sm btn-info">View Refund Details</a>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Order actions -->
+            <div class="mt-4">
+                @if (Model.OrderStatus != "Cancelled" && Model.OrderStatus != "Cancellation Requested" && Model.OrderStatus != "Delivered" && Model.OrderStatus != "Shipped")
+                {
+                    <a asp-controller="Order" asp-action="CancelOrder" asp-route-orderId="@Model.OrderId"
+                       class="btn btn-danger" onclick="return confirm('Are you sure you want to cancel this order?')">
+                        Cancel Order
+                    </a>
+                }
+                <a asp-controller="Account" asp-action="UserOrders" class="btn btn-secondary">Back to Orders</a>
+            </div>
+        </div>
+    </div>
+
+</div>

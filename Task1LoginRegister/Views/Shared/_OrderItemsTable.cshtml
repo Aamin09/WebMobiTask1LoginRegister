@@ -25,19 +25,19 @@
                 <hr />
                 <p><strong>Order Number:</strong> @Model.OrderNumber</p>
 
-                <p><strong>Order Date:</strong> @Model.OrderDate.ToString("MMM dd, yyyy")</p>
+                <p><strong>Order Date:</strong> @Model.OrderDate.ToString("MMM dd, yyyy, hh:mm tt")</p>
                 <p><strong>Payment Method:</strong> @Model.PaymentMethod</p>
+                <p><strong>Transaction ID:</strong> @Model.PaymentId</p>
 
                 @if (!hidePaymentDetails)
                 {
                     <p><strong>Payment Status:</strong> @Model.PaymentStatus</p>
-                    <p><strong>Transaction ID:</strong> @Model.PaymentId</p>
                     <p><strong>Order Status:</strong> @Model.OrderStatus</p>
                 }
             </div>
         </div>
-
-        <h5 class="mt-4">Order Items</h5>
+        <hr />
+        <h5 class="mt-2 py-2 bg-info card-header">Order Items</h5>
         <hr />
         <div class="table-responsive">
             <table class="table table-sm">

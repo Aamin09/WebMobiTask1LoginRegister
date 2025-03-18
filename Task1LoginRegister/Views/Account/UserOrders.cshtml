@@ -108,14 +108,19 @@
                                 </div>
                                 <div class="col-md-6 text-md-end">
                                     <p><strong>Total Amount:</strong> ₹@order.TotalAmount.ToString("0.00")</p>
-                                    <a asp-action="Invoice" asp-controller="Order" asp-route-orderId="@order.OrderId" class="btn btn-outline-primary btn-sm">View Details</a>
+                                    <p>
+                                        <a asp-action="OrderDetails" asp-controller="Order" asp-route-orderId="@order.OrderId" class="btn btn-outline-info btn-sm">View Details</a>
+                                    </p>
+                                    <p>
+                                        <a asp-action="Invoice" asp-controller="Order" asp-route-orderId="@order.OrderId" class="btn btn-outline-warning btn-sm">Download Invoice</a>
+                                    </p>
                                 </div>
                             </div>
                             <hr>
 
                             <!-- Payment Timeline -->
                             <div class="timeline">
-                            
+
                                 @if (order.PaymentStatus == "Failed" && order.PaymentMethod == "Online Payment")
                                 {
                                     <div class="text-center mt-3">
@@ -124,7 +129,7 @@
                                         </a>
                                     </div>
                                 }
-                                else if (order.PaymentMethod == "Cash on Delivery" && order.PaymentStatus != "Paid")
+                                else if (order.PaymentMethod == "Cash on Delivery" && order.PaymentStatus != "Paid" && order.PaymentStatus != "Failed")
                                 {
                                     <div class="text-center mt-3">
                                         <h5>Want to Pay Now?</h5>
@@ -139,9 +144,9 @@
                                         <div class="circle"></div>
                                         <p>Payment Attempted: Razorpay</p>
                                     </div>
-                                    <div class="timeline-step completed">
+                                    <div class="timeline-step @(order.PaymentStatus == "Failed" ? "failed" : "completed")">
                                         <div class="circle"></div>
-                                        <p>Payment Completed</p>
+                                        <p>Payment  @(order.PaymentStatus == "Failed" ? "Failed" : "Completed")</p>
                                     </div>
                                 }
                             </div>

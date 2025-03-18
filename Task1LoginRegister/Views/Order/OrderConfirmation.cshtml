@@ -4,14 +4,28 @@
     Layout = "~/Views/Shared/_UserLayout.cshtml";
 }
 <style>
-    .product-image, .product-video{
+    .product-image, .product-video {
         width: 50px;
         height: 50px;
         object-fit: cover;
     }
-    hr{
+
+    hr {
         opacity: 1;
         margin: 10px 0;
+    }
+
+    .countdown-timer {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #dc3545;
+    }
+
+    .cancel-warning {
+        background-color: #fff3cd;
+        border-left: 5px solid #ffc107;
+        padding: 10px 15px;
+        margin: 15px 0;
     }
 </style>
 <div class="container my-5">
@@ -27,14 +41,66 @@
                     <p>Order Number: <strong>@Model.OrderNumber</strong></p>
                     <p>We'll send you a confirmation email shortly.</p>
 
+                    @if (Model.OrderStatus != "Cancelled" && Model.OrderStatus != "Cancellation Requested" && Model.OrderStatus != "Delivered" && Model.OrderStatus != "Shipped")
+                    {
+                        <div class="mt-4">
+                            <div class="cancel-warning">
+                                <p><i class="fas fa-exclamation-triangle text-warning me-2"></i><strong>Important:</strong> Orders can only be cancelled within 10 minutes of placement and before shipping.</p>
+                                <p>Time remaining to cancel: <span id="countdown-timer" class="countdown-timer">10:00</span></p>
+                            </div>
+
+                            <a id="cancel-order-btn" asp-controller="Order" asp-action="CancelOrder" asp-route-orderId="@Model.OrderId"
+                               class="btn btn-danger mt-3" onclick="return confirm('Are you sure you want to cancel this order?')">
+                                Cancel Order
+                            </a>
+                        </div>
+
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                // Set the order time - you'll need to pass this from your controller
+                                var orderTime = new Date('@Model.OrderDate.ToString("yyyy-MM-ddTHH:mm:ss")');
+                                var timeLimit = 10 * 60 * 1000; // 10 minutes in milliseconds
+                                var endTime = new Date(orderTime.getTime() + timeLimit);
+
+                                function updateTimer() {
+                                    var now = new Date();
+                                    var timeDiff = endTime - now;
+
+                                    // If time's up or order is shipped, hide the cancel button
+                                    if (timeDiff <= 0) {
+                                        document.getElementById('countdown-timer').textContent = "Expired";
+                                        // Don't hide the button if the order status is still "Processing"
+                                        if ('@Model.OrderStatus' !== 'Processing') {
+                                            document.getElementById('cancel-order-btn').style.display = 'none';
+                                            document.getElementById('cancel-order-btn').disabled = true;
+                                        }
+                                    } else {
+                                        // Calculate minutes and seconds
+                                        var minutes = Math.floor(timeDiff / 60000);
+                                        var seconds = Math.floor((timeDiff % 60000) / 1000);
+
+                                        // Display the timer
+                                        document.getElementById('countdown-timer').textContent =
+                                            minutes.toString().padStart(2, '0') + ':' +
+                                            seconds.toString().padStart(2, '0');
+
+                                        // Update every second
+                                        setTimeout(updateTimer, 1000);
+                                    }
+                                }
+
+                                // Start the timer
+                                updateTimer();
+                            });
+                        </script>
+                    }
+
                     <div class="mt-4">
                         <a href="/" class="btn btn-outline-primary me-2">Continue Shopping</a>
                         <a asp-action="UserOrders" asp-controller="Account" class="btn btn-primary">View My Orders</a>
                     </div>
                 </div>
             </div>
-
-            <partial name="_OrderItemsTable" model="Model" />
         </div>
     </div>
 </div>
