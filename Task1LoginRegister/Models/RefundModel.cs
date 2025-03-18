@@ -14,5 +14,7 @@ namespace Task1LoginRegister.Models
 
         [Display(Name = "Reason for Refund")]
         public string RefundReason { get; set; }
+
+        public string OrderNumber { get; set; }
     }
 }

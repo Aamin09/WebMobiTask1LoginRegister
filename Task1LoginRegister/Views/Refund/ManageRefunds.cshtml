@@ -1,0 +1,73 @@
+﻿@model IEnumerable<Task1LoginRegister.Models.RefundDetailsModel>
+@{
+    ViewData["Title"] = "ManageRefunds";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <h2 class="mb-4">Refund Management</h2>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Refund Code</th>
+                        <th>Order Id</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Created At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.SpeedCode</td>
+                            <td>@item.OrderId</td>
+                            <td>@item.Amount.ToString("N2")</td>
+                            <td>
+                                @{
+                                    string badgeClass= item.Status switch{
+                                        "Pending" => "bg-warning",
+                                        "Completed" => "bg-success",
+                                        "Rejected" => "bg-danger",
+                                        _ => "bg-secondary"
+                                    };
+                                }
+                                <span class="badge @badgeClass">@item.Status</span>
+                            </td>
+                            <td>@item.CreatedAt.ToString("dd MMM yyyy, hh:mm tt");</td>
+                            <td>
+                                @if (item.Status == "Pending")
+                                {
+                                    <a asp-action="ProcessRefund" asp-route-refundId="@item.RefundId" class="btn btn-sm btn-primary">Process</a>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-sm btn-secondary" disabled>Processed</button>
+                                }
+                            </td>
+                        </tr>    
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

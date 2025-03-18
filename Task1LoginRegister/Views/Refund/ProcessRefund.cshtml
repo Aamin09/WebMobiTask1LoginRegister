@@ -1,0 +1,86 @@
+﻿@model Task1LoginRegister.Models.RefundDetailsModel
+
+@{
+    ViewData["Title"] = "ProcessRefund";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <h4 class="mb-4">Process Refund</h4>
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    <div class="row d-flex justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Refund Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4 font-weight-bold">Refund ID:</div>
+                        <div class="col-md-8">@Model.RefundId</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4 font-weight-bold">Refund Code:</div>
+                        <div class="col-md-8">@Model.SpeedCode</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4 font-weight-bold">Order ID:</div>
+                        <div class="col-md-8">@Model.OrderId</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4 font-weight-bold">Payment ID:</div>
+                        <div class="col-md-8">@Model.PaymentId</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4 font-weight-bold">Refund Amount:</div>
+                        <div class="col-md-8">₹@Model.Amount.ToString("0.00")</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4 font-weight-bold">Requested On:</div>
+                        <div class="col-md-8">@Model.CreatedAt.ToString("dd MMM yyyy, hh:mm tt")</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4 font-weight-bold">Reason:</div>
+                        <div class="col-md-8">@Model.Notes</div>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <p><strong>Warning:</strong> Processing a refund will initiate a refund through Razorpay, which cannot be reversed once approved.</p>
+                    </div>
+
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <form asp-action="ProcessRefund" method="post">
+                            <input type="hidden" name="refundId" value="@Model.RefundId" />
+                            <input type="hidden" name="action" value="approve" />
+                            <button type="submit" class="btn btn-success" onclick="return confirm('Are you sure you want to approve this refund?')">
+                                Approve Refund
+                            </button>
+                        </form>
+                        <form asp-action="ProcessRefund" method="post">
+                            <input type="hidden" name="refundId" value="@Model.RefundId" />
+                            <input type="hidden" name="action" value="reject" />
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to reject this refund?')">
+                                Reject Refund
+                            </button>
+                        </form>
+
+                        <a asp-action="ManageRefunds" class="btn btn-secondary">Back to List</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

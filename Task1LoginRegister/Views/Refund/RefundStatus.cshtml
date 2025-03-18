@@ -1,0 +1,63 @@
+﻿@model Task1LoginRegister.Models.RefundDetailsModel
+
+@{
+    ViewData["Title"] = "Refund Status";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Refund Status for Order #@Model.Order.OrderNumber</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4 font-weight-bold">Refund ID:</div>
+                        <div class="col-md-8">@Model.RefundId</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4 font-weight-bold">Refund Code:</div>
+                        <div class="col-md-8">@Model.SpeedCode</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4 font-weight-bold">Refund Amount:</div>
+                        <div class="col-md-8">₹@Model.Amount.ToString("0.00")</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4 font-weight-bold">Status:</div>
+                        <div class="col-md-8">
+                            @{
+                                string badgeClass = Model.Status switch
+                                {
+                                    "Pending" => "bg-warning",
+                                    "Completed" => "bg-success",
+                                    "Rejected" => "bg-danger",
+                                    _ => "bg-secondary"
+                                };
+                            }
+                            <span class="badge @badgeClass">@Model.Status</span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4 font-weight-bold">Requested On:</div>
+                        <div class="col-md-8">@Model.CreatedAt.ToString("dd MMM yyyy, hh:mm tt")</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4 font-weight-bold">Reason:</div>
+                        <div class="col-md-8">@Model.Notes</div>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <a asp-controller="Order" asp-action="OrderDetails" asp-route-orderId="@Model.OrderId" class="btn btn-primary">Back to Order</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
