@@ -91,4 +91,43 @@ h1, h2, h3, h4, h5, h6 {
         font-size: 16px;
         margin-right: 8px;
     }
+
+    /* Dropdown styling on small devices */
+    .dropdown-menu {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0;
+        position: relative !important; 
+        margin-top: 10px; 
+        margin-left: 20px; 
+    }
+
+    .dropdown-item {
+        color: white !important;
+        padding: 5px 15px !important;
+        font-size: 14px;
+    }
+
+        .dropdown-item:hover {
+            background-color: transparent !important;
+            color: #87CEFA !important;
+        }
+
+    /* Dropdown divider hidden */
+    .dropdown-divider {
+        display: none;
+    }
+
+    /* Align dropdown items as inline sublinks */
+    .dropdown-menu li {
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    /* Optional: Reduce the width of the profile image */
+    .img-profile {
+        width: 28px !important;
+        height: 28px !important;
+    }
 }

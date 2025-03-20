@@ -24,7 +24,7 @@
 
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-hover">
+            <table class="table table-hover" id="refundTable">
                 <thead>
                     <tr>
                         <th>Refund Code</th>
@@ -44,7 +44,8 @@
                             <td>@item.Amount.ToString("N2")</td>
                             <td>
                                 @{
-                                    string badgeClass= item.Status switch{
+                                    string badgeClass = item.Status switch
+                                    {
                                         "Pending" => "bg-warning",
                                         "Completed" => "bg-success",
                                         "Rejected" => "bg-danger",
@@ -64,10 +65,21 @@
                                     <button class="btn btn-sm btn-secondary" disabled>Processed</button>
                                 }
                             </td>
-                        </tr>    
+                        </tr>
                     }
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+         $(document).ready(function () {
+            $("#refundTable").DataTable({
+                 "order": [[0, "desc"]],
+                responsive: true,
+
+            });
+        });</script>
+}

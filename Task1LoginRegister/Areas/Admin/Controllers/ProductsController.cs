@@ -30,7 +30,8 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                 .ThenInclude(oi=>oi.Order)
                 .Include(p => p.Subcategory)
                 .ThenInclude(g=>g.Taxes)
-                .Include(p => p.ProductImages).ToListAsync();
+                .Include(p => p.ProductImages)
+                .OrderByDescending(p=>p.ProductId).ToListAsync();
             return View(data);
         }
 
@@ -47,6 +48,7 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                    .Include(p => p.Category)
                    .Include(p => p.Subcategory)
                    .ThenInclude(g => g.Taxes)
+                   .OrderByDescending(p => p.ProductId)
                    .FirstOrDefaultAsync(p => p.ProductId == id);
 
             if (product == null)

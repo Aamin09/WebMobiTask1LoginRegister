@@ -19,7 +19,7 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var data = await context.Categories
+            var data = await context.Categories.OrderByDescending(c => c.CategoryId)
                 .Include(c => c.Subcategories).ToListAsync();
             return View(data);
         }

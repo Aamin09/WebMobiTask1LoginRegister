@@ -24,6 +24,7 @@ namespace Task1LoginRegister.Controllers
                 .Include(p => p.Category)
                 .Include(p => p.Subcategory)
                 .Where(p => p.Status)
+                .OrderByDescending(p=>p.ProductId)
                 .Take(8)
                 .ToListAsync();
             return View(products);
@@ -41,7 +42,7 @@ namespace Task1LoginRegister.Controllers
 
             if (categoryId.HasValue)
             {
-                data = data.Where(p => p.CategoryId == categoryId);
+                data = data.Where(p => p.CategoryId == categoryId).OrderByDescending(p => p.ProductId);
             }
 
             if (!string.IsNullOrEmpty(subcategoryIds))
@@ -53,31 +54,33 @@ namespace Task1LoginRegister.Controllers
 
                 if (selectedIds.Any())
                 {
-                    data = data.Where(p => selectedIds.Contains(p.SubcategoryId));
+                    data = data.Where(p => selectedIds.Contains(p.SubcategoryId)).OrderByDescending(p => p.ProductId);
                 }
             }
 
             if (!string.IsNullOrEmpty(searchProduct))
             {
-                data = data.Where(p => p.Name.ToLower().StartsWith(searchProduct.ToLower()) || p.Description.ToLower().StartsWith(searchProduct.ToLower()));
+                data = data.Where(p => p.Name.ToLower().StartsWith(searchProduct.ToLower()) || p.Description.ToLower().StartsWith(searchProduct.ToLower())).OrderByDescending(p => p.ProductId);
             }
 
             if (minPrice.HasValue)
             {
-                data = data.Where(p => p.CalculatedSellingPrice >= minPrice);
+                data = data.Where(p => p.CalculatedSellingPrice >= minPrice).OrderByDescending(p => p.ProductId);
             }
             if (maxPrice.HasValue)
             {
-                data = data.Where(p => p.CalculatedSellingPrice <= maxPrice);
+                data = data.Where(p => p.CalculatedSellingPrice <= maxPrice).OrderByDescending(p => p.ProductId);
             }
 
             // sorting
             data = sortOrder switch
             {
+                "oldest"=> data.OrderBy(p => p.ProductId),
+                "name_asc" => data.OrderBy(p => p.Name),
                 "name_desc" => data.OrderByDescending(p => p.Name),
                 "price_asc" => data.OrderBy(p => p.CalculatedSellingPrice),
                 "price_desc" => data.OrderByDescending(p => p.CalculatedSellingPrice),
-                _ => data.OrderBy(p => p.Name)
+                _ => data.OrderByDescending(p => p.ProductId)
             };
 
             var totalItems = await data.CountAsync();
@@ -127,6 +130,9 @@ namespace Task1LoginRegister.Controllers
             ViewBag.CurrentSort = sortOrder;
             ViewBag.Subcategories = subcategories;
             ViewBag.SortOptions = new List<SelectListItem> {
+                new SelectListItem { Text = "Newest", Value = "newsest" },
+        new SelectListItem { Text = "Oldest", Value = "oldest" },
+
         new SelectListItem { Text = "Name (A-Z)", Value = "name_asc" },
         new SelectListItem { Text = "Name (Z-A)", Value = "name_desc" },
         new SelectListItem { Text = "Price (Low to High)", Value = "price_asc" },

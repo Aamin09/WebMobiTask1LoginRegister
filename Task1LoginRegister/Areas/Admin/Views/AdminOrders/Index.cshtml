@@ -36,8 +36,8 @@
                             </div>
                         </div>
                         <div class="flex-grow-1 ms-3">
-                            <h6 class="text-muted mb-0">Total Amount</h6>
-                            <h4 class="mb-0">@Model.Sum(o => o.TotalAmount).ToString("N2")</h4>
+                            <h6 class="text-muted mb-0">Total Amount Recived</h6>
+                            <h4 class="mb-0">@Model.Where(o=>o.PaymentStatus == "Paid").Sum(o => o.TotalAmount).ToString("N2")</h4>
                         </div>
                     </div>
                 </div>
