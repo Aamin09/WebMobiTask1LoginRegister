@@ -1,0 +1,83 @@
+﻿@model IEnumerable<Task1LoginRegister.Models.RazorpayOrderModel>
+
+@{
+    ViewData["Title"] = "Razorpay Payment List";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="mb-4 text-primary"><i class="fas fa-credit-card me-2"></i> Razorpay Payment List</h2>
+
+<div class="table-responsive">
+    <table id="razorpayTable" class="table table-bordered table-hover align-middle">
+        <thead class="bg-info text-white">
+            <tr>
+                <th>Order ID</th>
+                <th>Amount</th>
+                <th>Currency</th>
+                <th>Name & Address</th>
+                <th>Personal Info</th>
+                <th>Description</th>
+                <th>Order Details</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td><strong>@item.OrderId</strong></td>
+                    <td>₹@item.Amount.ToString("N2")</td>
+                    <td>@item.Currency</td>
+                    <td>
+                        <strong>@item.Name</strong><br />
+                        <small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i> @item.Address</small>
+                    </td>
+                    <td>
+                        <a href="mailto:@item.Email" class="text-decoration-none">
+                            <i class="fas fa-envelope me-1"></i>@item.Email
+                        </a>
+                        <br />
+                        <i class="fas fa-phone-alt me-1"></i>@item.PhoneNumber
+                    </td>
+                    
+                    <td>@item.Description</td>
+                    <td>
+                        @if (item.Order.PaymentStatus == "Paid")
+                        {
+                            <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i> Paid</span>
+                        }
+                        else if (item.Order.PaymentStatus == "Failed")
+                        {
+                            <span class="badge bg-danger"><i class="fas fa-times-circle me-1"></i> Failed</span>
+                        }
+                        else if (item.Order.PaymentStatus == "Pending")
+                        {
+                            <span class="badge bg-warning text-dark"><i class="fas fa-hourglass-half me-1"></i> Pending</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary"><i class="fas fa-info-circle me-1"></i> @item.Order.PaymentStatus</span>
+                        }
+                        <br />
+                        <small class="text-muted"><i class="fas fa-calendar-alt me-1"></i> @item.Order.OrderDate.ToString("dd-MM-yyyy")</small>
+                    </td>
+                    <td>
+                        <a asp-area="Admin" asp-action="OrderDetails" asp-controller="AdminOrders" asp-route-id="@item.Order.OrderId" class="btn btn-outline-primary btn-sm mb-1">
+                            <i class="fas fa-shopping-bag me-1"></i> View Orders
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#razorpayTable').DataTable({
+                responsive:true,
+            });
+        });
+    </script>
+}

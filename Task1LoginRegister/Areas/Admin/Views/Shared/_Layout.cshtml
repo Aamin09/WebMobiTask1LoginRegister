@@ -99,13 +99,47 @@
                     </li>
                 </ul>
             </li>
+
+
+        </ul>
+
+        <hr class="sidebar-divider">
+        <div class="sidebar-heading">
+            Payment Management
+        </div>
+
+        <ul class="nav flex-column">
             <li class="nav-item has-dropdown">
                 <a class="nav-link" href="#">
-                    <i class="fas fa-fw fa-undo"></i>
-                    <span>Refunds</span>
+                    <i class="fas fa-fw fa-receipt"></i>
+                    <span>Taxes</span>
                     <i class="fas fa-angle-down ml-auto"></i>
                 </a>
                 <ul class="nav-dropdown">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="Admin" asp-controller="GstTaxes" asp-action="Index">
+                            <span>All Taxes Details</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="Admin" asp-controller="GstTaxes" asp-action="Create">
+                            <span>Add Tax</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="nav-item has-dropdown">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-fw fa-credit-card"></i>
+                    <span>Payments</span>
+                    <i class="fas fa-angle-down ml-auto"></i>
+                </a>
+                <ul class="nav-dropdown">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="" asp-controller="Payment" asp-action="RazorpayPaymentList">
+                            <span>View Online Payments</span>
+                        </a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" asp-area="" asp-controller="Refund" asp-action="ManageRefunds">
                             <span>Manage Refunds</span>
@@ -143,17 +177,17 @@
     <div id="content-wrapper">
         @* top navigation *@     
         <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 shadow-sm">
-            
+
             <div class="d-flex flex-sm-row">
-            <a class="navbar-brand" asp-area="Admin" asp-action="Index" asp-controller="Home">
-                <img src="~/Images/logo.png" class="img-fluid navbar-logo align-middle" alt="Store Logo" style="max-height: 40px; width: auto;">
-            </a>
+                <a class="navbar-brand" asp-area="Admin" asp-action="Index" asp-controller="Home">
+                    <img src="~/Images/logo.png" class="img-fluid navbar-logo align-middle" alt="Store Logo" style="max-height: 40px; width: auto;">
+                </a>
                 <form class="d-none d-sm-inline-block form-check-inline mr-auto ml-md-3 my-2 my-md-0 navbar-search">
-                <div class="input-group">
-                    <input type="text" class="form-control bg-light border-1 small" placeholder="Search for..." aria-label="Search" />
-                    <i class="fas fa-search"></i>
-                </div>
-            </form>
+                    <div class="input-group">
+                        <input type="text" class="form-control bg-light border-1 small" placeholder="Search for..." aria-label="Search" />
+                        <i class="fas fa-search"></i>
+                    </div>
+                </form>
             </div>
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item dropdown no-arrow mx-1">

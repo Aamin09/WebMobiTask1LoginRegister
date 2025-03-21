@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
@@ -58,6 +59,7 @@ namespace Task1LoginRegister.Controllers
 
                 // save razorpay order id to order table
                 order.RazorpayOrderId = options["id"].ToString();
+                await context.AddAsync(razorpayOrderModel);
                 await context.SaveChangesAsync();
 
                 return View(razorpayOrderModel);
@@ -154,5 +156,13 @@ namespace Task1LoginRegister.Controllers
             }
         }
 
+        [Authorize(Roles ="Admin")]
+        public async Task<IActionResult> RazorpayPaymentList()
+        {
+            var data = await context.RazorpayOrders
+                .Include(r=>r.Order).OrderByDescending(r=>r.OrderId).ToListAsync();
+
+            return View(data);
+        }
     }
 }
