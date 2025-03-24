@@ -1,0 +1,156 @@
+﻿@model IEnumerable<Task1LoginRegister.DTOs.ProductPerformanceDto>
+@{
+    ViewData["Title"] = "ProductPerformance";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="container-fluid p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-box me-2"></i> Product Performance</h2>
+        <button class="btn btn-primary" onclick="printReport()">
+            <i class="fas fa-print me-1"></i> Print Report
+        </button>
+    </div>
+    <!-- date filters -->
+    <partial name="_DateApplyFilters" />
+    <div class="row mb-4">
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Top Products by Revenue</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="topProductsChart" width="100%" height="50"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Top Products by Quantity Sold</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="topQuantityChart" width="100%" height="50"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4" id="printableArea">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Product Performance Report</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="productTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Quantity Sold</th>
+                            <th>Total Revenue</th>
+                            <th>Orders</th>
+                            <th>Avg. Order Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var product in Model)
+                        {
+                            <tr>
+                                <td>@product.ProductName</td>
+                                <td>@product.TotalQuantitySold</td>
+                                <td class="text-end">₹@product.TotalRevenue.ToString("N2")</td>
+                                <td>@product.OrderCount</td>
+                                <td class="text-end">₹@product.AverageOrderValue.ToString("N2")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#productTable').DataTable();
+
+            // Prepare data for charts
+            const products = @Html.Raw(Json.Serialize(Model.Take(5).Select(p => p.ProductName).ToList()));
+            const revenues = @Html.Raw(Json.Serialize(Model.Take(5).Select(p => p.TotalRevenue).ToList()));
+            const quantities = @Html.Raw(Json.Serialize(Model.Take(5).Select(p => p.TotalQuantitySold).ToList()));
+
+            // Top Products by Revenue Chart
+            const topProductsCtx = document.getElementById('topProductsChart').getContext('2d');
+            new Chart(topProductsCtx, {
+                type: 'bar',
+                data: {
+                    labels: products,
+                    datasets: [{
+                        label: 'Revenue (₹)',
+                        data: revenues,
+                        backgroundColor: 'rgba(78, 115, 223, 0.8)',
+                        borderColor: 'rgba(78, 115, 223, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₹' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Top Products by Quantity Chart
+            const topQuantityCtx = document.getElementById('topQuantityChart').getContext('2d');
+            new Chart(topQuantityCtx, {
+                type: 'bar',
+                data: {
+                    labels: products,
+                    datasets: [{
+                        label: 'Quantity Sold',
+                        data: quantities,
+                        backgroundColor: 'rgba(28, 200, 138, 0.8)',
+                        borderColor: 'rgba(28, 200, 138, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        });
+
+        function printReport() {
+            var printContents = document.getElementById('printableArea').innerHTML;
+            var originalContents = document.body.innerHTML;
+
+            document.body.innerHTML = `
+                <div style="padding: 20px;">
+                    <h1 style="text-align: center;">Product Performance Report</h1>
+                    <p style="text-align: center;">Generated on: ${new Date().toLocaleDateString()}</p>
+                    ${printContents}
+                </div>`;
+
+            window.print();
+            document.body.innerHTML = originalContents;
+            location.reload();
+        }
+    </script>
+}

@@ -1,0 +1,117 @@
+﻿@model Task1LoginRegister.DTOs.SalesReportViewModel
+@{
+    ViewData["Title"] = "Sales Report";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["ShowActions"] = false;
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-chart-line"></i> Sales Report</h2>
+        <div>
+            <a asp-action="Index" asp-controller="Report" class="btn btn-sm btn-outline-primary"><i class="fas fa-arrow-left"></i> Back to Report</a>
+            <a asp-action="ExportSalesReport" asp-controller="Report" asp-route-startDate="@Model.StartDate" asp-route-endDate="@Model.EndDate" class="btn btn-sm btn-outline-success"><i class="fas fa-file-export"></i> Export Report</a>
+        </div>
+    </div>
+
+    <!-- date filters -->
+    <partial name="_DateApplyFilters" />
+
+    <!-- state cards -->
+    <div class="row">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs fw-bold text-primary text-uppercase mb-1">
+                                Total Sales
+                            </div>
+                            <div class="h5 mb-0 fw-bold text-gray-800">₹@Model.TotalSales.ToString("N2")</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-inr fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs fw-bold text-success text-uppercase mb-1">
+                                Total Orders
+                            </div>
+                            <div class="h5 mb-0 fw-bold text-gray-800">@Model.TotalOrders</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs fw-bold text-info text-uppercase mb-1">
+                                Average Order Value
+                            </div>
+                            <div class="h5 mb-0 fw-bold text-gray-800">₹@Model.AverageOrderValue.ToString("N2")</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calculator fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs fw-bold text-warning text-uppercase mb-1">
+                                Days Period
+                            </div>
+                            <div class="h5 mb-0 fw-bold text-gray-800">@((Model.EndDate - Model.StartDate).Days + 1)</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Sales chart-->
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 fw-bold text-primary">Sales Trend</h6>
+        </div>
+        <div class="card-body">
+            <div class="chart-area">
+                <canvas id="salesChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <partial name="_OrderTablesData" model="@Model.Orders" view-data="ViewData" />
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+             $("#orderTable").DataTable();
+         });
+    </script>
+}

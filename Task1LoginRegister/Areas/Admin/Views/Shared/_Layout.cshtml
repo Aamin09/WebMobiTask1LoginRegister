@@ -100,6 +100,25 @@
                 </ul>
             </li>
 
+            <li class="nav-item has-dropdown">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-fw fa-chart-line"></i>
+                    <span>Reports</span>
+                    <i class="fas fa-angle-down ml-auto"></i>
+                </a>
+                <ul class="nav-dropdown">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="Admin" asp-controller="Report" asp-action="Index">
+                            <span>All Reports</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="Admin" asp-controller="AdminOrders" asp-action="Pending">
+                            <span>Pending Orders</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
 
         </ul>
 

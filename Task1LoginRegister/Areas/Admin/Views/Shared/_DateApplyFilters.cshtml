@@ -1,0 +1,42 @@
+﻿<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="mb-0 fw-bold text-primary">Date Range</h6>
+    </div>
+    <div class="card-body">
+        <form method="get" asp-controller="Report">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="startDate" class="form-label">Start Date</label>
+                        <input type="date" class="form-control" id="startDate" name="startDate" value="@ViewBag.StartDate" />
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="endDate" class="form-label">End Date</label>
+                        <input type="date" class="form-control" id="endDate" name="endDate" value="@ViewBag.EndDate" />
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <div class="d-grid gap-2 d-md-flex mt-4">
+                            <button type="submit" class="btn btn-primary flex-grow-1">Apply Filter</button>
+                            <button type="button" class="btn btn-secondary flex-grow-1" onclick="resetFilters()">Reset</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function resetFilters() {
+        // Clear the date inputs
+        document.getElementById('startDate').value = '';
+        document.getElementById('endDate').value = '';
+
+        // Submit the form with cleared values
+        document.querySelector('form').submit();
+    }
+</script>
