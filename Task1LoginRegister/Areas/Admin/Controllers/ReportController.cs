@@ -98,5 +98,6 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
 
             return View(productPerformance);
         }
+
     }
 }

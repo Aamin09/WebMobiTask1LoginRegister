@@ -24,8 +24,8 @@ namespace Task1LoginRegister.Models
         [Required]
         public decimal Price { get; set; }  // Price per unit at order time
 
-        [Required]
-        public decimal TotalPrice { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        public decimal TotalPrice { get; private set; }
 
 
         public DateTime CreatedAt { get; set; }= DateTime.Now;

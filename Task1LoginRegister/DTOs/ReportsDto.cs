@@ -18,6 +18,7 @@ namespace Task1LoginRegister.DTOs
             get
             {
                 return Orders.GroupBy(o => o.OrderDate.Date)
+                     .OrderBy(g => g.Key)
                     .ToDictionary(g => g.Key.ToString("yyyy-MM-dd"), g => g.Sum(o => o.TotalAmount));
             }
         }

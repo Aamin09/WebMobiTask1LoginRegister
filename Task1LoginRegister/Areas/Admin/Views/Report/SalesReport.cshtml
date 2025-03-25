@@ -9,7 +9,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2><i class="fas fa-chart-line"></i> Sales Report</h2>
         <div>
-            <a asp-action="Index" asp-controller="Report" class="btn btn-sm btn-outline-primary"><i class="fas fa-arrow-left"></i> Back to Report</a>
+            <a asp-action="Index" asp-controller="Report" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left"></i> Back to Report</a>
             <a asp-action="ExportSalesReport" asp-controller="Report" asp-route-startDate="@Model.StartDate" asp-route-endDate="@Model.EndDate" class="btn btn-sm btn-outline-success"><i class="fas fa-file-export"></i> Export Report</a>
         </div>
     </div>
@@ -100,18 +100,160 @@
         </div>
         <div class="card-body">
             <div class="chart-area">
-                <canvas id="salesChart"></canvas>
+                <canvas id="salesChart" height="300"></canvas>
             </div>
         </div>
     </div>
 
+    <div class="row">
+        <!--Payment Method chart-->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow  mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 fw-bold text-primary">Payment Methods</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-pie">
+                        <canvas id="paymentMethodChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--Order status chart-->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow  mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Order Status Distribution</h6>
+                </div>  
+                <div class="card-body">
+                    <div class="chart-pie">
+                        <canvas id="orderStatusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <partial name="_OrderTablesData" model="@Model.Orders" view-data="ViewData" />
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
     <script>
         $(document).ready(function () {
-             $("#orderTable").DataTable();
+             $("#orderTable").DataTable({
+                 "order": [[0, "desc"]] // Set the default sorting column (0 = first column, change if needed)
+             });
          });
+        // Common chart configuration
+        const chartDefaults = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' },
+                datalabels: {
+                    color: 'white',
+                    font: { weight: 'bold' },
+                    formatter: (value, ctx) => {
+                        const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                        return value > total * 0.05 ? `${value}\n(${((value/total)*100).toFixed(1)}%)` : '';
+                    }
+                }
+            },
+            cutout: '70%'
+        };
+
+        // Initialize charts
+        document.addEventListener('DOMContentLoaded', function() {
+             // Sales Chart with visible data labels
+             const salesData = @Html.Raw(Json.Serialize(Model.DailySales));
+             const salesCtx = document.getElementById('salesChart').getContext('2d');
+
+             new Chart(salesCtx, {
+                 type: 'line',
+                 data: {
+                     labels: Object.keys(salesData),
+                     datasets: [{
+                         label: 'Daily Sales (₹)',
+                         data: Object.values(salesData),
+                         backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                         borderColor: 'rgba(78, 115, 223, 1)',
+                         pointRadius: 4,
+                         pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+                         pointBorderColor: 'rgba(78, 115, 223, 1)',
+                         tension: 0.3,
+                         fill: true
+                     }]
+                 },
+                 plugins: [ChartDataLabels],
+                 options: {
+                     responsive: true,
+                     maintainAspectRatio: false,
+                     scales: {
+                         x: { grid: { display: false } },
+                         y: {
+                             beginAtZero: true,
+                             ticks: {
+                                 callback: function(value) {
+                                     return '₹' + value;
+                                 }
+                             }
+                         }
+                     },
+                     plugins: {
+                         legend: { display: false },
+                         datalabels: {
+                             anchor: 'end',
+                             align: 'top',
+                             formatter: function(value) {
+                                 return '₹' + value.toFixed(2);
+                             },
+                             color: '#4e73df',
+                             font: {
+                                 weight: 'bold'
+                             }
+                         }
+                     }
+                 }
+             });
+
+            // Payment Method Chart
+            const paymentData = @Html.Raw(Json.Serialize(Model.PaymentMethodStats));
+            new Chart(document.getElementById('paymentMethodChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(paymentData),
+                    datasets: [{
+                        data: Object.values(paymentData),
+                        backgroundColor: ['#FFA500', '#198754', '#36b9cc', '#f6c23e', '#e74a3b']
+                    }]
+                },
+                plugins: [ChartDataLabels],
+                options: chartDefaults
+            });
+
+            // Order Status Chart
+            const statusData = {
+                'Pending': @Model.Orders.Count(o => o.OrderStatus == "Pending"),
+                'Processing': @Model.Orders.Count(o => o.OrderStatus == "Processing"),
+                'Shipped': @Model.Orders.Count(o => o.OrderStatus == "Shipped"),
+                'Delivered': @Model.Orders.Count(o => o.OrderStatus == "Delivered"),
+                'Cancelled': @Model.Orders.Count(o => o.OrderStatus == "Cancelled")
+            };
+            new Chart(document.getElementById('orderStatusChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(statusData),
+                    datasets: [{
+                        data: Object.values(statusData),
+                        backgroundColor: ['#FFA500', '#0dcaf0', '#0d6efd', '#198754', '#e74a3b']
+                    }]
+                },
+                plugins: [ChartDataLabels],
+                options: chartDefaults
+            });
+
+           
+        });
     </script>
 }

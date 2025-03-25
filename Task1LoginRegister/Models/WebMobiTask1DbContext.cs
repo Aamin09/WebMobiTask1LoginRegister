@@ -58,6 +58,10 @@ public partial class WebMobiTask1DbContext : DbContext
             entity.Property(e => e.Photo).IsUnicode(false);
         });
 
+        modelBuilder.Entity<OrderItem>()
+        .Property(o => o.TotalPrice)
+        .HasComputedColumnSql("[Price] * [Quantity]");
+
         modelBuilder.Entity<Cart>()
             .HasIndex(c => c.UserId )
              .IsUnique();
