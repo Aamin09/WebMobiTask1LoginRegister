@@ -1,0 +1,148 @@
+﻿@model IEnumerable<Task1LoginRegister.DTOs.CustomerReportDto>
+@{
+    ViewData["Title"] = "CustomerReport";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Customer Insight Report</h3>
+                    <partial name="_DateApplyFilters" />
+                </div>
+
+                <div class="card-body">
+                    <div class="row">
+                        <!--Customer spent chart-->
+                        <div class="col-xl-6 col-lg-6">
+                            <div class="card shadow  mb-4">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 fw-bold text-primary">Customer Spent</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-pie">
+                                        <canvas id="customerSpendChart" height="350"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--Order frequency chart-->
+                        <div class="col-xl-6 col-lg-6">
+                            <div class="card shadow  mb-4">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">Order Frequency</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-pie">
+                                        <canvas id="orderFrequencyChart" height="350"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive mt-4">
+                        <table class="table table-bordered table-striped table-hover">
+                            <thead class="bg-primary text-white">
+                                <tr>
+                                    <th>Customer Name</th>
+                                    <th>Email</th>
+                                    <th>Contact</th>
+                                    <th>Total Orders</th>
+                                    <th>Total Spent (₹)</th>
+                                    <th>Avg. Order Value (₹)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>@item.CustomerName</td>
+                                        <td>@item.Email</td>
+                                        <td>@item.Phone</td>
+                                        <td>@item.TotalOrders</td>
+                                        <td>@item.TotalSpent.ToString("N2")</td>
+                                        <td>@item.AverageOrdeValue.ToString("N2")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        $(document).ready(function(){
+            var customerNames = @Html.Raw(Json.Serialize(Model.Select(c => c.CustomerName).Take(10)));
+            var totalSpent = @Html.Raw(Json.Serialize(Model.Select(c => (double)c.TotalSpent).Take(10)));
+            var totalOrders = @Html.Raw(Json.Serialize(Model.Select(c => c.TotalOrders).Take(10)));
+
+            // Customer Spend Chart
+            new Chart(document.getElementById('customerSpendChart'), {
+                type: 'bar',
+                data: {
+                    labels: customerNames,
+                    datasets: [{
+                        label: 'Total Spent',
+                        data: totalSpent,
+                        backgroundColor: '#0dcaf0'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                            formatter: function(value) {
+                                return '₹' + value.toFixed(2);
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                },
+                plugins: [ChartDataLabels]
+            });
+
+            // Order Frequency Chart
+            new Chart(document.getElementById('orderFrequencyChart'), {
+                type: 'pie',
+                data: {
+                    labels: customerNames,
+                    datasets: [{
+                        data: totalOrders,
+                        backgroundColor: [
+                             '#198754', '#e74a3b', '#0d6efd','#0dcaf0', '#FFA500'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        datalabels: {
+                            color: '#fff',
+                            formatter: function(value, context) {
+                                return value;
+                            }
+                        }
+                    }
+                },
+                plugins: [ChartDataLabels]
+            });
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+}

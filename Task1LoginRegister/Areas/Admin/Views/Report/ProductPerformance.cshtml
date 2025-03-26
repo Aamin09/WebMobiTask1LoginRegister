@@ -85,9 +85,9 @@
                         <tr>
                             <th>Product Name</th>
                             <th>Quantity Sold</th>
-                            <th>Total Revenue</th>
+                            <th>Total Revenue (₹)</th>
                             <th>Orders</th>
-                            <th>Avg. Order Value</th>
+                            <th>Avg. Order Value (₹)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -96,9 +96,9 @@
                             <tr>
                                 <td>@product.ProductName</td>
                                 <td>@product.TotalQuantitySold</td>
-                                <td class="text-end">₹@product.TotalRevenue.ToString("N2")</td>
+                                <td class="text-end">@product.TotalRevenue.ToString("N2")</td>
                                 <td>@product.OrderCount</td>
-                                <td class="text-end">₹@product.AverageOrderValue.ToString("N2")</td>
+                                <td class="text-end">@product.AverageOrderValue.ToString("N2")</td>
                             </tr>
                         }
                     </tbody>
