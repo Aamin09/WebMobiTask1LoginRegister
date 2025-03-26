@@ -113,6 +113,7 @@
                 <th>@Html.DisplayNameFor(model => model.CalculatedSellingPrice)</th>
                 <th>@Html.DisplayNameFor(model => model.Category)</th>
                 <th>@Html.DisplayNameFor(model => model.Subcategory)</th>
+                <th>@Html.DisplayNameFor(model => model.StockQuantity)</th>
                 <th>@Html.DisplayNameFor(model => model.Status)</th>
 
                 <th>Actions</th>
@@ -134,7 +135,7 @@
                     <td class="border p-2">@item.Price.ToString("C")</td>
                     <td>@Html.DisplayFor(modelItem => item.Category.Name)</td>
                     <td>@Html.DisplayFor(modelItem => item.Subcategory.Name)</td>
-
+                    <td>@Html.DisplayFor(modelItem=>item.StockQuantity)</td>
                     <td>
                         <button class="btn @(item.Status ? "btn-success" : "btn-danger") btn-sm toggle-status" data-id="@item.ProductId">
                             @(item.Status ? "Active" : "InActive")

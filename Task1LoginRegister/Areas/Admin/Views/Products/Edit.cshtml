@@ -69,6 +69,20 @@
                             </div>
                         </div>
 
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="StockQuantity" class="form-label fw-bold">Stock Quantity</label>
+                                <input asp-for="StockQuantity" step="1" type="number" class="form-control" />
+                                <span asp-validation-for="StockQuantity" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="MinimumStockLevel" class="form-label fw-bold">Minimum Stock Level</label>
+                                <input asp-for="MinimumStockLevel" step="1" type="number" class="form-control" />
+                                <span asp-validation-for="MinimumStockLevel" class="text-danger"></span>
+                            </div>
+                        </div>
+
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group mb-3">

@@ -187,7 +187,14 @@ h2 {
                                 <td class="fw-bold">@((Model.CalculatedSellingPrice + Model.DeliveryCharge + (Model.Subcategory.Taxes.SGST * 2 * Model.CalculatedSellingPrice / 100)).ToString("C"))</td>
                             </tr>
                         }
-
+                        <tr>
+                            <th>Stock Quantity</th>
+                            <td>@Model.StockQuantity</td>
+                        </tr>
+                        <tr>
+                            <th>Minimum Stock Level</th>
+                            <td>@Model.MinimumStockLevel</td>
+                        </tr>
                         <tr>
                             <th>Status</th>
                             <td>@(Model.Status ? "Active" : "Inactive")</td>

@@ -237,26 +237,55 @@
 
                             <div>Get it by : @DateTime.Now.AddDays(2).ToString("dddd, dd MMMM yyyy") </div>
                         }
+                        <div class="mt-2">
+                            @if (Model.StockQuantity > 0)
+                            {
+                                <span class="badge bg-success">
+                                    @Model.StockQuantity Item(s) Left in Stock
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">
+                                    Out of Stock
+                                </span>
+                            }
+                        </div>
+
                     </div>
                     <div class="buy-details mb-4 mt-3">
-                        <form asp-action="AddToCart" asp-controller="Cart" method="post">
+                        @if (Model.StockQuantity > 0)
+                        {
+                            <form asp-action="AddToCart" asp-controller="Cart" method="post">
+                                <div class="quantity-input d-flex mb-2">
+                                    <input type="hidden" name="productId" value="@Model.ProductId" />
+                                    <button type="button" class="quantity-btn minus">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <input type="number" id="quantityInput" name="quantity" min="1"
+                                           max="@Model.StockQuantity" value="1" class="form-control quantity">
+                                    <button type="button" class="quantity-btn plus">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
 
-                            <div class="quantity-input d-flex mb-2">
+                                <div>
+                                    <button type="submit" class="btn btn-buy text-white">Add To Cart</button>
+                                </div>
+                            </form>
+                        }
+                        else
+                        {
+                            <form asp-action="NotifyWhenAvailable" asp-controller="Product" method="post">
                                 <input type="hidden" name="productId" value="@Model.ProductId" />
-                                <button type="button" class="quantity-btn minus">
-                                    <i class="fas fa-minus"></i>
+                                <input type="email" name="email" placeholder="Enter your email" class="form-control mb-2" required />
+                                <button type="submit" class="btn btn-warning text-white">
+                                    <i class="fas fa-bell"></i> Notify Me When Available
                                 </button>
-                                <input type="number" id="quantityInput" name="quantity" min="1" value="1" class="form-control quantity">
-                                <button type="button" class="quantity-btn plus">
-                                    <i class="fas fa-plus"></i>
-                                </button>
-                            </div>
-
-                            <div>
-                                <button type="submit" class="btn btn-buy text-white">Add To Cart</button>
-                            </div>
-                        </form>
+                            </form>
+                        }
                     </div>
+
                     <div class="product-details">
                         <h3 class="text-dark">Product details</h3>
 

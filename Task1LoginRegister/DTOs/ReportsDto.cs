@@ -46,6 +46,7 @@ namespace Task1LoginRegister.DTOs
     {
         public int UserId { get; set; }
         public string CustomerName { get; set; }
+        public string Phone { get; set; }
         public string Email { get; set; }
         public int TotalOrders { get; set; }
         public decimal TotalSpent { get; set; }
@@ -64,6 +65,8 @@ namespace Task1LoginRegister.DTOs
         public decimal Price { get; set; }
         public decimal SellingPrice { get; set; }
         public bool Status { get; set; }
+        public int StockQuantity { get; set; }
+        public int MinimumStockLevel { get; set; }
     }
 
     public class DashboardDto

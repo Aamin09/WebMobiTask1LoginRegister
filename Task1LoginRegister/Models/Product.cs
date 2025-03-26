@@ -43,6 +43,10 @@ namespace Task1LoginRegister.Models
         [DisplayName("Delivery Charge")]
         public decimal DeliveryCharge { get; set; } = 0;
 
+        [Required, DisplayName("Stock")]
+        public int StockQuantity { get; set; } = 0;
+        [Required, DisplayName("Minimumn Stock Level")]
+        public int MinimumStockLevel { get; set; } = 0;
 
         [Required]
         [DisplayName("Category")]

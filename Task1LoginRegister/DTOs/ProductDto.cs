@@ -49,7 +49,12 @@ namespace Task1LoginRegister.DTOs
         [Required]
         [DisplayName("Delivery Charge")]
         public decimal DeliveryCharge { get; set; } = 0;
+        [Required, DisplayName("Stock")]
 
+        public int StockQuantity { get; set; }
+        [Required, DisplayName("Minimumn Stock Level")]
+
+        public int MinimumStockLevel { get; set; } 
         public string? PrimaryImageUrl { get; set; }
 
         public List<ProductImageDto> ExistingGalleryImages { get; set; } = new List<ProductImageDto>();

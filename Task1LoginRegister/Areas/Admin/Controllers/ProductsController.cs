@@ -94,6 +94,8 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                         SellingPricePercent = model.SellingPricePercentage,
                         CalculatedSellingPrice = calculatedSellingPrice,
                         Status = model.Status,
+                        StockQuantity=model.StockQuantity,
+                        MinimumStockLevel=model.MinimumStockLevel,
                         CategoryId = model.CategoryId,
                         SubcategoryId = model.SubcategoryId,
                         DeliveryCharge=model.DeliveryCharge,
@@ -185,6 +187,8 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                 SellingPricePercentage = product.SellingPricePercent,
                 Status = product.Status,
                 CategoryId = product.CategoryId,
+                StockQuantity=product.StockQuantity,
+                MinimumStockLevel=product.MinimumStockLevel,
                 SubcategoryId = product.SubcategoryId,
                 PrimaryImageUrl = product.ProductImages.FirstOrDefault(pi => pi.IsPrimaryImage)?.ImageUrl,
                 DeliveryCharge=product.DeliveryCharge,
@@ -236,6 +240,8 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                 product.SubcategoryId = model.SubcategoryId;
                 product.CalculatedSellingPrice = model.Price - model.Price * model.SellingPricePercentage / 100;
                 product.DeliveryCharge= model.DeliveryCharge;
+                product.StockQuantity = model.StockQuantity;
+                product.MinimumStockLevel = model.MinimumStockLevel;
 
                 // deleting gallery image based on the checkbox selection 
                 if (model.ImagesToDelete != null && model.ImagesToDelete.Any())
