@@ -140,7 +140,7 @@ namespace Task1LoginRegister.Services
                     {
                         foreach (var columnConfig in reportConfig.Columns)
                         {
-                            header.Cell().Background(Colors.LightBlue.Lighten3).Border(1)
+                            header.Cell().Background(Color.FromHex("#0d6efd")).Border(1)
                         .BorderColor(Colors.Black)
                         .PaddingVertical(5).PaddingLeft(5)
                                 .Text(columnConfig.HeaderText).SemiBold().FontSize(10).FontColor(Colors.White);
@@ -168,11 +168,11 @@ namespace Task1LoginRegister.Services
                     {
                         row.RelativeColumn().Stack(stack =>
                         {
-                            stack.Item().Text("Report Summary").SemiBold();
-
+                            stack.Item().PaddingBottom(5).BorderBottom(1).Text("Report Summary").SemiBold().FontSize(12);
+                            
                             foreach (var summaryItem in reportConfig.SummaryItems)
                             {
-                                stack.Item().Text(summaryItem);
+                                stack.Item().PaddingBottom(3).Text(summaryItem).FontSize(10);
                             }
                         });
                     });

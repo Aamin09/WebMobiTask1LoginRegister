@@ -55,7 +55,7 @@ namespace Task1LoginRegister.DTOs
         public DateTime LastPurchaseDate { get; set; }
     }
 
-    public class InventoryStatusDto
+    public class InventoryReportDto
     {
         public int ProductId { get; set; }
         public string ProductName { get; set; }
@@ -67,8 +67,28 @@ namespace Task1LoginRegister.DTOs
         public bool Status { get; set; }
         public int StockQuantity { get; set; }
         public int MinimumStockLevel { get; set; }
+        public int TotalSales { get; set; }
+        public string ValueStatus { get; set; }
+    }
+    public class InventoryChartDataViewModel
+    {
+        public List<string> ProductNames { get; set; }
+        public List<int> StockQuantities { get; set; }
+        public List<int> TotalSales { get; set; }
+        public List<string> StockStatusLabels { get; set; }
+        public List<int> StockStatusData { get; set; }
     }
 
+
+    public class InventoryReportMainViewModel
+    {
+        public List<InventoryReportDto> Products { get; set; }
+        public InventoryChartDataViewModel ChartData { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public int TotalProductCount { get; set; }
+        public int LowStockProductCount { get; set; }
+    }
     public class DashboardDto
     {
         public int TotalOrders { get; set; }
