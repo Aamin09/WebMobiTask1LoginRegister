@@ -160,7 +160,7 @@ namespace Task1LoginRegister.Controllers
         public async Task<IActionResult> RazorpayPaymentList()
         {
             var data = await context.RazorpayOrders
-                .Include(r=>r.Order).OrderByDescending(r=>r.OrderId).ToListAsync();
+                .Include(r=>r.Order).OrderByDescending(r=>r.Order.OrderDate).ToListAsync();
 
             return View(data);
         }

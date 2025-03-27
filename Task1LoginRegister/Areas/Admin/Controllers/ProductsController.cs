@@ -81,7 +81,7 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    string generatedSKU = $"CAT-{model.CategoryId}-SUB-{model.SubcategoryId}-{model.Name.Substring(0, 3).ToUpper()}-{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}";
+                    string generatedSKU = $"C{model.CategoryId}S{model.SubcategoryId}{model.Name.Substring(0, 2).ToUpper()}{Guid.NewGuid().ToString("N").Substring(0, 4).ToUpper()}";
                     decimal calculatedSellingPrice = model.Price - model.Price * (model.SellingPricePercentage / 100);
 
                     var product = new Product
@@ -226,8 +226,7 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
 
                 if (product.Name != model.Name)
                 {
-                    string generatedSKU = $"CAT-{model.CategoryId}-SUB-{model.SubcategoryId}-{model.Name.Substring(0, 3).ToUpper()}-{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}";
-                    product.SKU = generatedSKU;
+                    string generatedSKU = $"C{model.CategoryId}S{model.SubcategoryId}{model.Name.Substring(0, 2).ToUpper()}{Guid.NewGuid().ToString("N").Substring(0, 4).ToUpper()}"; product.SKU = generatedSKU;
                 }
                 // updating the product table details 
                 product.Name = model.Name;

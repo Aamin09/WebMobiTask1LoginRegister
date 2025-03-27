@@ -318,19 +318,36 @@
                 });
             }
         }
-         // Toggle between saved addresses and new address form
-        $("#showNewAddressForm").click(function () {
-            $("#newAddressForm").toggleClass("d-none");
+        // Store the previously selected address when showing new address form
+            let previouslySelectedAddress = null;
 
-            if (!$("#newAddressForm").hasClass("d-none")) {
-                $("input[name='SelectedAddressId']").prop("checked", false); // Unselecting existing addresses
-            }
-        });
+            // Toggle between saved addresses and new address form
+            $("#showNewAddressForm").click(function() {
+                const newAddressForm = $("#newAddressForm");
 
-        // When an existing address is selected, hide the new address form and clear its inputs
-        $("input[name='SelectedAddressId']").change(function () {
-            $("#newAddressForm").addClass("d-none").find("input").val(""); 
-        });
+                if (newAddressForm.hasClass("d-none")) {
+                    // Store current selection before showing new form
+                    previouslySelectedAddress = $("input[name='SelectedAddressId']:checked").val();
+                    // Uncheck all addresses
+                    $("input[name='SelectedAddressId']").prop("checked", false);
+                    newAddressForm.removeClass("d-none");
+                } else {
+                    // Restore previous selection when hiding new form
+                    newAddressForm.addClass("d-none");
+                    if (previouslySelectedAddress) {
+                        $(`#address-${previouslySelectedAddress}`).prop("checked", true);
+                    }
+                }
+            });
+
+            // When an existing address is selected, hide the new address form
+            $("input[name='SelectedAddressId']").change(function() {
+                if ($(this).is(":checked")) {
+                    $("#newAddressForm").addClass("d-none");
+                    // Clear validation errors for new address
+                    $("[data-valmsg-for]").text("");
+                }
+            });
         });
     </script>
 }

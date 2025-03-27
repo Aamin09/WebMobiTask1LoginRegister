@@ -126,6 +126,13 @@ namespace Task1LoginRegister.Controllers
 
             foreach (var item in cartItems)
             {
+                var product = await context.Products.FindAsync(item.ProductId);
+
+                if (product != null)
+                {
+                    product.StockQuantity -= item.Quantity;
+                }
+                await context.SaveChangesAsync();
                 var orderItem = new OrderItem
                 {
                     OrderId = order.OrderId,
@@ -264,6 +271,16 @@ namespace Task1LoginRegister.Controllers
             {
                 TempData["ErrorMessage"] = $"Order cannot be cancelled as it is already {order.OrderStatus}.";
                 return RedirectToAction("OrderDetails", new { orderId = orderId });
+            }
+
+            // Restore stock if order is cancelled
+            foreach (var item in order.OrderItems)
+            {
+                var product = await context.Products.FindAsync(item.ProductId);
+                if(product != null)
+                {
+                    product.StockQuantity += item.Quantity;
+                }
             }
 
             // If paid online, redirect to refund
