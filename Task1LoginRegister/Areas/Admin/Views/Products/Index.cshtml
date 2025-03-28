@@ -44,7 +44,7 @@
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <h6 class="text-muted mb-0">Total Revenue</h6>
-                        <h4 class="mb-0">@Model.Sum(p=>p.OrderItems.Sum(oi=>oi.Quantity * oi.Price)).ToString("N2")</h4>
+                        <h4 class="mb-0">@Model.Sum(p=>p.OrderItems.Sum(oi=>oi.Quantity * oi.SnapshotPrice)).ToString("N2")</h4>
                     </div>
                 </div>
             </div>
@@ -110,6 +110,7 @@
                 <th>Image</th>
                 <th>@Html.DisplayNameFor(model => model.Name)</th>
                 <th>@Html.DisplayNameFor(model => model.SKU)</th>
+                <th>@Html.DisplayNameFor(model => model.CostPrice)</th>
                 <th>@Html.DisplayNameFor(model => model.CalculatedSellingPrice)</th>
                 <th>@Html.DisplayNameFor(model => model.Category)</th>
                 <th>@Html.DisplayNameFor(model => model.Subcategory)</th>
@@ -132,6 +133,7 @@
                    
                     <td>@Html.DisplayFor(modelItem => item.Name)</td>
                     <td>@Html.DisplayFor(modelItem => item.SKU)</td>
+                    <td class="border p-2">@item.CostPrice.ToString("C")</td>
                     <td class="border p-2">@item.Price.ToString("C")</td>
                     <td>@Html.DisplayFor(modelItem => item.Category.Name)</td>
                     <td>@Html.DisplayFor(modelItem => item.Subcategory.Name)</td>

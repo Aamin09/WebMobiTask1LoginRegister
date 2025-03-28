@@ -27,6 +27,14 @@ namespace Task1LoginRegister.Models
         public string SKU { get; set; }
         [Required]
         [Range(0, double.MaxValue)]
+        [DisplayName("Cost Price")]
+        public decimal CostPrice { get; set; }
+        [Required]
+        [Range(0, 1000)]
+        [DisplayName("Profit (%)")]
+        public decimal ProfitPercentage { get; set; } = 50;
+        [Required]
+        [Range(0, double.MaxValue)]
         [DisplayName("Price")]
         public decimal Price { get; set; }
         [Required]
@@ -66,6 +74,16 @@ namespace Task1LoginRegister.Models
 
         public virtual ICollection<OrderItem> OrderItems { get; set; }
 
-
+        public void CalculatePricing()
+        {
+            Price = Math.Round(CostPrice * (1 + (ProfitPercentage / 100m)), 2);
+            CalculatedSellingPrice = Math.Round(Price * (1 - (SellingPricePercent / 100m)), 2);
+        }
+        public bool IsValidPricing()
+        {
+            return Price > CostPrice &&
+                   CalculatedSellingPrice > 0 &&
+                   CalculatedSellingPrice <= Price;
+        }
     }
 }

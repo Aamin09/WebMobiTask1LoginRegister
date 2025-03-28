@@ -138,6 +138,14 @@ h2 {
                             <td>@Model.SKU</td>
                         </tr>
                         <tr>
+                            <th class="text-start">Cost Price:</th>
+                            <td class="">@Model.CostPrice.ToString("C")</td>
+                        </tr>
+                        <tr>
+                            <th class="text-start">Profit Percentage %:</th>
+                            <td class="">@Model.ProfitPercentage.ToString("0.##") % - @((Model.ProfitPercentage * Model.CostPrice / 100).ToString("C"))</td>
+                        </tr>
+                        <tr>
                             <th class="text-start">Price:</th>
                             <td class="">@Model.Price.ToString("C")</td>
                         </tr>

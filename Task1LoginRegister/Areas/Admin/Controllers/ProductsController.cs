@@ -82,17 +82,16 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                 if (ModelState.IsValid)
                 {
                     string generatedSKU = $"C{model.CategoryId}S{model.SubcategoryId}{model.Name.Substring(0, 2).ToUpper()}{Guid.NewGuid().ToString("N").Substring(0, 4).ToUpper()}";
-                    decimal calculatedSellingPrice = model.Price - model.Price * (model.SellingPricePercentage / 100);
-
+                  
                     var product = new Product
                     {
                         Name = model.Name,
                         Description = model.Description,
                         ShortDescription = model.ShortDescription,
-                        SKU = generatedSKU,
-                        Price = model.Price,
+                        CostPrice = model.CostPrice,
+                        ProfitPercentage = model.ProfitPercentage,
                         SellingPricePercent = model.SellingPricePercentage,
-                        CalculatedSellingPrice = calculatedSellingPrice,
+                        SKU = generatedSKU,
                         Status = model.Status,
                         StockQuantity=model.StockQuantity,
                         MinimumStockLevel=model.MinimumStockLevel,
@@ -100,6 +99,8 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                         SubcategoryId = model.SubcategoryId,
                         DeliveryCharge=model.DeliveryCharge,
                     };
+
+                    product.CalculatePricing();
 
                     context.Add(product);
                     await context.SaveChangesAsync();
@@ -183,7 +184,8 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                 Name = product.Name,
                 Description = product.Description,
                 ShortDescription = product.ShortDescription,
-                Price = product.Price,
+                CostPrice = product.CostPrice,
+                ProfitPercentage=product.ProfitPercentage,
                 SellingPricePercentage = product.SellingPricePercent,
                 Status = product.Status,
                 CategoryId = product.CategoryId,
@@ -232,15 +234,17 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                 product.Name = model.Name;
                 product.Description = model.Description;
                 product.ShortDescription = model.ShortDescription;
-                product.Price = model.Price;
+                product.CostPrice = model.CostPrice;
+                product.ProfitPercentage = model.ProfitPercentage;
                 product.SellingPricePercent = model.SellingPricePercentage;
                 product.Status = model.Status;
                 product.CategoryId = model.CategoryId;
                 product.SubcategoryId = model.SubcategoryId;
-                product.CalculatedSellingPrice = model.Price - model.Price * model.SellingPricePercentage / 100;
                 product.DeliveryCharge= model.DeliveryCharge;
                 product.StockQuantity = model.StockQuantity;
                 product.MinimumStockLevel = model.MinimumStockLevel;
+
+                product.CalculatePricing();
 
                 // deleting gallery image based on the checkbox selection 
                 if (model.ImagesToDelete != null && model.ImagesToDelete.Any())

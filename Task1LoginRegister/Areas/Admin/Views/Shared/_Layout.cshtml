@@ -279,23 +279,34 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
 
     <script>
-        $(document).ready(function() {
-            // Toggle sidebar
-             $("#sidebarToggle").on('click', function(e) {
-            e.preventDefault();
-            $("#sidebar-wrapper").toggleClass("collapsed mobile-show");
-            $("#content-wrapper").toggleClass("expanded");
+         $(document).ready(function() {
+            // Check if it's the first time loading the page
+            if (!localStorage.getItem('firstLoadDone')) {
+                // Close sidebar only on first load
+                $("#sidebar-wrapper").addClass("collapsed mobile-show");
+                $("#content-wrapper").addClass("expanded");
+                $("#sidebarToggle").html('<i class="fas fa-bars"></i>');
+                $("#sidebarToggle").css('left', '10px');
 
-            // Change icon based on sidebar state
-            if ($("#sidebar-wrapper").hasClass("collapsed")) {
-                $(this).html('<i class="fas fa-bars"></i>');
-                $(this).css('left', '10px');
-            } else {
-                $(this).html('<i class="fas fa-times"></i>');
-                $(this).css('left', 'calc(var(--sidebar-width) - 20px)');
+                // Mark that first load has been done
+                localStorage.setItem('firstLoadDone', 'true');
             }
-        });
 
+            // Toggle sidebar
+            $("#sidebarToggle").on('click', function(e) {
+                e.preventDefault();
+                $("#sidebar-wrapper").toggleClass("collapsed mobile-show");
+                $("#content-wrapper").toggleClass("expanded");
+
+                // Change icon based on sidebar state
+                if ($("#sidebar-wrapper").hasClass("collapsed")) {
+                    $(this).html('<i class="fas fa-bars"></i>');
+                    $(this).css('left', '10px');
+                } else {
+                    $(this).html('<i class="fas fa-times"></i>');
+                    $(this).css('left', 'calc(var(--sidebar-width) - 20px)');
+                }
+            });
 
             // Toggle dropdowns in sidebar
             $(".nav-item.has-dropdown > .nav-link").on('click', function(e) {
@@ -303,16 +314,16 @@
                 $(this).parent().toggleClass("open");
             });
 
-                 // Close sidebar on small screens when clicking outside
-        $(document).on('click', function(e) {
-            if ($(window).width() < 768) {
-                if (!$(e.target).closest('#sidebar-wrapper').length && !$(e.target).closest('#sidebarToggle').length) {
-                    $("#sidebar-wrapper").removeClass("mobile-show");
-                    $("#sidebarToggle").html('<i class="fas fa-bars"></i>');
-                    $("#sidebarToggle").css('left', '10px');
+            // Close sidebar on small screens when clicking outside
+            $(document).on('click', function(e) {
+                if ($(window).width() < 768) {
+                    if (!$(e.target).closest('#sidebar-wrapper').length && !$(e.target).closest('#sidebarToggle').length) {
+                        $("#sidebar-wrapper").removeClass("mobile-show");
+                        $("#sidebarToggle").html('<i class="fas fa-bars"></i>');
+                        $("#sidebarToggle").css('left', '10px');
+                    }
                 }
-            }
-        });
+            });
 
             // Initialize DataTables if present
             if ($.fn.DataTable) {

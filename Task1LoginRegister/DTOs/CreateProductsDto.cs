@@ -18,6 +18,12 @@ namespace Task1LoginRegister.DTOs
         [StringLength(200, ErrorMessage = "Short description can't be longer than 200 characters.")]
         [DisplayName("Short Description")]
         public string ShortDescription { get; set; }
+        
+        [Required, Range(0, double.MaxValue), DataType(DataType.Currency)]
+        [DisplayName("Cost Price")]
+        public decimal CostPrice { get; set; }
+        [Required, Range(0, 1000), DisplayName("Profit (%)")]
+        public decimal ProfitPercentage { get; set; }= 50;
 
         [Required(ErrorMessage = "Price is required.")]
         [DataType(DataType.Currency)]
@@ -55,5 +61,26 @@ namespace Task1LoginRegister.DTOs
 
         [DisplayName("Status")]
         public bool Status { get; set; }
+
+        [DisplayName("Calculated Selling Price")]
+        [Range(0, double.MaxValue)]
+        public decimal CalculatedSellingPrice { get; set; }
+
+        // Existing CalculatePricing method is good, but you could enhance it
+        public void CalculatePricing()
+        {
+            // Calculate Base Price based on Cost Price and Profit Percentage
+            Price = Math.Round(CostPrice * (1 + (ProfitPercentage / 100m)), 2);
+
+            // Calculate Final Selling Price after Discount
+            CalculatedSellingPrice = Math.Round(Price * (1 - (SellingPricePercentage / 100m)), 2);
+        }
+
+        public bool IsValidPricing()
+        {
+            return Price > CostPrice &&
+                   CalculatedSellingPrice > 0 &&
+                   CalculatedSellingPrice <= Price;
+        }
     }
 }

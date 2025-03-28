@@ -52,21 +52,53 @@
                             <span asp-validation-for="ShortDescription" class="text-danger"></span>
                         </div>
 
-                        <div class="row">
+
+                        <div class="row mb-3">
                             <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label asp-for="Price" class="form-label fw-bold">Price</label>
-                                    <input asp-for="Price" class="form-control" type="number" step="0.01" placeholder="Enter price" />
-                                    <span asp-validation-for="Price" class="text-danger"></span>
-                                </div>
+                                <label asp-for="CostPrice" class="form-label fw-bold">Cost Price</label>
+                                <input asp-for="CostPrice" type="number" step="0.01" class="form-control pricing-input border-primary text-primary" id="CostPrice" />
+                                <span asp-validation-for="CostPrice" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="ProfitPercentage" class="form-label fw-bold">Profit Margin (%)</label>
+                                <input asp-for="ProfitPercentage" type="number" step="0.01" class="form-control pricing-input fw-bold text-success border-success" id="ProfitPercentage" />
+                                <span asp-validation-for="ProfitPercentage" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Calculated Base Price</label>
+                                <input type="text" class="form-control" id="CalculatedBasePrice" readonly />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="SellingPricePercentage" class="form-label fw-bold">Selling Price Percentage (Discount %)</label>
+                                <input asp-for="SellingPricePercentage" step="0.01" type="number" class="form-control pricing-input" id="SellingPricePercentage" />
+                                <span asp-validation-for="SellingPricePercentage" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Final Selling Price</label>
+                                <input type="text" class="form-control" id="FinalSellingPrice" readonly />
                             </div>
                             <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label asp-for="SellingPricePercentage" class="form-label fw-bold">Discount (%)</label>
-                                    <input asp-for="SellingPricePercentage" class="form-control" type="number" step="0.01" placeholder="Enter discount percentage" />
-                                    <span asp-validation-for="SellingPricePercentage" class="text-danger"></span>
-                                </div>
+                                <label class="form-label fw-bold">Final Profit</label>
+                                <input type="text" class="form-control fw-bold text-success border-success" id="FinalProfit" readonly />
                             </div>
+
+                            <div class="alert alert-danger mt-3" id="pricingValidationAlert" style="display:none;">
+                                Invalid Pricing: Selling Price Cannot Be Less Than Cost Price
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="DeliveryCharge" class="form-label fw-bold">Delivery Charge</label>
+                            <input asp-for="DeliveryCharge" step="0.01" type="number" class="form-control" />
+                            <span asp-validation-for="DeliveryCharge" class="text-danger"></span>
                         </div>
 
                         <div class="row mb-3">
@@ -104,22 +136,13 @@
                             </div>
                         </div>
 
-                        <div class="row">
 
-                            <div class="form-group mb-3">
-                                <label asp-for="DeliveryCharge" class="form-label fw-bold">Delivery Charge</label>
-                                <input asp-for="DeliveryCharge" class="form-control" type="number" step="0.01" placeholder="Enter price" />
-                                <span asp-validation-for="DeliveryCharge" class="text-danger"></span>
-                            </div>
-
-
-                        </div>
                         <div class="form-group form-check mb-3">
                             <input asp-for="Status" class="form-check-input" type="checkbox" id="Status" />
                             <label asp-for="Status" class="form-check-label fw-bold" for="Status">Active</label>
                         </div>
                     </div>
-                   
+
                 </div>
             </div>
 
@@ -213,5 +236,7 @@
     @{
         await Html.PartialAsync("_ValidationScriptsPartial");
     }
+    <script src="~/js/adminpricecalculationdisplay.js"></script>
+
     <script src="~/js/categorysubcategoryload.js"></script>
 }
