@@ -126,19 +126,36 @@ namespace Task1LoginRegister.Controllers
 
             foreach (var item in cartItems)
             {
-                var product = await context.Products.FindAsync(item.ProductId);
+                var product = await context.Products.Include(p=>p.Subcategory).ThenInclude(s=>s.Taxes).FirstOrDefaultAsync(p => p.ProductId == item.ProductId); 
 
                 if (product != null)
                 {
                     product.StockQuantity -= item.Quantity;
                 }
                 await context.SaveChangesAsync();
+
+                // Calculating GST dynamically
+                var gstPercentage = (item.Product.Subcategory?.Taxes?.CGST ?? 0) +
+                                    (item.Product.Subcategory?.Taxes?.SGST ?? 0);
+                var gstAmount = Math.Round((item.Product.CalculatedSellingPrice * gstPercentage) / 100m, 2);
+
                 var orderItem = new OrderItem
                 {
                     OrderId = order.OrderId,
                     ProductId = item.ProductId,
                     Quantity = item.Quantity,
-                    Price = item.Product.CalculatedSellingPrice
+                    BasePrice = item.Product.Price,
+                    SnapshotDiscountPercentage = item.Product.SellingPricePercent,
+                    SnapshotPrice = item.Product.CalculatedSellingPrice,
+                    ProductSKU = item.Product.SKU,
+                    ProductName = item.Product.Name,
+                    SnapshotCostPrice = item.Product.CostPrice,
+                    SnapshotProfitPercentage = item.Product.ProfitPercentage,
+                    SnapshotCGSTPercentage = item.Product?.Subcategory?.Taxes?.CGST ?? 0,
+                    SnapshotSGSTPercentage = item.Product?.Subcategory?.Taxes?.SGST ?? 0,
+                    SnapshotGSTAmount = gstAmount * item.Quantity, 
+                    DeliveryCharge = item.Product?.DeliveryCharge ?? 0,
+
                 };
 
                 context.OrderItems.Add(orderItem);

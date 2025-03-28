@@ -142,17 +142,18 @@
                             </thead>
 
                             @{
-                                var highestDeliveryCharge = Model.OrderItems.Max(x => x.Product.DeliveryCharge);
+                                var highestDeliveryCharge = Model.OrderItems.Max(x => x.DeliveryCharge);
                                 bool hasDisplayedHighestDelivery = false;
                             }
                             <tbody>
                                 @foreach (var item in Model.OrderItems)
                                 {
-                                    var cgst = ((item.Product?.Subcategory?.Taxes?.CGST ?? 0m) * (item.Product?.CalculatedSellingPrice ?? 0m)) / 100;
-                                    var sgst = ((item.Product?.Subcategory?.Taxes?.SGST ?? 0m) * (item.Product?.CalculatedSellingPrice ?? 0m)) / 100;
+                                    var cgst = ((item?.SnapshotCGSTPercentage ?? 0m) * item.SnapshotPrice) / 100;
+                                    var sgst = ((item?.SnapshotSGSTPercentage ?? 0m) * item.SnapshotPrice) / 100;
 
-                                    var discount = item.Product.Price - item.Product.CalculatedSellingPrice;
-                                    var itemTotal = (item.Product.CalculatedSellingPrice * item.Quantity) + (cgst * item.Quantity) + (sgst * item.Quantity);
+                                    var discount = (item.BasePrice * item.Quantity) - (item.SnapshotPrice * item.Quantity);
+
+                                    var itemTotal = (item.SnapshotPrice * item.Quantity) + (cgst * item.Quantity) + (sgst * item.Quantity);
 
                                     var deliveryCharge = 0m;
                                     if (!hasDisplayedHighestDelivery && item.Product.DeliveryCharge == highestDeliveryCharge)
@@ -165,15 +166,14 @@
                                         <td>
                                             <div class="align-items-center">
                                                 <a asp-action="Details" asp-controller="Products" asp-route-id="@item.ProductId" class="text-decoration-none text-truncate">
-                                                    @item.Product.Name
+                                                    @item.ProductName
                                                 </a>
                                                 <br />
-
-                                                <span class="small" style="font-size:10px;"><strong>CGST:</strong> @(item.Product?.Subcategory?.Taxes?.CGST ?? 0m) %</span>  <br />
-                                                <span class="small" style="font-size:10px;"><strong>SGST:</strong> @(item.Product?.Subcategory?.Taxes?.SGST ?? 0m) %</span>
+                                                <span class="small" style="font-size:10px;"><strong>CGST:</strong> @(item?.SnapshotCGSTPercentage ?? 0m)%</span>  <br />
+                                                <span class="small" style="font-size:10px;"><strong>SGST:</strong> @(item?.SnapshotSGSTPercentage ?? 0m)%</span>
                                             </div>
                                         </td>
-                                        <td>@item.Product.Price.ToString("N2")</td>
+                                        <td>@item.BasePrice.ToString("N2")</td>
                                         <td class="text-center">@item.Quantity</td>
                                         <td class="text-success">-@discount.ToString("N2")</td>
                                         <td>@((cgst * item.Quantity).ToString("N2"))</td>

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Task1LoginRegister.Models;
 
@@ -11,9 +12,11 @@ using Task1LoginRegister.Models;
 namespace Task1LoginRegister.Migrations
 {
     [DbContext(typeof(WebMobiTask1DbContext))]
-    partial class WebMobiTask1DbContextModelSnapshot : ModelSnapshot
+    [Migration("20250328064308_AddedSnapshot-OrderItems-Price-Changes")]
+    partial class AddedSnapshotOrderItemsPriceChanges
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -233,14 +236,8 @@ namespace Task1LoginRegister.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderItemId"));
 
-                    b.Property<decimal>("BasePrice")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<decimal>("DeliveryCharge")
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("OrderId")
                         .HasColumnType("int");
@@ -259,25 +256,7 @@ namespace Task1LoginRegister.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("SnapshotCGSTPercentage")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("SnapshotCostPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("SnapshotDiscountPercentage")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("SnapshotGSTAmount")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<decimal>("SnapshotPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("SnapshotProfitPercentage")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("SnapshotSGSTPercentage")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("TotalPrice")

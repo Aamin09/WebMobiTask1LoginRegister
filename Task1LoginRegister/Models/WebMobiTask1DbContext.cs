@@ -60,7 +60,7 @@ public partial class WebMobiTask1DbContext : DbContext
 
         modelBuilder.Entity<OrderItem>()
         .Property(o => o.TotalPrice)
-        .HasComputedColumnSql("[Price] * [Quantity]");
+        .HasComputedColumnSql("[SnapshotPrice] * [Quantity]");
 
         modelBuilder.Entity<Cart>()
             .HasIndex(c => c.UserId )
@@ -75,13 +75,44 @@ public partial class WebMobiTask1DbContext : DbContext
          .HasColumnType("decimal(18,2)");
 
         modelBuilder.Entity<OrderItem>()
-          .Property(p => p.Price)
+          .Property(p => p.SnapshotPrice)
           .HasColumnType("decimal(18,2)");
 
         modelBuilder.Entity<OrderItem>()
           .Property(p => p.TotalPrice)
           .HasColumnType("decimal(18,2)");
 
+        modelBuilder.Entity<OrderItem>()
+       .Property(p => p.SnapshotSGSTPercentage)
+       .HasColumnType("decimal(18,2)");
+
+        modelBuilder.Entity<OrderItem>()
+       .Property(p => p.SnapshotCGSTPercentage)
+       .HasColumnType("decimal(18,2)");
+
+        modelBuilder.Entity<OrderItem>()
+       .Property(p => p.SnapshotCostPrice)
+       .HasColumnType("decimal(18,2)");
+
+        modelBuilder.Entity<OrderItem>()
+       .Property(p => p.SnapshotDiscountPercentage)
+       .HasColumnType("decimal(18,2)");
+
+        modelBuilder.Entity<OrderItem>()
+               .Property(p => p.SnapshotGSTAmount)
+               .HasColumnType("decimal(18,2)");
+
+        modelBuilder.Entity<OrderItem>()
+       .Property(p => p.SnapshotProfitPercentage)
+       .HasColumnType("decimal(18,2)");
+
+        modelBuilder.Entity<OrderItem>()
+       .Property(p => p.DeliveryCharge)
+       .HasColumnType("decimal(18,2)");
+
+        modelBuilder.Entity<OrderItem>()
+       .Property(p => p.BasePrice)
+       .HasColumnType("decimal(18,2)");
         // Product Price Configuration
         modelBuilder.Entity<Product>()
             .Property(p => p.Price)
@@ -94,6 +125,14 @@ public partial class WebMobiTask1DbContext : DbContext
         modelBuilder.Entity<Product>()
             .Property(p => p.CalculatedSellingPrice)
             .HasColumnType("decimal(18,2)");
+
+        modelBuilder.Entity<Product>()
+           .Property(p => p.CostPrice)
+           .HasColumnType("decimal(18,2)");
+
+        modelBuilder.Entity<Product>()
+           .Property(p => p.ProfitPercentage)
+           .HasColumnType("decimal(18,2)");
 
         modelBuilder.Entity<Cart>()
             .Property(p => p.Price)
