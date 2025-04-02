@@ -1,33 +1,61 @@
 ﻿@model Task1LoginRegister.DTOs.SalesReportViewModel
 @{
-    ViewData["Title"] = "Sales Report";
+    ViewData["Title"] = "Comprehensive Sales Report";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
     ViewData["ShowActions"] = false;
+
 }
 
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="fas fa-chart-line"></i> Sales Report</h2>
-        <div>
-            <a asp-action="Index" asp-controller="Report" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left"></i> Back to Report</a>
-            <a asp-action="ExportSalesReport" asp-controller="Report" asp-route-startDate="@Model.StartDate" asp-route-endDate="@Model.EndDate" class="btn btn-sm btn-outline-success"><i class="fas fa-file-export"></i> Export Report</a>
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-chart-line"></i> Sales Performance Dashboard
+        </h1>
+        <div class="btn-group">
+            <a asp-action="Index" asp-controller="Report" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Reports
+            </a>
+            <a asp-action="ExportSalesReport" asp-controller="Report"
+               asp-route-startDate="@Model.StartDate.ToString("yyyy-MM-dd")"
+               asp-route-endDate="@Model.EndDate.ToString("yyyy-MM-dd")"
+               class="btn btn-sm btn-success">
+                <i class="fas fa-file-export"></i> Export Detailed Report
+            </a>
         </div>
     </div>
 
-    <!-- date filters -->
+    <!-- Date Filters Partial -->
     <partial name="_DateApplyFilters" />
 
-    <!-- state cards -->
+    <!-- Key Performance Indicators -->
     <div class="row">
+        <!-- Financial Metrics -->
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-primary shadow h-100 py-2">
                 <div class="card-body">
+                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                        Total Sales
+                    </div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                        <i class="fas fa-inr"></i> @Model.TotalSales.ToString("N2")
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profit Metrics -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs fw-bold text-primary text-uppercase mb-1">
-                                Total Sales
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Gross Profit
                             </div>
-                            <div class="h5 mb-0 fw-bold text-gray-800">₹@Model.TotalSales.ToString("N2")</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                <i class="fas fa-inr"></i> @Model.GrossProfit.ToString("N2")
+                                <small class="text-success">(@Model.ProfitMargin.ToString("N2")%)</small>
+                            </div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-inr fa-2x text-gray-300"></i>
@@ -37,223 +65,217 @@
             </div>
         </div>
 
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs fw-bold text-success text-uppercase mb-1">
-                                Total Orders
-                            </div>
-                            <div class="h5 mb-0 fw-bold text-gray-800">@Model.TotalOrders</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+        <!-- Order Metrics -->
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-info shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs fw-bold text-info text-uppercase mb-1">
-                                Average Order Value
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Total Orders
                             </div>
-                            <div class="h5 mb-0 fw-bold text-gray-800">₹@Model.AverageOrderValue.ToString("N2")</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                @Model.TotalOrders
+                                <small class="text-info">(Avg: <i class="fas fa-inr"></i> @Model.AverageOrderValue.ToString("N2"))</small>
+                            </div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-calculator fa-2x text-gray-300"></i>
+                            <i class="fas fa-shopping-cart fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- Customer Metrics -->
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-warning shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs fw-bold text-warning text-uppercase mb-1">
-                                Days Period
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Customer Retention
                             </div>
-                            <div class="h5 mb-0 fw-bold text-gray-800">@((Model.EndDate - Model.StartDate).Days + 1)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                @Model.CustomerRetentionRate.ToString("N2")%
+                                <small class="text-warning">(@Model.ReturningCustomers / @Model.TotalCustomers)</small>
+                            </div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!--Sales chart-->
-
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 fw-bold text-primary">Sales Trend</h6>
-        </div>
-        <div class="card-body">
-            <div class="chart-area">
-                <canvas id="salesChart" height="300"></canvas>
             </div>
         </div>
     </div>
 
     <div class="row">
-        <!--Payment Method chart-->
-        <div class="col-xl-6 col-lg-6">
-            <div class="card shadow  mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 fw-bold text-primary">Payment Methods</h6>
+        <!-- Sales Trend Chart -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Daily Sales Trend</h6>
                 </div>
                 <div class="card-body">
-                    <div class="chart-pie">
-                        <canvas id="paymentMethodChart"></canvas>
+                    <div class="chart-area">
+                        <canvas id="salesTrendChart" height="300"></canvas>
                     </div>
                 </div>
             </div>
         </div>
-        <!--Order status chart-->
-        <div class="col-xl-6 col-lg-6">
-            <div class="card shadow  mb-4">
+
+        <!-- Performance Metrics -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Order Status Distribution</h6>
-                </div>  
+                    <h6 class="m-0 font-weight-bold text-primary">Performance Overview</h6>
+                </div>
                 <div class="card-body">
-                    <div class="chart-pie">
-                        <canvas id="orderStatusChart"></canvas>
+                    <div class="small text-gray-500">Refund Rate</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                        @Model.RefundRate.ToString("N2")%
                     </div>
+
                 </div>
             </div>
         </div>
     </div>
+
+    <div class="row">
+        <!-- Payment Method Distribution -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Payment Method Distribution</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="paymentMethodChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Status Distribution -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Order Status Breakdown</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="orderStatusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <partial name="_OrderTablesData" model="@Model.Orders" view-data="ViewData" />
 </div>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <script>
         $(document).ready(function () {
-             $("#orderTable").DataTable({
-                 "order": [[0, "desc"]] // Set the default sorting column (0 = first column, change if needed)
-             });
-         });
-        // Common chart configuration
-        const chartDefaults = {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'bottom' },
-                datalabels: {
-                    color: 'white',
-                    font: { weight: 'bold' },
-                    formatter: (value, ctx) => {
-                        const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
-                        return value > total * 0.05 ? `${value}\n(${((value/total)*100).toFixed(1)}%)` : '';
+            $("#orderTable").DataTable({
+                "order": [[0, "desc"]],
+                responsive: true,
+                pageLength: 25
+            });
+
+            // Chart configuration
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                        }
+                    },
+                    datalabels: {
+                        color: 'white',
+                        font: { weight: 'bold' },
+                        formatter: (value, ctx) => {
+                            const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                            return value > total * 0.05 ?
+                                `${value}\n(${((value/total)*100).toFixed(1)}%)` : '';
+                        }
                     }
                 }
-            },
-            cutout: '70%'
-        };
+            };
 
-        // Initialize charts
-        document.addEventListener('DOMContentLoaded', function() {
-             // Sales Chart with visible data labels
-             const salesData = @Html.Raw(Json.Serialize(Model.DailySales));
-             const salesCtx = document.getElementById('salesChart').getContext('2d');
-
-             new Chart(salesCtx, {
-                 type: 'line',
-                 data: {
-                     labels: Object.keys(salesData),
-                     datasets: [{
-                         label: 'Daily Sales (₹)',
-                         data: Object.values(salesData),
-                         backgroundColor: 'rgba(78, 115, 223, 0.05)',
-                         borderColor: 'rgba(78, 115, 223, 1)',
-                         pointRadius: 4,
-                         pointBackgroundColor: 'rgba(78, 115, 223, 1)',
-                         pointBorderColor: 'rgba(78, 115, 223, 1)',
-                         tension: 0.3,
-                         fill: true
-                     }]
-                 },
-                 plugins: [ChartDataLabels],
-                 options: {
-                     responsive: true,
-                     maintainAspectRatio: false,
-                     scales: {
-                         x: { grid: { display: false } },
-                         y: {
-                             beginAtZero: true,
-                             ticks: {
-                                 callback: function(value) {
-                                     return '₹' + value;
-                                 }
-                             }
-                         }
-                     },
+            // Sales Trend Chart
+            const salesData = @Html.Raw(Json.Serialize(Model.DailySales));
+            new Chart(document.getElementById('salesTrendChart'), {
+                type: 'line',
+                data: {
+                    labels: Object.keys(salesData),
+                    datasets: [{
+                        label: 'Daily Sales (₹)',
+                        data: Object.values(salesData),
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1,
+                        fill: true
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: (value) => `₹${value}`
+                            }
+                        }
+                    },
                      plugins: {
-                         legend: { display: false },
-                         datalabels: {
-                             anchor: 'end',
-                             align: 'top',
-                             formatter: function(value) {
-                                 return '₹' + value.toFixed(2);
-                             },
-                             color: '#4e73df',
+                        datalabels: {
+                            color: '#000',   align: 'top',
+                            formatter: function(value, context) {
+                                return `₹${value.toLocaleString()}`;
+                            },
                              font: {
                                  weight: 'bold'
                              }
-                         }
-                     }
-                 }
-             });
+                        }
+                    }
+                },
+                 plugins: [ChartDataLabels]
+            });
 
             // Payment Method Chart
-            const paymentData = @Html.Raw(Json.Serialize(Model.PaymentMethodStats));
             new Chart(document.getElementById('paymentMethodChart'), {
-                type: 'doughnut',
+                type: 'pie',
                 data: {
-                    labels: Object.keys(paymentData),
+                    labels: Object.keys(@Html.Raw(Json.Serialize(Model.PaymentMethodStats))),
                     datasets: [{
-                        data: Object.values(paymentData),
-                        backgroundColor: ['#FFA500', '#198754', '#36b9cc', '#f6c23e', '#e74a3b']
+                        data: Object.values(@Html.Raw(Json.Serialize(Model.PaymentMethodStats))),
+                        backgroundColor: [
+                           '#FFA500','#0dcaf0','#FFA500','#0d6efd'
+                        ]
                     }]
                 },
-                plugins: [ChartDataLabels],
-                options: chartDefaults
+                options: chartOptions,
+                plugins: [ChartDataLabels]
             });
 
             // Order Status Chart
-            const statusData = {
-                'Pending': @Model.Orders.Count(o => o.OrderStatus == "Pending"),
-                'Processing': @Model.Orders.Count(o => o.OrderStatus == "Processing"),
-                'Shipped': @Model.Orders.Count(o => o.OrderStatus == "Shipped"),
-                'Delivered': @Model.Orders.Count(o => o.OrderStatus == "Delivered"),
-                'Cancelled': @Model.Orders.Count(o => o.OrderStatus == "Cancelled")
-            };
             new Chart(document.getElementById('orderStatusChart'), {
                 type: 'doughnut',
                 data: {
-                    labels: Object.keys(statusData),
+                    labels: Object.keys(@Html.Raw(Json.Serialize(Model.OrderStatusDistribution))),
                     datasets: [{
-                        data: Object.values(statusData),
-                        backgroundColor: ['#FFA500', '#0dcaf0', '#0d6efd', '#198754', '#e74a3b']
+                        data: Object.values(@Html.Raw(Json.Serialize(Model.OrderStatusDistribution))),
+                        backgroundColor: [
+                           '#198754', '#e74a3b', '#FFA500','#0d6efd' ,'#0dcaf0'
+                        ]
                     }]
                 },
                 plugins: [ChartDataLabels],
-                options: chartDefaults
+                options: chartOptions
             });
-
-           
         });
     </script>
 }

@@ -41,6 +41,7 @@ builder.Services.AddScoped<UserService>();
 // for razorpay payments
 builder.Services.AddScoped<RazorPayService>();
 builder.Services.AddScoped<PdfReportService>();
+builder.Services.AddScoped<FinancialReportingService>();
 
 builder.Services.AddSession(options =>
 {

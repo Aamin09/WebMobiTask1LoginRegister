@@ -15,17 +15,19 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
     {
         private readonly WebMobiTask1DbContext context;
         private readonly PdfReportService pdfReportService;
+        private readonly FinancialReportingService financialReportingService;
 
-        public ReportController(WebMobiTask1DbContext context, PdfReportService pdfReportService)
+        public ReportController(WebMobiTask1DbContext context, PdfReportService pdfReportService, FinancialReportingService financialReportingService)
         {
             this.context = context;
             this.pdfReportService = pdfReportService;
+            this.financialReportingService = financialReportingService;
         }
 
         public async Task<IActionResult> Index()
         {
-            ViewBag.TotalOrders = await context.Orders.CountAsync();
-            ViewBag.TotalRevenue = await context.Orders.Where(o => o.PaymentStatus == "Paid").SumAsync(o => o.TotalAmount);
+            ViewBag.TotalOrders = await context.Orders.Where(o => o.OrderStatus != "Cancelled").CountAsync();
+            ViewBag.TotalRevenue = await context.Orders.Where(o => o.PaymentStatus == "Paid" && o.OrderStatus != "Cancelled").SumAsync(o => o.TotalAmount);
             ViewBag.TotalCustomers = await context.Userlogins.Where(u => u.Role == "User").CountAsync();
             ViewBag.TotalProducts = await context.Products.CountAsync();
 
@@ -43,13 +45,7 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                 endDate = DateTime.Now;
             }
 
-            var orders = await context.Orders
-                .Include(o => o.OrderItems)
-                .ThenInclude(oi => oi.Product)
-                .Include(o => o.DeliveryAddress)
-                .Where(o => o.OrderDate >= startDate && o.OrderDate <= endDate && o.PaymentStatus == "Paid")
-                .OrderByDescending(o => o.OrderDate)
-                .ToListAsync();
+            var orders = await financialReportingService.GetOrdersForReportAsync(startDate.Value, endDate.Value);
 
             ViewBag.StartDate = startDate.Value.ToString("yyyy-MM-dd");
             ViewBag.EndDate = endDate.Value.ToString("yyyy-MM-dd");
@@ -59,30 +55,34 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                 StartDate = startDate.Value,
                 EndDate = endDate.Value,
                 Orders = orders,
-                TotalSales = orders.Sum(o => o.TotalAmount),
-                TotalOrders = orders.Count(),
-                AverageOrderValue = orders.Any() ? orders.Average(o => o.TotalAmount) : 0
             };
+
+            financialReportingService.CalculateSalesReportMetrics(finalData);
             return View(finalData);
         }
 
         public async Task<IActionResult> ExportSalesReport(DateTime? startDate, DateTime? endDate)
         {
-            if (!startDate.HasValue)
-            {
-                startDate = DateTime.Now.AddDays(-30);
-            }
-            if (!endDate.HasValue)
-            {
-                endDate = DateTime.Now;
-            }
-            var orders = await context.Orders
-              .Include(o => o.DeliveryAddress)
-              .Where(o => o.OrderDate >= startDate && o.OrderDate <= endDate)
-              .OrderBy(o => o.OrderDate)
-              .ToListAsync();
+            startDate ??= DateTime.Now.Date.AddDays(-30);
+            endDate ??= DateTime.Now.Date.AddDays(1).AddTicks(-1);
 
-            // configure report
+            if (startDate > endDate)
+            {
+                return BadRequest("Start date cannot be later than end date.");
+            }
+
+            var orders = await financialReportingService.GetOrdersForReportAsync(startDate.Value, endDate.Value);
+
+            var finalData = new SalesReportViewModel
+            {
+                StartDate = startDate.Value,
+                EndDate = endDate.Value,
+                Orders = orders
+            };
+
+            financialReportingService.CalculateSalesReportMetrics(finalData);
+
+            // Configure report
             var reportConfig = new ReportConfig<Order>
             {
                 ReportTitle = "Sales Report",
@@ -90,49 +90,72 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                 EndDate = endDate,
                 Data = orders,
                 Columns = new List<ReportColumn<Order>>
+            {
+                new ReportColumn<Order>
                 {
-                    new ReportColumn<Order>
-                    {
-                        HeaderText ="Order #",
-                        ValueSelector= o=>o.OrderNumber,
-                        Width=150
-                    },
-                    new ReportColumn<Order>
-                    {
-                        HeaderText = "Customer",
-                        ValueSelector = o => o.DeliveryAddress.FullName
-                    },
-                    new ReportColumn<Order>
-                    {
-                        HeaderText = "Date",
-                        ValueSelector = o => o.OrderDate.ToShortDateString()
-                    },
-                    new ReportColumn<Order>
-                    {
-                        HeaderText = "Amount (₹)",
-                        ValueSelector = o => o.TotalAmount.ToString("N2")
-                    },
-                    new ReportColumn<Order>
-                    {
-                        HeaderText = "Payment Status",
-                        ValueSelector = o => o.PaymentStatus
-                    }
+                    HeaderText = "Order #",
+                    ValueSelector = o => o.OrderNumber,
+                    Width = 150
                 },
-                SummaryItems = new List<string>
+                new ReportColumn<Order>
                 {
-                    $"Total Orders: {orders.Count()}",
-                    $"Total Sales: ₹{orders.Sum(o => o.TotalAmount):N2}",
-                    $"Average Order Value: ₹{orders.Average(o => o.TotalAmount):N2}"
-                }
+                    HeaderText = "Customer",
+                    ValueSelector = o => o.DeliveryAddress?.FullName ?? "N/A"
+                },
+                new ReportColumn<Order>
+                {
+                    HeaderText = "Date",
+                    ValueSelector = o => o.OrderDate.ToShortDateString()
+                },
+                new ReportColumn<Order>
+                {
+                    HeaderText = "Amount (₹)",
+                    ValueSelector = o => o.TotalAmount.ToString("N2")
+                },
+                new ReportColumn<Order>
+                {
+                    HeaderText = "Payment Status",
+                    ValueSelector = o => o.PaymentStatus
+                },
+                new ReportColumn<Order>
+                {
+                    HeaderText = "Order Status",
+                    ValueSelector = o => o.OrderStatus
+                },
+            },
+                SummaryItems = new List<string>
+            {
+                // Order Overview
+                $"Total Orders: {finalData.TotalOrders}",
+                $"Paid Orders: {finalData.PaidOrders}",
+                $"Failed Orders: {finalData.FailedOrders}",
+                $"Cancelled Orders: {finalData.CancelledOrders}",
+
+                // Financial Metrics
+                $"Total Sales: ₹{finalData.TotalSales:N2}",
+                $"Average Order Value: ₹{finalData.AverageOrderValue:N2}",
+
+                // Payment Method Insights
+                $"Payment Method Distribution: {string.Join(", ", finalData.PaymentMethodStats.Select(pm => $"{pm.Key}: {pm.Value}"))}",
+
+                // Daily Sales Snapshot
+                $"Daily Sales Snapshot: {string.Join(", ",
+                    finalData.DailySales
+                        .OrderBy(ds => DateTime.ParseExact(ds.Key, "yyyy-MM-dd", null))
+                        .Take(3)
+                        .Select(ds => $"{ds.Key}: ₹{ds.Value:N2}") +
+                    (finalData.DailySales.Count > 3 ? $" ... and {finalData.DailySales.Count - 3} more days" : "")
+                )}"
+            }
             };
 
             // Generate PDF
             byte[] pdfBytes = pdfReportService.GenerateReport(reportConfig);
-
             return File(
                 pdfBytes,
                 "application/pdf",
                 $"SalesReport_{startDate:yyyyMMdd}_{endDate:yyyyMMdd}.pdf");
+
         }
 
         public async Task<IActionResult> CustomerReport(DateTime? startDate, DateTime? endDate)
@@ -166,7 +189,7 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
 
             return View(customerReport);
         }
-       
+
         public async Task<IActionResult> ExportCustomerReport(DateTime? startDate, DateTime? endDate)
         {
             if (!startDate.HasValue)
@@ -258,7 +281,6 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                 $"SalesReport_{startDate:yyyyMMdd}_{endDate:yyyyMMdd}.pdf");
         }
 
-      
         public async Task<IActionResult> ProductPerformance(DateTime? startDate, DateTime? endDate)
         {
             if (!startDate.HasValue)
@@ -293,7 +315,6 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
 
             return View(productPerformance);
         }
-
         public async Task<IActionResult> ExportProductPerformaceReport(DateTime? startDate, DateTime? endDate)
         {
             if (!startDate.HasValue)
@@ -376,66 +397,110 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                 $"Product_perfo_Report_{startDate:yyyyMMdd}_{endDate:yyyyMMdd}.pdf");
         }
 
-
         public async Task<IActionResult> InventoryReport(DateTime? startDate, DateTime? endDate)
         {
             startDate ??= DateTime.Now.AddDays(-30);
             endDate ??= DateTime.Now;
 
-            var products = await context.Products
-                .Include(p => p.Category).Include(p => p.Subcategory).Include(p => p.OrderItems).ThenInclude(oi => oi.Order)
-                .Select(p => new InventoryReportDto
-                {
-                    ProductId = p.ProductId,
-                    ProductName = p.Name,
-                    SKU = p.SKU,
-                    Category = p.Category.Name,
-                    Subcategory = p.Subcategory.Name,
-                    Price = p.Price,
-                    SellingPrice = p.CalculatedSellingPrice,
-                    StockQuantity = p.StockQuantity,
-                    MinimumStockLevel = p.MinimumStockLevel,
-                    Status = p.Status,
-                    TotalSales = p.OrderItems
-    .Where(oi => oi.Order.OrderDate >= startDate &&
-                 oi.Order.OrderDate <= endDate &&
-                 oi.Order.OrderStatus == "Delivered" &&
-                 oi.Order.PaymentStatus == "Paid")
-    .Sum(oi => oi.Quantity),
+            var inventoryReport = await financialReportingService.GetInventoryReportAsync(startDate.Value, endDate.Value);
 
-                    ValueStatus = p.StockQuantity <= p.MinimumStockLevel ? "Low Stock" : "Adequate Stock"
-                }).ToListAsync();
+            ViewBag.StartDate = startDate.Value.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate.Value.ToString("yyyy-MM-dd");
 
-            // Get top 20 products by stock quantity
-            var top20Products = products
-                .OrderByDescending(p => p.StockQuantity)
-                .Take(20)
-                .ToList();
-
-            // Data for stock status pie chart
-            var lowStockCount = products.Count(p => p.ValueStatus == "Low Stock");
-            var adequateStockCount = products.Count - lowStockCount;
-
-            var chartData = new InventoryChartDataViewModel
-            {
-                ProductNames = top20Products.Select(p => p.ProductName).ToList(),
-                StockQuantities = top20Products.Select(p => p.StockQuantity).ToList(),
-                TotalSales = top20Products.Select(p => p.TotalSales).ToList(),
-                StockStatusLabels = new List<string> { "Low Stock", "Adequate Stock" },
-                StockStatusData = new List<int> { lowStockCount, adequateStockCount }
-            };
-
-            var finalData = new InventoryReportMainViewModel
-            {
-                Products = products,
-                ChartData = chartData,
-                StartDate = startDate.Value,
-                EndDate = endDate.Value,
-                TotalProductCount = products.Count(),
-                LowStockProductCount = products.Count(p => p.StockQuantity <= p.MinimumStockLevel),
-            };
-
-            return View(finalData);
+            return View(inventoryReport);
         }
+
+        public async Task<IActionResult> ExportInventoryReport(DateTime? startDate, DateTime? endDate)
+        {
+            startDate ??= DateTime.Now.Date.AddDays(-30);
+            endDate ??= DateTime.Now.Date.AddDays(1).AddTicks(-1);
+
+            if (startDate > endDate)
+            {
+                return BadRequest("Start date cannot be later than end date.");
+            }
+            var inventoryReport = await financialReportingService.GetInventoryReportAsync(startDate.Value, endDate.Value);
+
+            // Configure report
+            var reportConfig = new ReportConfig<InventoryReportDto>
+            {
+                ReportTitle = "Inventory Report",
+                StartDate = startDate,
+                EndDate = endDate,
+                Data = inventoryReport.Products,
+                Columns = new List<ReportColumn<InventoryReportDto>>
+        {
+            new ReportColumn<InventoryReportDto>
+            {
+                HeaderText = "Product",
+                ValueSelector = p => p.ProductName,
+                Width = 120
+            },
+            new ReportColumn<InventoryReportDto>
+            {
+                HeaderText = "SKU",
+                ValueSelector = p => p.SKU
+            },
+            new ReportColumn<InventoryReportDto>
+            {
+                HeaderText = "Category",
+                ValueSelector = p => p.Category
+            },
+            new ReportColumn<InventoryReportDto>
+            {
+                HeaderText = "Stock",
+                ValueSelector = p => p.StockQuantity.ToString()
+            },
+            new ReportColumn<InventoryReportDto>
+            {
+                HeaderText = "Min Level",
+                ValueSelector = p => p.MinimumStockLevel.ToString()
+            },
+            new ReportColumn<InventoryReportDto>
+            {
+                HeaderText = "Price (₹)",
+                ValueSelector = p => p.SellingPrice.ToString("N2")
+            },
+            new ReportColumn<InventoryReportDto>
+            {
+                HeaderText = "Sales",
+                ValueSelector = p => p.TotalSales.ToString()
+            },
+            new ReportColumn<InventoryReportDto>
+            {
+                HeaderText = "Status",
+                ValueSelector = p => p.ValueStatus
+            }
+        },
+                SummaryItems = new List<string>
+        {
+            $"Total Products: {inventoryReport.TotalProductCount}",
+            $"Low Stock Products: {inventoryReport.LowStockProductCount}",
+            $"Date Range: {startDate:d} to {endDate:d}"
+        }
+            };
+
+            // Generate PDF
+            byte[] pdfBytes = pdfReportService.GenerateReport(reportConfig);
+            return File(
+                pdfBytes,
+                "application/pdf",
+                $"InventoryReport_{startDate:yyyyMMdd}_{endDate:yyyyMMdd}.pdf");
+        }
+
+        public async Task<IActionResult> TopSellingProducts(DateTime? startDate, DateTime? endDate, int count = 10)
+        {
+            startDate ??= DateTime.Now.AddDays(-30);
+            endDate ??= DateTime.Now;
+
+            var topProducts = await financialReportingService.GetTopSellingProductsAsync(startDate.Value, endDate.Value, count);
+
+            ViewBag.StartDate = startDate.Value.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate.Value.ToString("yyyy-MM-dd");
+            ViewBag.Count = count;
+
+            return View(topProducts);
+        }
+
     }
 }
