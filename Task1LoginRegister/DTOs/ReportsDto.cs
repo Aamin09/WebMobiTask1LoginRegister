@@ -1,4 +1,13 @@
-﻿using Task1LoginRegister.Models;
+﻿using Azure;
+using Humanizer;
+using Microsoft.CodeAnalysis.Elfie.Diagnostics;
+using Microsoft.CodeAnalysis.Elfie.Serialization;
+using Microsoft.CodeAnalysis.Operations;
+using Razorpay.Api;
+using ScottPlot.Hatches;
+using System.Composition;
+using Task1LoginRegister.Models;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Task1LoginRegister.DTOs
 {
@@ -10,7 +19,7 @@ namespace Task1LoginRegister.DTOs
         public DateTime EndDate { get; set; }
 
         // Core Order Data
-        public IEnumerable<Order> Orders { get; set; }
+        public IEnumerable<Task1LoginRegister.Models.Order> Orders { get; set; }
 
         // Financial Metrics
         public decimal TotalSales { get; set; }
@@ -46,8 +55,6 @@ namespace Task1LoginRegister.DTOs
         public int FailedOrders { get; set; }
         public int CancelledOrders { get; set; }
 
-
-       
     }
 
     public class ProductPerformanceDto
@@ -138,7 +145,7 @@ namespace Task1LoginRegister.DTOs
         // Cost Breakdown
         public decimal TotalProductCost { get; set; }
         public decimal TaxesCollected { get; set; }
-        public decimal CGSTCollected { get; set;}
+        public decimal CGSTCollected { get; set; }
         public decimal SGSTCollected { get; set; }
 
         public decimal TotalRefunds { get; set; }
@@ -146,7 +153,7 @@ namespace Task1LoginRegister.DTOs
 
         // Order Statistics
         public int TotalOrders { get; set; }
-        public  int CompletedOrders  { get; set; }
+        public int CompletedOrders { get; set; }
         public int PendingOrders { get; set; }
 
         // Profit Calculations
@@ -163,14 +170,34 @@ namespace Task1LoginRegister.DTOs
         public decimal ProfitGrowthRate { get; set; }
 
         // Category and Subcategory Performance
-        public Dictionary<string,decimal> RevenueByCategoryId { get; set; }
+        public Dictionary<string, decimal> RevenueByCategoryId { get; set; }
         public Dictionary<string, decimal> RevenueByPaymentMethod { get; set; }
 
         public Dictionary<string, decimal> ProfitByCategoryId { get; set; }
         public Dictionary<string, decimal> RevenueBySubcategoryId { get; set; }
         public Dictionary<string, decimal> ProfitBySubcategoryId { get; set; }
 
+    }
 
+    public class ProfitLossChartDataViewModel
+    {
+        public List<string> TimeLabels { get; set; }
+        public List<decimal> RevenueData { get; set; }
+        public List<decimal> CostData { get; set; }
+        public List<decimal> ProfitData { get; set; }
+        public List<decimal> RefundData { get; set; }
+        public List<string> CategoryLabels { get; set; }
+        public List<decimal> CategoryRevenueData { get; set; }
+        public List<decimal> CategoryProfitData { get; set; }
+    }
+
+    public class ProfitLossReportMainViewModel
+    {
+        public ProfitLossReportDto FinancialData { get; set; }
+        public ProfitLossChartDataViewModel ChartData { get; set; }
+        public List<string> TopSellingProducts { get; set; }
+        public List<decimal> TopSellingProductsRevenue { get; set; }
+        public List<decimal> TopSellingProductsProfit { get; set; }
     }
 
     public class TopSellingProductDTO

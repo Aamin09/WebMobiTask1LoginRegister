@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SkiaSharp;
 using Task1LoginRegister.DTOs;
 using Task1LoginRegister.Models;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Task1LoginRegister.Services
 {
@@ -14,7 +16,7 @@ namespace Task1LoginRegister.Services
         }
 
         // common method to get orders within a date range 
-        public async Task<List<Order>> GetOrdersForReportAsync(DateTime startDate, DateTime endDate, bool includeRefunds = false)
+        public async Task<List<Order>> GetOrdersForReportAsync(DateTime startDate, DateTime endDate, bool includeRefunds = false, bool paidOnly = false)
         {
             var data = context.Orders
                 .Include(o => o.OrderItems)
@@ -27,6 +29,11 @@ namespace Task1LoginRegister.Services
                 .Include(o => o.DeliveryAddress)
                 .Include(o => o.User)
                 .Where(o => o.OrderDate >= startDate && o.OrderDate <= endDate);
+          
+            if (paidOnly)
+            {
+                data = data.Where(o => o.PaymentStatus == "Paid");
+            }
 
             if (includeRefunds)
             {
@@ -183,6 +190,107 @@ namespace Task1LoginRegister.Services
             report.RefundRate = report.Orders.Count(o => o.OrderStatus == "Cancelled" && o.PaymentStatus == "Refunded") /
                  (decimal)(report.TotalOrders > 0 ? report.TotalOrders : 1) * 100;
         }
+        // Prepare chart data for profit loss reports
+        public ProfitLossChartDataViewModel PrepareChartData(List<Order> orders, DateTime startDate, DateTime endDate)
+        {
+            var chartData = new ProfitLossChartDataViewModel
+            {
+                TimeLabels = new List<string>(),
+                RevenueData = new List<decimal>(),
+                CostData = new List<decimal>(),
+                ProfitData = new List<decimal>(),
+                RefundData = new List<decimal>()
+            };
+
+            // Determine whether to group by day, week, or month based on date range
+            TimeSpan range = endDate - startDate;
+
+            if (range.TotalDays <= 31)
+            {
+                // Daily data for periods up to a month
+                PrepareChartDataByDays(chartData, orders, startDate, endDate);
+            }
+            else if (range.TotalDays <= 90)
+            {
+                // Weekly data for periods up to three months
+                PrepareChartDataByWeeks(chartData, orders, startDate, endDate);
+            }
+            else
+            {
+                // Monthly data for longer periods
+                PrepareChartDataByMonths(chartData, orders, startDate, endDate);
+            }
+
+            // Category breakdown
+            var categoryData = orders
+                .SelectMany(o => o.OrderItems)
+                .GroupBy(oi => oi.Product.Category.Name)
+                .OrderByDescending(g => g.Sum(oi => oi.SnapshotPrice * oi.Quantity))
+                .Take(5)
+                .ToDictionary(g => g.Key, g => g.Sum(oi => oi.SnapshotPrice * oi.Quantity));
+
+            var categoryProfitData = orders
+                .SelectMany(o => o.OrderItems)
+                .GroupBy(oi => oi.Product.Category.Name)
+                .OrderByDescending(g => g.Sum(oi => (oi.SnapshotPrice - oi.SnapshotCostPrice) * oi.Quantity))
+                .Take(5)
+                .ToDictionary(g => g.Key, g => g.Sum(oi => (oi.SnapshotPrice - oi.SnapshotCostPrice) * oi.Quantity));
+
+            chartData.CategoryLabels = categoryData.Keys.ToList();
+            chartData.CategoryRevenueData = categoryData.Values.ToList();
+            chartData.CategoryProfitData = categoryProfitData.Values.ToList();
+
+            return chartData;
+        }
+
+        // Helper methods for chart data preparation
+        private void PrepareChartDataByDays(ProfitLossChartDataViewModel chartData, List<Order> orders, DateTime startDate, DateTime endDate)
+        {
+            for (var date = startDate; date <= endDate; date = date.AddDays(1))
+            {
+                var dailyOrders = orders.Where(o => o.OrderDate.Date == date.Date).ToList();
+
+                chartData.TimeLabels.Add(date.ToString("MMM dd"));
+                chartData.RevenueData.Add(dailyOrders.Sum(o => o.TotalAmount));
+                chartData.CostData.Add(dailyOrders.Sum(o => o.OrderItems.Sum(oi => oi.SnapshotCostPrice * oi.Quantity)));
+                chartData.ProfitData.Add(chartData.RevenueData.Last() - chartData.CostData.Last());
+                chartData.RefundData.Add(dailyOrders.Sum(o => o.RefundDetails?.Sum(r => r.Amount) ?? 0));
+            }
+        }
+
+        private void PrepareChartDataByWeeks(ProfitLossChartDataViewModel chartData, List<Order> orders, DateTime startDate, DateTime endDate)
+        {
+            for (var date = startDate; date <= endDate; date = date.AddDays(7))
+            {
+                var weekEnd = date.AddDays(6) > endDate ? endDate : date.AddDays(6);
+                var weeklyOrders = orders.Where(o => o.OrderDate.Date >= date.Date && o.OrderDate.Date <= weekEnd.Date).ToList();
+
+                chartData.TimeLabels.Add($"{date:MMM dd} - {weekEnd:MMM dd}");
+                chartData.RevenueData.Add(weeklyOrders.Sum(o => o.TotalAmount));
+                chartData.CostData.Add(weeklyOrders.Sum(o => o.OrderItems.Sum(oi => oi.SnapshotCostPrice * oi.Quantity)));
+                chartData.ProfitData.Add(chartData.RevenueData.Last() - chartData.CostData.Last());
+                chartData.RefundData.Add(weeklyOrders.Sum(o => o.RefundDetails?.Sum(r => r.Amount) ?? 0));
+            }
+        }
+
+        private void PrepareChartDataByMonths(ProfitLossChartDataViewModel chartData, List<Order> orders, DateTime startDate, DateTime endDate)
+        {
+            var months = (endDate.Year - startDate.Year) * 12 + endDate.Month - startDate.Month + 1;
+
+            for (int i = 0; i < months; i++)
+            {
+                var monthStart = startDate.AddMonths(i);
+                var monthEnd = monthStart.AddMonths(1).AddDays(-1) > endDate ? endDate : monthStart.AddMonths(1).AddDays(-1);
+                var monthlyOrders = orders.Where(o => o.OrderDate.Date >= monthStart.Date && o.OrderDate.Date <= monthEnd.Date).ToList();
+
+                chartData.TimeLabels.Add(monthStart.ToString("MMM yyyy"));
+                chartData.RevenueData.Add(monthlyOrders.Sum(o => o.TotalAmount));
+                chartData.CostData.Add(monthlyOrders.Sum(o => o.OrderItems.Sum(oi => oi.SnapshotCostPrice * oi.Quantity)));
+                chartData.ProfitData.Add(chartData.RevenueData.Last() - chartData.CostData.Last());
+                chartData.RefundData.Add(monthlyOrders.Sum(o => o.RefundDetails?.Sum(r => r.Amount) ?? 0));
+            }
+        }
+
 
         // inventory report data
         public async Task<InventoryReportMainViewModel> GetInventoryReportAsync(DateTime startDate, DateTime endDate)
@@ -233,6 +341,77 @@ namespace Task1LoginRegister.Services
             };
 
             return finalData;
+        }
+
+
+        // Generate dashboard data
+        public async Task<DashboardDto> GetDashboardDataAsync()
+        {
+            var startDate = DateTime.Today.AddMonths(-12);
+            var endDate = DateTime.Today;
+
+            var orders = await context.Orders
+                .Where(o => o.OrderDate >= startDate && o.OrderDate <= endDate)
+                .ToListAsync();
+
+            var paidOrders = orders.Where(o => o.PaymentStatus == "Paid").ToList();
+
+            var dashboardData = new DashboardDto
+            {
+                TotalOrders = orders.Count(o => o.OrderStatus != "Cancelled"),
+                TotalRevenue = paidOrders.Sum(o => o.TotalAmount),
+                TotalCustomers = await context.Userlogins.Where(u => u.Role == "User").CountAsync(),
+                TotalProducts = await context.Products.CountAsync(),
+                MonthlySales = GetMonthlySalesData(orders, startDate, endDate),
+                OrderStatusDistribution = GetOrderStatusDistribution(orders),
+            };
+
+            // Get top products
+            var topProducts = await GetTopSellingProductsAsync(startDate, endDate, 5);
+            dashboardData.TopProducts = topProducts.Select(p => new ChartDataPoint
+            {
+                Label = p.ProductName,
+                Value = p.Revenue
+            }).ToList();
+
+            return dashboardData;
+        }
+
+        private List<ChartDataPoint> GetMonthlySalesData(List<Order> orders, DateTime startDate, DateTime endDate)
+        {
+            var monthlySales = new List<ChartDataPoint>();
+            var currentDate = new DateTime(startDate.Year, startDate.Month, 1);
+
+            while (currentDate <= endDate)
+            {
+                var monthEnd = currentDate.AddMonths(1).AddDays(-1);
+                var monthlyOrders = orders.Where(o =>
+                    o.OrderDate >= currentDate &&
+                    o.OrderDate <= monthEnd &&
+                    o.PaymentStatus == "Paid").ToList();
+
+                monthlySales.Add(new ChartDataPoint
+                {
+                    Label = currentDate.ToString("MMM yyyy"),
+                    Value = monthlyOrders.Sum(o => o.TotalAmount)
+                });
+
+                currentDate = currentDate.AddMonths(1);
+            }
+
+            return monthlySales;
+        }
+
+        private List<ChartDataPoint> GetOrderStatusDistribution(List<Order> orders)
+        {
+            return orders
+                .GroupBy(o => o.OrderStatus)
+                .Select(g => new ChartDataPoint
+                {
+                    Label = g.Key,
+                    Value = g.Count()
+                })
+                .ToList();
         }
     }
 }

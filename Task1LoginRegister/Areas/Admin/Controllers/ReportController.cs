@@ -488,6 +488,131 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                 $"InventoryReport_{startDate:yyyyMMdd}_{endDate:yyyyMMdd}.pdf");
         }
 
+        public async Task<IActionResult> ProfitLossReport(DateTime? startDate, DateTime? endDate)
+        {
+            if (!startDate.HasValue)
+            {
+                startDate = DateTime.Now.AddDays(-30);
+            }
+            if (!endDate.HasValue)
+            {
+                endDate = DateTime.Now;
+            }
+
+            var orders = await financialReportingService.GetOrdersForReportAsync(startDate.Value, endDate.Value, true,true);
+
+            var previousPeriodOrders = await financialReportingService.GetPreviousPeriodOrdersAsync(startDate.Value, endDate.Value);
+
+            var reportData= financialReportingService.CalculateProfitLossReport(orders, previousPeriodOrders);
+            reportData.StartDate = startDate.Value;
+            reportData.EndDate = endDate.Value;
+
+            // Prepare chart data
+            var chartData = financialReportingService.PrepareChartData(orders, startDate.Value, endDate.Value);
+
+            // Get top selling products
+            var topProducts = await financialReportingService.GetTopSellingProductsAsync(startDate.Value, endDate.Value, 5);
+
+            var viewModel = new ProfitLossReportMainViewModel
+            {
+                FinancialData = reportData,
+                ChartData = chartData,
+                TopSellingProducts = topProducts.Select(p => p.ProductName).ToList(),
+                TopSellingProductsRevenue = topProducts.Select(p => p.Revenue).ToList(),
+                TopSellingProductsProfit = topProducts.Select(p => p.Profit).ToList()
+            };
+
+            ViewBag.StartDate = startDate.Value.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate.Value.ToString("yyyy-MM-dd");
+
+            return View(viewModel);
+        }
+
+        public async Task<IActionResult> ExportProfitLossReport(DateTime? startDate, DateTime? endDate)
+        {
+            startDate ??= DateTime.Now.Date.AddDays(-30);
+            endDate ??= DateTime.Now.Date.AddDays(1).AddTicks(-1);
+
+            if (startDate > endDate)
+            {
+                return BadRequest("Start date cannot be later than end date.");
+            }
+            
+            var orders = await financialReportingService.GetOrdersForReportAsync(startDate.Value, endDate.Value, true,true);
+
+            var previousPeriodOrders = await financialReportingService.GetPreviousPeriodOrdersAsync(startDate.Value, endDate.Value);
+
+            var reportData = financialReportingService.CalculateProfitLossReport(orders, previousPeriodOrders);
+
+            // Configure report
+            var reportConfig = new ReportConfig<Order>
+            {
+                ReportTitle = "Profit & Loss Report",
+                StartDate = startDate,
+                EndDate = endDate,
+                Data = orders,
+                Columns = new List<ReportColumn<Order>>
+        {
+            new ReportColumn<Order>
+            {
+                HeaderText = "Order #",
+                ValueSelector = o => o.OrderNumber,
+                Width = 100
+            },
+            new ReportColumn<Order>
+            {
+                HeaderText = "Date",
+                ValueSelector = o => o.OrderDate.ToShortDateString()
+            },
+            new ReportColumn<Order>
+            {
+                HeaderText = "Revenue (₹)",
+                ValueSelector = o => o.TotalAmount.ToString("N2")
+            },
+            new ReportColumn<Order>
+            {
+                HeaderText = "Cost (₹)",
+                ValueSelector = o => o.OrderItems.Sum(oi => oi.SnapshotCostPrice * oi.Quantity).ToString("N2")
+            },
+            new ReportColumn<Order>
+            {
+                HeaderText = "Profit (₹)",
+                ValueSelector = o => (o.TotalAmount - o.OrderItems.Sum(oi => oi.SnapshotCostPrice * oi.Quantity)).ToString("N2")
+            },
+            new ReportColumn<Order>
+            {
+                HeaderText = "Status",
+                ValueSelector = o => o.OrderStatus,
+            }
+        },
+                SummaryItems = new List<string>
+        {
+            // Financial Overview
+            $"Total Revenue: ₹{reportData.TotalRevenue:N2}",
+            $"Total Cost: ₹{reportData.TotalProductCost:N2}",
+            $"Gross Profit: ₹{reportData.GrossProfit:N2}",
+            $"Net Profit: ₹{reportData.NetProfit:N2}",
+            
+            // Profit Margins
+            $"Gross Profit Margin: {reportData.GrossProfitMargin:N2}%",
+            $"Net Profit Margin: {reportData.NetProfitMargin:N2}%",
+            
+            // Comparison
+            $"Previous Period Net Profit: ₹{reportData.PreviousPeriodNetProfit:N2}",
+            $"Profit Growth Rate: {reportData.ProfitGrowthRate:N2}%",
+            
+            // Taxes & Refunds
+            $"Total Taxes Collected: ₹{reportData.TaxesCollected:N2}",
+            $"Total Refunds: ₹{reportData.TotalRefunds:N2} ({reportData.RefundCount} refunds)"
+        }
+            };
+
+            byte[] pdfBytes = pdfReportService.GenerateReport(reportConfig);
+            return File(
+                pdfBytes,
+                "application/pdf",
+                $"ProfitLossReport_{startDate:yyyyMMdd}_{endDate:yyyyMMdd}.pdf");
+        }
         public async Task<IActionResult> TopSellingProducts(DateTime? startDate, DateTime? endDate, int count = 10)
         {
             startDate ??= DateTime.Now.AddDays(-30);
