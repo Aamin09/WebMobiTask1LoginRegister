@@ -11,17 +11,23 @@
         <h1 class="h3 mb-0 text-gray-800">
             <i class="fas fa-chart-line"></i> Sales Performance Dashboard
         </h1>
-        <div class="btn-group">
-            <a asp-action="Index" asp-controller="Report" class="btn btn-sm btn-outline-secondary">
+      
+        <div class="btn-group btn-sm d-md-flex">
+            <a asp-action="Index" asp-controller="Report" class="btn btn-sm btn-outline-secondary flex-grow-1">
                 <i class="fas fa-arrow-left"></i> Back to Reports
             </a>
             <a asp-action="ExportSalesReport" asp-controller="Report"
                asp-route-startDate="@Model.StartDate.ToString("yyyy-MM-dd")"
                asp-route-endDate="@Model.EndDate.ToString("yyyy-MM-dd")"
-               class="btn btn-sm btn-success">
+               class="btn btn-sm btn-success flex-grow-1">
                 <i class="fas fa-file-export"></i> Export Detailed Report
             </a>
         </div>
+    </div>
+    <div>
+        <p class="text-muted">
+            Reporting Period: @Model.StartDate.ToString("MMMM dd, yyyy") to @Model.EndDate.ToString("MMMM dd, yyyy")
+        </p>
     </div>
 
     <!-- Date Filters Partial -->

@@ -155,6 +155,7 @@ namespace Task1LoginRegister.DTOs
         public int TotalOrders { get; set; }
         public int CompletedOrders { get; set; }
         public int PendingOrders { get; set; }
+        public int CancelledOrders { get; set; }
 
         // Profit Calculations
         public decimal GrossProfit { get; set; }

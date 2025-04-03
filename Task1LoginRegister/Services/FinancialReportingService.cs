@@ -74,61 +74,75 @@ namespace Task1LoginRegister.Services
         // calculate profit loss report data
         public ProfitLossReportDto CalculateProfitLossReport(List<Order> orders, List<Order> previousPeriodOrders)
         {
+            // Excluding canceled orders for financial calculations
+            var validOrders = orders.Where(o => o.OrderStatus != "Cancelled" && o.PaymentStatus == "Paid").ToList();
+            var validPreviousPeriodOrders = previousPeriodOrders.Where(o => o.OrderStatus != "Cancelled" && o.PaymentStatus == "Paid").ToList();
+
             var report = new ProfitLossReportDto
             {
-                TotalRevenue = orders.Sum(o => o.TotalAmount),
-                ProductRevenue = orders.Sum(o => o.OrderItems.Sum(oi => oi.SnapshotPrice * oi.Quantity)),
-                DeliveryChargeRevenue = orders.Sum(o => o.OrderItems.Sum(oi => oi.DeliveryCharge)),
+                // Financial calculations for only valid orders
+                TotalRevenue = validOrders.Sum(o => o.TotalAmount),
+                ProductRevenue = validOrders.Sum(o => o.OrderItems.Sum(oi => oi.SnapshotPrice * oi.Quantity)),
+                DeliveryChargeRevenue = validOrders.Sum(o => o.OrderItems.Sum(oi => oi.DeliveryCharge)),
 
-                TotalProductCost = orders.Sum(o => o.OrderItems.Sum(oi => oi.SnapshotCostPrice * oi.Quantity)),
-                CGSTCollected = orders.Sum(o => o.OrderItems.Sum(oi => oi.SnapshotCGSTPercentage * oi.SnapshotPrice * oi.Quantity / 100)),
-                SGSTCollected = orders.Sum(o => o.OrderItems.Sum(oi => oi.SnapshotSGSTPercentage * oi.SnapshotPrice * oi.Quantity / 100)),
+                TotalProductCost = validOrders.Sum(o => o.OrderItems.Sum(oi => oi.SnapshotCostPrice * oi.Quantity)),
+                CGSTCollected = validOrders.Sum(o => o.OrderItems.Sum(oi => oi.SnapshotCGSTPercentage * oi.SnapshotPrice * oi.Quantity / 100)),
+                SGSTCollected = validOrders.Sum(o => o.OrderItems.Sum(oi => oi.SnapshotSGSTPercentage * oi.SnapshotPrice * oi.Quantity / 100)),
 
+                // orders count
                 TotalOrders = orders.Count,
-                CompletedOrders = orders.Count(o => o.OrderStatus == "Completed"),
-                PendingOrders = orders.Count(o => o.OrderStatus != "Completed")
+                CompletedOrders = orders.Count(o => o.OrderStatus == "Delivered"),
+                PendingOrders = orders.Count(o => o.OrderStatus != "Delivered" && o.OrderStatus != "Cancelled"),
+                CancelledOrders = orders.Count(o => o.OrderStatus == "Cancelled")
             };
 
             report.TaxesCollected = report.CGSTCollected + report.SGSTCollected;
 
-            report.TotalRefunds = orders.Sum(o => o.RefundDetails?.Sum(r => r.Amount) ?? 0);
-            report.RefundCount = orders.Sum(o => o.RefundDetails?.Count ?? 0);
+            // Count refunds for valid orders
+            report.TotalRefunds = validOrders.Sum(o => o.RefundDetails?.Sum(r => r.Amount) ?? 0);
+            report.RefundCount = validOrders.Sum(o => o.RefundDetails?.Count ?? 0);
 
-            report.RevenueByPaymentMethod = orders.GroupBy(o => o.PaymentMethod ?? "Unknown")
+            report.RevenueByPaymentMethod = validOrders.GroupBy(o => o.PaymentMethod ?? "Unknown")
                 .ToDictionary(g => g.Key, g => g.Sum(o => o.TotalAmount));
 
             report.GrossProfit = report.ProductRevenue - report.TotalProductCost;
+            // Subtract refunds amount
             report.OperatingProfit = report.GrossProfit - report.TotalRefunds;
             report.NetProfit = report.OperatingProfit;
-
 
             report.GrossProfitMargin = report.TotalRevenue > 0 ? (report.GrossProfit / report.TotalRevenue) * 100 : 0;
             report.OperatingProfitMargin = report.TotalRevenue > 0 ? (report.OperatingProfit / report.TotalRevenue) * 100 : 0;
             report.NetProfitMargin = report.TotalRevenue > 0 ? (report.NetProfit / report.TotalRevenue) * 100 : 0;
 
+            // Calculate previous period metrics including refunds
+            var previousPeriodRefunds = validPreviousPeriodOrders.Sum(o => o.RefundDetails?.Sum(r => r.Amount) ?? 0);
+            report.PreviousPeriodNetProfit = validPreviousPeriodOrders.Sum(o => o.TotalAmount) -
+                validPreviousPeriodOrders.Sum(o => o.OrderItems.Sum(oi => oi.SnapshotCostPrice * oi.Quantity)) -
+                previousPeriodRefunds;
+
             report.ProfitGrowthRate = report.PreviousPeriodNetProfit > 0 ?
                 ((report.NetProfit - report.PreviousPeriodNetProfit) / report.PreviousPeriodNetProfit) * 100 : 0;
 
-
-            report.RevenueByCategoryId = orders.SelectMany(o => o.OrderItems)
+            // Category metrics with only valid orders
+            report.RevenueByCategoryId = validOrders.SelectMany(o => o.OrderItems)
                 .GroupBy(oi => oi.Product.Category.Name)
                 .ToDictionary(g => g.Key, g => g.Sum(oi => oi.SnapshotPrice * oi.Quantity));
 
-            report.ProfitByCategoryId = orders.SelectMany(o => o.OrderItems)
+            report.ProfitByCategoryId = validOrders.SelectMany(o => o.OrderItems)
                 .GroupBy(oi => oi.Product.Category.Name)
                 .ToDictionary(g => g.Key, g => g.Sum(oi => (oi.SnapshotPrice - oi.SnapshotCostPrice) * oi.Quantity));
 
-            report.RevenueBySubcategoryId = orders.SelectMany(o => o.OrderItems)
-             .GroupBy(oi => oi.Product.Subcategory.Name)
-             .ToDictionary(g => g.Key, g => g.Sum(oi => oi.SnapshotPrice * oi.Quantity));
+            report.RevenueBySubcategoryId = validOrders.SelectMany(o => o.OrderItems)
+                .GroupBy(oi => oi.Product.Subcategory.Name)
+                .ToDictionary(g => g.Key, g => g.Sum(oi => oi.SnapshotPrice * oi.Quantity));
 
-            report.ProfitBySubcategoryId = orders.SelectMany(o => o.OrderItems)
+            report.ProfitBySubcategoryId = validOrders.SelectMany(o => o.OrderItems)
                 .GroupBy(oi => oi.Product.Subcategory.Name)
                 .ToDictionary(g => g.Key, g => g.Sum(oi => (oi.SnapshotPrice - oi.SnapshotCostPrice) * oi.Quantity));
 
             return report;
         }
-
+        
         // calculate sales report metrics
         public void CalculateSalesReportMetrics(SalesReportViewModel report)
         {

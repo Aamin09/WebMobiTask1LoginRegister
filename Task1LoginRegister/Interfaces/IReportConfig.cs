@@ -2,8 +2,9 @@
 {
     public interface IReportConfig
     {
-        string ReportTitle { get; }
-        DateTime? StartDate { get; }
-        DateTime? EndDate { get; }
+        string ReportTitle { get; set; }
+        DateTime? StartDate { get; set; }
+        DateTime? EndDate { get; set; }
+        bool IsLandscape { get; set; }
     }
 }

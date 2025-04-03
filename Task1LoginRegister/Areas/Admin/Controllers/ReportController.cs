@@ -235,12 +235,13 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                     {
                         HeaderText ="Customer Name",
                         ValueSelector= c=>c.CustomerName,
-                        Width=150
+                        Width=100
                     },
                     new ReportColumn<CustomerReportDto>
                     {
                         HeaderText = "Email",
-                        ValueSelector = c => c.Email
+                        ValueSelector = c => c.Email,
+                         Width=150
                     },
                     new ReportColumn<CustomerReportDto>
                     {
@@ -250,7 +251,7 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                     new ReportColumn<CustomerReportDto>
                     {
                         HeaderText = "Total Orders",
-                        ValueSelector = c => c.TotalOrders.ToString("N2")
+                        ValueSelector = c => c.TotalOrders
                     },
                     new ReportColumn<CustomerReportDto>
                     {
@@ -425,6 +426,7 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
             var reportConfig = new ReportConfig<InventoryReportDto>
             {
                 ReportTitle = "Inventory Report",
+                IsLandscape = true,
                 StartDate = startDate,
                 EndDate = endDate,
                 Data = inventoryReport.Products,
@@ -499,7 +501,7 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                 endDate = DateTime.Now;
             }
 
-            var orders = await financialReportingService.GetOrdersForReportAsync(startDate.Value, endDate.Value, true,true);
+            var orders = await financialReportingService.GetOrdersForReportAsync(startDate.Value, endDate.Value, true);
 
             var previousPeriodOrders = await financialReportingService.GetPreviousPeriodOrdersAsync(startDate.Value, endDate.Value);
 
@@ -626,6 +628,6 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
 
             return View(topProducts);
         }
-
+    
     }
 }

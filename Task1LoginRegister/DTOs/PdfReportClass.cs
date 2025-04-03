@@ -4,19 +4,20 @@ namespace Task1LoginRegister.DTOs
 {
     public class ReportConfig<T> :IReportConfig where T : class
     {
-        public string ReportTitle { get; set; }
+        public string ReportTitle { get; set; } = "Report";
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
-        public IEnumerable<T> Data { get; set; }
-        public List<ReportColumn<T>> Columns { get; set; }
-        public List<string> SummaryItems { get; set; }
+        public bool IsLandscape { get; set; } = false;
+        public IEnumerable<T>? Data { get; set; }
+        public List<ReportColumn<T>>? Columns { get; set; }
+        public List<string>? SummaryItems { get; set; }
     }
 
     public class ReportColumn<T>
     {
-        public string HeaderText { get; set; }
-        public Func<T,object> ValueSelector { get; set; }
+        public string HeaderText { get; set; } = string.Empty;
+        public Func<T, object?> ValueSelector { get; set; } = null!;
         public float? Width { get; set; }
-        public float? RelativeWidth { get; set; }
+        public int? RelativeWidth { get; set; }
     }
 }

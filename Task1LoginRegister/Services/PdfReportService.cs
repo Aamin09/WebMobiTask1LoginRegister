@@ -22,7 +22,16 @@ namespace Task1LoginRegister.Services
             {
                 container.Page(page =>
                 {
-                    page.Size(PageSizes.A4);
+                    // Set orientation based on the IsLandscape property
+                    if (reportConfig.IsLandscape)
+                    {
+                        page.Size(PageSizes.A4.Landscape());
+                    }
+                    else
+                    {
+                        page.Size(PageSizes.A4);
+                    }
+
                     page.Margin(1, Unit.Centimetre);
 
                     // Header
@@ -93,7 +102,7 @@ namespace Task1LoginRegister.Services
                                   $"Period: {reportConfig.StartDate.Value:dd MMM yyyy} - {reportConfig.EndDate.Value:dd MMM yyyy}"
                              , TextStyle.Default.FontSize(10));
                         }
-                        stack.Item().Text($"Generated on: {DateTime.Now:dd MMM yyyy HH:mm}",TextStyle.Default.FontSize(10));
+                        stack.Item().Text($"Generated on: {DateTime.Now:dd MMM yyyy HH:mm}", TextStyle.Default.FontSize(10));
                     });
                 });
 
@@ -169,7 +178,7 @@ namespace Task1LoginRegister.Services
                         row.RelativeColumn().Stack(stack =>
                         {
                             stack.Item().PaddingBottom(5).BorderBottom(1).Text("Report Summary").SemiBold().FontSize(12);
-                            
+
                             foreach (var summaryItem in reportConfig.SummaryItems)
                             {
                                 stack.Item().PaddingBottom(3).Text(summaryItem).FontSize(10);
