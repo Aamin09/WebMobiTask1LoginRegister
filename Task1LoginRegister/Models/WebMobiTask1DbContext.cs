@@ -29,6 +29,7 @@ public partial class WebMobiTask1DbContext : DbContext
     public virtual DbSet<RazorpayOrderModel> RazorpayOrders { get; set; }
 
     public virtual DbSet<RefundDetailsModel> RefundDetails { get; set; }
+    public virtual DbSet<Review> Reviews { get; set; }
 
     public virtual DbSet<Cart> Carts { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -248,6 +249,19 @@ public partial class WebMobiTask1DbContext : DbContext
             .HasForeignKey(oi => oi.OrderId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        // Product - Review Relationship
+        modelBuilder.Entity<Product>()
+            .HasMany(p => p.Reviews)
+            .WithOne(r => r.Product)
+            .HasForeignKey(r => r.ProductId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Userlogin - Review Relationship
+        modelBuilder.Entity<Userlogin>()
+     .HasMany(u => u.Reviews)
+     .WithOne(r => r.User)
+     .HasForeignKey(r => r.UserId)
+     .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<ProductImage>(entity =>
         {

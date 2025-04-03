@@ -39,5 +39,5 @@ public partial class Userlogin
     public virtual ICollection<Order> Orders { get; set; } // Relationship with Order
 
     public virtual ICollection<DeliveryAddress> DeliveryAddresses { get; set; } // Relationship with DeliveryAddress
-
+    public virtual ICollection<Review> Reviews { get; set; }
 }

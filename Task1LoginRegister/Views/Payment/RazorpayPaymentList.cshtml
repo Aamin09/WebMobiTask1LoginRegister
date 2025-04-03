@@ -12,7 +12,7 @@
         <thead class="bg-info text-white">
             <tr>
                 <th>Order ID</th>
-                <th>Amount</th>
+                <th>Amount (₹)</th>
                 <th>Currency</th>
                 <th>Name & Address</th>
                 <th>Personal Info</th>
@@ -26,7 +26,7 @@
             {
                 <tr>
                     <td><strong>@item.OrderId</strong></td>
-                    <td>₹@item.Amount.ToString("N2")</td>
+                    <td>@item.Amount.ToString("N2")</td>
                     <td>@item.Currency</td>
                     <td>
                         <strong>@item.Name</strong><br />

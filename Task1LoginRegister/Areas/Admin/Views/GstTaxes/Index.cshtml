@@ -14,7 +14,7 @@
     </div>
 
     <div class="table-responsive">
-        <table class="table table-hover table-bordered text-center">
+        <table class="table table-hover table-bordered text-center" id="gstTable">
             <thead class="table-dark">
                 <tr>
                     <th>Category</th>
@@ -54,3 +54,11 @@
         </table>
     </div>
 </div>
+
+@section Scripts{
+    <script>
+        $(document).ready(function(){
+            $("#gstTable").DataTable();
+        })
+    </script>
+}

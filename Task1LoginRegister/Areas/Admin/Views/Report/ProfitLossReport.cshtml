@@ -32,7 +32,8 @@
             <div class="card bg-primary text-white h-100">
                 <div class="card-body">
                     <h5 class="card-title">Total Revenue</h5>
-                    <h4>₹@Model.FinancialData.TotalRevenue.ToString("N2")</h4>
+                    <h4>@Model.FinancialData.TotalRevenue.ToString("C")</h4>
+                    <h6>Total Cost: @Model.FinancialData.TotalProductCost.ToString("C")</h6>
                     <p class="card-text">
                         @Model.FinancialData.TotalOrders orders
                     </p>
@@ -43,7 +44,7 @@
             <div class="card bg-success text-white h-100">
                 <div class="card-body">
                     <h5 class="card-title">Net Profit</h5>
-                    <h4>₹@Model.FinancialData.NetProfit.ToString("N2")</h4>
+                    <h4>@Model.FinancialData.NetProfit.ToString("C")</h4>
                     <p class="card-text">
                         @Model.FinancialData.NetProfitMargin.ToString("N2")% margin
                     </p>
@@ -54,10 +55,10 @@
             <div class="card bg-info text-white h-100">
                 <div class="card-body">
                     <h5 class="card-title">Taxes Collected</h5>
-                    <h4>₹@Model.FinancialData.TaxesCollected.ToString("N2")</h4>
+                    <h4>@Model.FinancialData.TaxesCollected.ToString("C")</h4>
                     <p class="card-text">
-                        CGST: ₹@Model.FinancialData.CGSTCollected.ToString("N2")<br />
-                        SGST: ₹@Model.FinancialData.SGSTCollected.ToString("N2")
+                        CGST: @Model.FinancialData.CGSTCollected.ToString("C")<br />
+                        SGST: @Model.FinancialData.SGSTCollected.ToString("C")
                     </p>
                 </div>
             </div>
@@ -80,10 +81,10 @@
                         </span>
                     </div>
                     <p class="card-text mb-1">
-                        Current: ₹@Model.FinancialData.NetProfit.ToString("N2")
+                        Current: @Model.FinancialData.NetProfit.ToString("C")
                     </p>
                     <p class="card-text text-dark">
-                        Previous: ₹@Model.FinancialData.PreviousPeriodNetProfit.ToString("N2")
+                        Previous: @Model.FinancialData.PreviousPeriodNetProfit.ToString("C")
                     </p>
                 </div>
             </div>
@@ -152,15 +153,15 @@
                                 <tbody>
                                     <tr>
                                         <td>Product Revenue</td>
-                                        <td class="text-end">₹@Model.FinancialData.ProductRevenue.ToString("N2")</td>
+                                        <td class="text-end">@Model.FinancialData.ProductRevenue.ToString("C")</td>
                                     </tr>
                                     <tr>
                                         <td>Delivery Charges</td>
-                                        <td class="text-end">₹@Model.FinancialData.DeliveryChargeRevenue.ToString("N2")</td>
+                                        <td class="text-end">@Model.FinancialData.DeliveryChargeRevenue.ToString("C")</td>
                                     </tr>
                                     <tr class="table-active fw-bold">
                                         <td>Total Revenue</td>
-                                        <td class="text-end">₹@Model.FinancialData.TotalRevenue.ToString("N2")</td>
+                                        <td class="text-end">@Model.FinancialData.TotalRevenue.ToString("C")</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -170,15 +171,15 @@
                                 <tbody>
                                     <tr>
                                         <td>Product Cost</td>
-                                        <td class="text-end">₹@Model.FinancialData.TotalProductCost.ToString("N2")</td>
+                                        <td class="text-end">@Model.FinancialData.TotalProductCost.ToString("C")</td>
                                     </tr>
                                     <tr>
                                         <td>Refunds</td>
-                                        <td class="text-end">₹@Model.FinancialData.TotalRefunds.ToString("N2")</td>
+                                        <td class="text-end">@Model.FinancialData.TotalRefunds.ToString("C")</td>
                                     </tr>
                                     <tr class="table-active fw-bold">
                                         <td>Total Costs</td>
-                                        <td class="text-end">₹@((Model.FinancialData.TotalProductCost + Model.FinancialData.TotalRefunds).ToString("N2"))</td>
+                                        <td class="text-end">@((Model.FinancialData.TotalProductCost + Model.FinancialData.TotalRefunds).ToString("C"))</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -190,17 +191,17 @@
                                 <tbody>
                                     <tr>
                                         <td>Gross Profit</td>
-                                        <td class="text-end">₹@Model.FinancialData.GrossProfit.ToString("N2")</td>
+                                        <td class="text-end">@Model.FinancialData.GrossProfit.ToString("C")</td>
                                         <td class="text-end">@Model.FinancialData.GrossProfitMargin.ToString("N2")%</td>
                                     </tr>
                                     <tr>
                                         <td>Operating Profit</td>
-                                        <td class="text-end">₹@Model.FinancialData.OperatingProfit.ToString("N2")</td>
+                                        <td class="text-end">@Model.FinancialData.OperatingProfit.ToString("C")</td>
                                         <td class="text-end">@Model.FinancialData.OperatingProfitMargin.ToString("N2")%</td>
                                     </tr>
                                     <tr class="table-active fw-bold">
                                         <td>Net Profit</td>
-                                        <td class="text-end">₹@Model.FinancialData.NetProfit.ToString("N2")</td>
+                                        <td class="text-end">@Model.FinancialData.NetProfit.ToString("C")</td>
                                         <td class="text-end">@Model.FinancialData.NetProfitMargin.ToString("N2")%</td>
                                     </tr>
                                 </tbody>
@@ -211,15 +212,15 @@
                                 <tbody>
                                     <tr>
                                         <td>CGST Collected</td>
-                                        <td class="text-end">₹@Model.FinancialData.CGSTCollected.ToString("N2")</td>
+                                        <td class="text-end">@Model.FinancialData.CGSTCollected.ToString("C")</td>
                                     </tr>
                                     <tr>
                                         <td>SGST Collected</td>
-                                        <td class="text-end">₹@Model.FinancialData.SGSTCollected.ToString("N2")</td>
+                                        <td class="text-end">@Model.FinancialData.SGSTCollected.ToString("C")</td>
                                     </tr>
                                     <tr class="table-active fw-bold">
                                         <td>Total Tax</td>
-                                        <td class="text-end">₹@Model.FinancialData.TaxesCollected.ToString("N2")</td>
+                                        <td class="text-end">@Model.FinancialData.TaxesCollected.ToString("C")</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -242,7 +243,7 @@
                         <thead>
                             <tr>
                                 <th>Payment Method</th>
-                                <th class="text-end">Revenue</th>
+                                <th class="text-end">Revenue (₹)</th>
                                 <th class="text-end">% of Total</th>
                             </tr>
                         </thead>
@@ -252,7 +253,7 @@
                                 var percentage = (method.Value / Model.FinancialData.TotalRevenue) * 100;
                                 <tr>
                                     <td>@method.Key</td>
-                                    <td class="text-end">₹@method.Value.ToString("N2")</td>
+                                    <td class="text-end">@method.Value.ToString("N2")</td>
                                     <td class="text-end">@percentage.ToString("N2")%</td>
                                 </tr>
                             }
@@ -271,8 +272,8 @@
                         <thead>
                             <tr>
                                 <th>Category</th>
-                                <th class="text-end">Revenue</th>
-                                <th class="text-end">Profit</th>
+                                <th class="text-end">Revenue (₹)</th>
+                                <th class="text-end">Profit (₹)</th>
                                 <th class="text-end">Margin</th>
                             </tr>
                         </thead>
@@ -284,8 +285,8 @@
                                 var margin = category.Value > 0 ? (profit / category.Value) * 100 : 0;
                                 <tr>
                                     <td>@category.Key</td>
-                                    <td class="text-end">₹@category.Value.ToString("N2")</td>
-                                    <td class="text-end">₹@profit.ToString("N2")</td>
+                                    <td class="text-end">@category.Value.ToString("N2")</td>
+                                    <td class="text-end">@profit.ToString("N2")</td>
                                     <td class="text-end">@margin.ToString("N2")%</td>
                                 </tr>
                             }
@@ -295,6 +296,8 @@
             </div>
         </div>
     </div>
+
+    
 </div>
 
 @section Scripts {

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Task1LoginRegister.Models;
 
@@ -11,9 +12,11 @@ using Task1LoginRegister.Models;
 namespace Task1LoginRegister.Migrations
 {
     [DbContext(typeof(WebMobiTask1DbContext))]
-    partial class WebMobiTask1DbContextModelSnapshot : ModelSnapshot
+    [Migration("20250403101832_ReviewTable")]
+    partial class ReviewTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -55,7 +58,7 @@ namespace Task1LoginRegister.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Carts", (string)null);
+                    b.ToTable("Carts");
                 });
 
             modelBuilder.Entity("Task1LoginRegister.Models.Category", b =>
@@ -77,7 +80,7 @@ namespace Task1LoginRegister.Migrations
                         .IsUnique()
                         .HasDatabaseName("Category_Name_Unique");
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("Task1LoginRegister.Models.DeliveryAddress", b =>
@@ -139,7 +142,7 @@ namespace Task1LoginRegister.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("DeliveryAddresses", (string)null);
+                    b.ToTable("DeliveryAddresses");
                 });
 
             modelBuilder.Entity("Task1LoginRegister.Models.GstTax", b =>
@@ -170,7 +173,7 @@ namespace Task1LoginRegister.Migrations
                     b.HasIndex("SubcategoryId")
                         .IsUnique();
 
-                    b.ToTable("GstTax", (string)null);
+                    b.ToTable("GstTax");
                 });
 
             modelBuilder.Entity("Task1LoginRegister.Models.Order", b =>
@@ -222,7 +225,7 @@ namespace Task1LoginRegister.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Orders", (string)null);
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("Task1LoginRegister.Models.OrderItem", b =>
@@ -291,7 +294,7 @@ namespace Task1LoginRegister.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderItems", (string)null);
+                    b.ToTable("OrderItems");
                 });
 
             modelBuilder.Entity("Task1LoginRegister.Models.Product", b =>
@@ -368,7 +371,7 @@ namespace Task1LoginRegister.Migrations
 
                     b.HasIndex("SubcategoryId");
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("Task1LoginRegister.Models.ProductImage", b =>
@@ -448,7 +451,7 @@ namespace Task1LoginRegister.Migrations
                     b.HasIndex("ApplicationOrderId")
                         .IsUnique();
 
-                    b.ToTable("RazorpayOrders", (string)null);
+                    b.ToTable("RazorpayOrders");
                 });
 
             modelBuilder.Entity("Task1LoginRegister.Models.RefundDetailsModel", b =>
@@ -485,7 +488,7 @@ namespace Task1LoginRegister.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("RefundDetails", (string)null);
+                    b.ToTable("RefundDetails");
                 });
 
             modelBuilder.Entity("Task1LoginRegister.Models.Review", b =>
@@ -525,7 +528,7 @@ namespace Task1LoginRegister.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Reviews", (string)null);
+                    b.ToTable("Reviews");
                 });
 
             modelBuilder.Entity("Task1LoginRegister.Models.Subcategory", b =>
@@ -552,7 +555,7 @@ namespace Task1LoginRegister.Migrations
                         .IsUnique()
                         .HasDatabaseName("Subcategory_Name_Unique");
 
-                    b.ToTable("Subcategories", (string)null);
+                    b.ToTable("Subcategories");
                 });
 
             modelBuilder.Entity("Task1LoginRegister.Models.Userlogin", b =>

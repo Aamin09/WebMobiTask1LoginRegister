@@ -41,13 +41,13 @@ namespace Task1LoginRegister.Services
             var user =  context.Userlogins.FirstOrDefault(u => u.Email == userEmail);
             return user?.Photo;
         }
-        public int GetUserId()
+        public int? GetUserId()
         {
             var userEmail = httpContextAccessor.HttpContext?.User?.Identity?.Name
                             ?? httpContextAccessor.HttpContext?.Session.GetString("UserSession");
 
             var user = context.Userlogins.FirstOrDefault(u => u.Email == userEmail);
-            return user.Id;
+            return user?.Id;
         }
 
         public string GetUserName()

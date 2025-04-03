@@ -176,6 +176,8 @@ namespace Task1LoginRegister.Controllers
                 .Include(p => p.ProductImages)
                 .Include(p => p.Category)
                 .Include(p => p.Subcategory)
+                 .Include(p => p.Reviews)
+                 .ThenInclude(r=>r.User)
                 .FirstOrDefaultAsync(p => p.ProductId == id);
 
             if (product == null)
@@ -193,6 +195,16 @@ namespace Task1LoginRegister.Controllers
             ViewBag.relatedProducts = relatedProducts;
 
             return View(product);
+        }
+
+        public IActionResult About()
+        {
+            return View();
+        }
+
+        public IActionResult AccessDenied()
+        {
+            return View();
         }
         public IActionResult Privacy()
         {

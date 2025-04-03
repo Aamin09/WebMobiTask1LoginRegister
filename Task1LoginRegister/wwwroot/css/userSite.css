@@ -101,6 +101,7 @@ h1, h2, h3, h4, h5, h6 {
         position: relative !important; 
         margin-top: 10px; 
         margin-left: 20px; 
+        z-index:1100;
     }
 
     .dropdown-item {

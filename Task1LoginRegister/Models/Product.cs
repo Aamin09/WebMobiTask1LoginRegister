@@ -85,5 +85,13 @@ namespace Task1LoginRegister.Models
                    CalculatedSellingPrice > 0 &&
                    CalculatedSellingPrice <= Price;
         }
+
+        public virtual ICollection<Review> Reviews { get; set; }
+
+        [NotMapped]
+        public double AverageRating => Reviews != null && Reviews.Any() ? Reviews.Average(r => r.Rating) : 0;
+
+        [NotMapped]
+        public int ReviewCount=> Reviews != null  ? Reviews.Count : 0;
     }
 }
