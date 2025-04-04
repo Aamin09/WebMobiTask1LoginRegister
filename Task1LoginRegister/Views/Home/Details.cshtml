@@ -4,6 +4,8 @@
     ViewData["Title"] = "Details";
     Layout = "~/Views/Shared/_UserLayout.cshtml";
 }
+
+
 <link href="~/css/featuredproducts.css" rel="stylesheet" />
 
 <style>
@@ -347,6 +349,12 @@
                 <partial name="_ProductPartialView" model="product" view-data='new ViewDataDictionary(ViewData) { { "ColumnClass", "col-lg-3 col-md-4 col-sm-6" } }' />
             }
         </div>
+    </div>
+
+    <partial name="_ReviewPartialView" model="Model" />
+    <div class="alert alert-warning">
+        @ViewBag.Error
+        @ViewBag.Success
     </div>
 </div>
 
