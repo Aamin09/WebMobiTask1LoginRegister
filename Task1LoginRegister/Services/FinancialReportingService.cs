@@ -32,7 +32,7 @@ namespace Task1LoginRegister.Services
           
             if (paidOnly)
             {
-                data = data.Where(o => o.PaymentStatus == "Paid");
+                data = data.Where(o => o.PaymentStatus == "Paid" || o.PaymentStatus == "Refunded");
             }
 
             if (includeRefunds)
@@ -203,6 +203,7 @@ namespace Task1LoginRegister.Services
         {
             report.RefundRate = report.Orders.Count(o => o.OrderStatus == "Cancelled" && o.PaymentStatus == "Refunded") /
                  (decimal)(report.TotalOrders > 0 ? report.TotalOrders : 1) * 100;
+            report.RefundAmount = report.Orders.Sum(o => o.RefundDetails.Sum(r => r.Amount));
         }
         // Prepare chart data for profit loss reports
         public ProfitLossChartDataViewModel PrepareChartData(List<Order> orders, DateTime startDate, DateTime endDate)

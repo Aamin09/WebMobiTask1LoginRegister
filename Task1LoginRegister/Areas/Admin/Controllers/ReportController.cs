@@ -16,12 +16,14 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
         private readonly WebMobiTask1DbContext context;
         private readonly PdfReportService pdfReportService;
         private readonly FinancialReportingService financialReportingService;
+        private readonly DateRangeService dateRangeService;
 
-        public ReportController(WebMobiTask1DbContext context, PdfReportService pdfReportService, FinancialReportingService financialReportingService)
+        public ReportController(WebMobiTask1DbContext context, PdfReportService pdfReportService, FinancialReportingService financialReportingService, DateRangeService dateRangeService)
         {
             this.context = context;
             this.pdfReportService = pdfReportService;
             this.financialReportingService = financialReportingService;
+            this.dateRangeService = dateRangeService;
         }
 
         public async Task<IActionResult> Index()
@@ -36,24 +38,18 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
 
         public async Task<IActionResult> SalesReport(DateTime? startDate, DateTime? endDate)
         {
-            if (!startDate.HasValue)
-            {
-                startDate = DateTime.Now.AddDays(-30);
-            }
-            if (!endDate.HasValue)
-            {
-                endDate = DateTime.Now;
-            }
+            var dateRange = dateRangeService.GetDatesRange(startDate, endDate);
 
-            var orders = await financialReportingService.GetOrdersForReportAsync(startDate.Value, endDate.Value);
 
-            ViewBag.StartDate = startDate.Value.ToString("yyyy-MM-dd");
-            ViewBag.EndDate = endDate.Value.ToString("yyyy-MM-dd");
+            var orders = await financialReportingService.GetOrdersForReportAsync(dateRange.StartDate, dateRange.EndDate,true);
+
+            ViewBag.StartDate = dateRange.StartDate.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = dateRange.EndDate.ToString("yyyy-MM-dd");
 
             var finalData = new SalesReportViewModel
             {
-                StartDate = startDate.Value,
-                EndDate = endDate.Value,
+                StartDate = dateRange.StartDate,
+                EndDate = dateRange.EndDate,
                 Orders = orders,
             };
 
@@ -63,20 +59,19 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
 
         public async Task<IActionResult> ExportSalesReport(DateTime? startDate, DateTime? endDate)
         {
-            startDate ??= DateTime.Now.Date.AddDays(-30);
-            endDate ??= DateTime.Now.Date.AddDays(1).AddTicks(-1);
+            var dateRange = dateRangeService.GetDatesRange(startDate, endDate);
 
-            if (startDate > endDate)
+            if (dateRange.StartDate > dateRange.EndDate)
             {
                 return BadRequest("Start date cannot be later than end date.");
             }
 
-            var orders = await financialReportingService.GetOrdersForReportAsync(startDate.Value, endDate.Value);
+            var orders = await financialReportingService.GetOrdersForReportAsync(dateRange.StartDate, dateRange.EndDate);
 
             var finalData = new SalesReportViewModel
             {
-                StartDate = startDate.Value,
-                EndDate = endDate.Value,
+                StartDate = dateRange.StartDate,
+                EndDate = dateRange.EndDate,
                 Orders = orders
             };
 
@@ -86,8 +81,8 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
             var reportConfig = new ReportConfig<Order>
             {
                 ReportTitle = "Sales Report",
-                StartDate = startDate,
-                EndDate = endDate,
+                StartDate = dateRange.StartDate,
+                EndDate = dateRange.EndDate,
                 Data = orders,
                 Columns = new List<ReportColumn<Order>>
             {
@@ -154,17 +149,16 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
             return File(
                 pdfBytes,
                 "application/pdf",
-                $"SalesReport_{startDate:yyyyMMdd}_{endDate:yyyyMMdd}.pdf");
+                $"SalesReport_{dateRange.StartDate:yyyyMMdd}_{dateRange.EndDate:yyyyMMdd}.pdf");
 
         }
 
         public async Task<IActionResult> CustomerReport(DateTime? startDate, DateTime? endDate)
         {
-            if (!startDate.HasValue) startDate = DateTime.Now.AddDays(-30);
-            if (!endDate.HasValue) endDate = DateTime.Now;
+            var dateRange = dateRangeService.GetDatesRange(startDate, endDate);
 
             var orders = await context.Orders
-                .Where(o => o.OrderDate >= startDate && o.OrderDate <= endDate
+                .Where(o => o.OrderDate >= dateRange.StartDate && o.OrderDate <= dateRange.EndDate
                        && o.OrderStatus == "Delivered" && o.PaymentStatus == "Paid")
                 .Include(o => o.User)
                 .ToListAsync();
@@ -184,24 +178,18 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                 })
                 .OrderByDescending(c => c.TotalSpent).ToList();
 
-            ViewBag.StartDate = startDate.Value.ToString("yyyy-MM-dd");
-            ViewBag.EndDate = endDate.Value.ToString("yyyy-MM-dd");
+            ViewBag.StartDate = dateRange.StartDate.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = dateRange.EndDate.ToString("yyyy-MM-dd");
 
             return View(customerReport);
         }
 
         public async Task<IActionResult> ExportCustomerReport(DateTime? startDate, DateTime? endDate)
         {
-            if (!startDate.HasValue)
-            {
-                startDate = DateTime.Now.AddDays(-30);
-            }
-            if (!endDate.HasValue)
-            {
-                endDate = DateTime.Now;
-            }
+            var dateRange = dateRangeService.GetDatesRange(startDate, endDate);
+
             var orders = await context.Orders
-                .Where(o => o.OrderDate >= startDate && o.OrderDate <= endDate
+                .Where(o => o.OrderDate >= dateRange.StartDate && o.OrderDate <= dateRange.EndDate
                        && o.OrderStatus == "Delivered" && o.PaymentStatus == "Paid")
                 .Include(o => o.User)
                 .ToListAsync();
@@ -226,8 +214,8 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
             var reportConfig = new ReportConfig<CustomerReportDto>
             {
                 ReportTitle = "Sales Report",
-                StartDate = startDate,
-                EndDate = endDate,
+                StartDate = dateRange.StartDate,
+                EndDate = dateRange.EndDate,
                 Data = customerReport,
                 Columns = new List<ReportColumn<CustomerReportDto>>
                 {
@@ -279,22 +267,16 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
             return File(
                 pdfBytes,
                 "application/pdf",
-                $"SalesReport_{startDate:yyyyMMdd}_{endDate:yyyyMMdd}.pdf");
+                $"SalesReport_{dateRange.StartDate:yyyyMMdd}_{dateRange.EndDate:yyyyMMdd}.pdf");
         }
 
         public async Task<IActionResult> ProductPerformance(DateTime? startDate, DateTime? endDate)
         {
-            if (!startDate.HasValue)
-            {
-                startDate = DateTime.Now.AddDays(-30);
-            }
-            if (!endDate.HasValue)
-            {
-                endDate = DateTime.Now;
-            }
+            var dateRange = dateRangeService.GetDatesRange(startDate, endDate);
+
 
             var orderItems = await context.OrderItems
-                .Where(oi => oi.Order.OrderDate >= startDate && oi.Order.OrderDate <= endDate && oi.Order.PaymentStatus == "Paid")
+                .Where(oi => oi.Order.OrderDate >= dateRange.StartDate && oi.Order.OrderDate <= dateRange.EndDate && oi.Order.PaymentStatus == "Paid")
                 .Include(oi => oi.Product)
                 .Include(oi => oi.Order)
                 .ToListAsync();
@@ -311,23 +293,17 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                 .OrderByDescending(p => p.TotalRevenue)
                 .ToList();
 
-            ViewBag.StartDate = startDate.Value.ToString("yyyy-MM-dd");
-            ViewBag.EndDate = endDate.Value.ToString("yyyy-MM-dd");
+            ViewBag.StartDate = dateRange.StartDate.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = dateRange.EndDate.ToString("yyyy-MM-dd");
 
             return View(productPerformance);
         }
         public async Task<IActionResult> ExportProductPerformaceReport(DateTime? startDate, DateTime? endDate)
         {
-            if (!startDate.HasValue)
-            {
-                startDate = DateTime.Now.AddDays(-30);
-            }
-            if (!endDate.HasValue)
-            {
-                endDate = DateTime.Now;
-            }
+            var dateRange = dateRangeService.GetDatesRange(startDate, endDate);
+
             var orderItems = await context.OrderItems
-               .Where(oi => oi.Order.OrderDate >= startDate && oi.Order.OrderDate <= endDate && oi.Order.PaymentStatus == "Paid")
+               .Where(oi => oi.Order.OrderDate >= dateRange.StartDate && oi.Order.OrderDate <= dateRange.EndDate && oi.Order.PaymentStatus == "Paid")
                .Include(oi => oi.Product)
                .Include(oi => oi.Order)
                .ToListAsync();
@@ -348,8 +324,8 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
             var reportConfig = new ReportConfig<ProductPerformanceDto>
             {
                 ReportTitle = "Product Performance Report",
-                StartDate = startDate,
-                EndDate = endDate,
+                StartDate = dateRange.StartDate,
+                EndDate = dateRange.EndDate,
                 Data = productPerformance,
                 Columns = new List<ReportColumn<ProductPerformanceDto>>
                 {
@@ -395,40 +371,39 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
             return File(
                 pdfBytes,
                 "application/pdf",
-                $"Product_perfo_Report_{startDate:yyyyMMdd}_{endDate:yyyyMMdd}.pdf");
+                $"Product_perfo_Report_{dateRange.StartDate:yyyyMMdd}_{dateRange.EndDate:yyyyMMdd}.pdf");
         }
 
         public async Task<IActionResult> InventoryReport(DateTime? startDate, DateTime? endDate)
         {
-            startDate ??= DateTime.Now.AddDays(-30);
-            endDate ??= DateTime.Now;
+            var dateRange = dateRangeService.GetDatesRange(startDate, endDate);
 
-            var inventoryReport = await financialReportingService.GetInventoryReportAsync(startDate.Value, endDate.Value);
 
-            ViewBag.StartDate = startDate.Value.ToString("yyyy-MM-dd");
-            ViewBag.EndDate = endDate.Value.ToString("yyyy-MM-dd");
+            var inventoryReport = await financialReportingService.GetInventoryReportAsync(dateRange.StartDate, dateRange.EndDate);
+
+            ViewBag.StartDate = dateRange.StartDate.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = dateRange.EndDate.ToString("yyyy-MM-dd");
 
             return View(inventoryReport);
         }
 
         public async Task<IActionResult> ExportInventoryReport(DateTime? startDate, DateTime? endDate)
         {
-            startDate ??= DateTime.Now.Date.AddDays(-30);
-            endDate ??= DateTime.Now.Date.AddDays(1).AddTicks(-1);
+            var dateRange = dateRangeService.GetDatesRange(startDate, endDate);
 
-            if (startDate > endDate)
+            if (dateRange.StartDate > dateRange.EndDate)
             {
                 return BadRequest("Start date cannot be later than end date.");
             }
-            var inventoryReport = await financialReportingService.GetInventoryReportAsync(startDate.Value, endDate.Value);
+            var inventoryReport = await financialReportingService.GetInventoryReportAsync(dateRange.StartDate, dateRange.EndDate);
 
             // Configure report
             var reportConfig = new ReportConfig<InventoryReportDto>
             {
                 ReportTitle = "Inventory Report",
                 IsLandscape = true,
-                StartDate = startDate,
-                EndDate = endDate,
+                StartDate = dateRange.StartDate,
+                EndDate = dateRange.EndDate,
                 Data = inventoryReport.Products,
                 Columns = new List<ReportColumn<InventoryReportDto>>
         {
@@ -478,7 +453,7 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
         {
             $"Total Products: {inventoryReport.TotalProductCount}",
             $"Low Stock Products: {inventoryReport.LowStockProductCount}",
-            $"Date Range: {startDate:d} to {endDate:d}"
+            $"Date Range: {dateRange.StartDate:d} to {dateRange.EndDate:d}"
         }
             };
 
@@ -487,33 +462,26 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
             return File(
                 pdfBytes,
                 "application/pdf",
-                $"InventoryReport_{startDate:yyyyMMdd}_{endDate:yyyyMMdd}.pdf");
+                $"InventoryReport_{dateRange.StartDate:yyyyMMdd}_{dateRange.EndDate:yyyyMMdd}.pdf");
         }
 
         public async Task<IActionResult> ProfitLossReport(DateTime? startDate, DateTime? endDate)
         {
-            if (!startDate.HasValue)
-            {
-                startDate = DateTime.Now.AddDays(-30);
-            }
-            if (!endDate.HasValue)
-            {
-                endDate = DateTime.Now;
-            }
+            var dateRange=dateRangeService.GetDatesRange(startDate, endDate);
 
-            var orders = await financialReportingService.GetOrdersForReportAsync(startDate.Value, endDate.Value, true);
+            var orders = await financialReportingService.GetOrdersForReportAsync(dateRange.StartDate, dateRange.EndDate, true,true);
 
-            var previousPeriodOrders = await financialReportingService.GetPreviousPeriodOrdersAsync(startDate.Value, endDate.Value);
+            var previousPeriodOrders = await financialReportingService.GetPreviousPeriodOrdersAsync(dateRange.StartDate, dateRange.EndDate);
 
             var reportData= financialReportingService.CalculateProfitLossReport(orders, previousPeriodOrders);
-            reportData.StartDate = startDate.Value;
-            reportData.EndDate = endDate.Value;
+            reportData.StartDate = dateRange.StartDate;
+            reportData.EndDate =dateRange.EndDate;
 
             // Prepare chart data
-            var chartData = financialReportingService.PrepareChartData(orders, startDate.Value, endDate.Value);
+            var chartData = financialReportingService.PrepareChartData(orders, dateRange.StartDate, dateRange.EndDate);
 
             // Get top selling products
-            var topProducts = await financialReportingService.GetTopSellingProductsAsync(startDate.Value, endDate.Value, 5);
+            var topProducts = await financialReportingService.GetTopSellingProductsAsync(dateRange.StartDate, dateRange.EndDate, 5);
 
             var viewModel = new ProfitLossReportMainViewModel
             {
@@ -524,25 +492,24 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                 TopSellingProductsProfit = topProducts.Select(p => p.Profit).ToList()
             };
 
-            ViewBag.StartDate = startDate.Value.ToString("yyyy-MM-dd");
-            ViewBag.EndDate = endDate.Value.ToString("yyyy-MM-dd");
+            ViewBag.StartDate = dateRange.StartDate.ToString("yyyy-MM-dd");
+            ViewBag.EndDate =  dateRange.EndDate.ToString("yyyy-MM-dd");
 
             return View(viewModel);
         }
 
         public async Task<IActionResult> ExportProfitLossReport(DateTime? startDate, DateTime? endDate)
         {
-            startDate ??= DateTime.Now.Date.AddDays(-30);
-            endDate ??= DateTime.Now.Date.AddDays(1).AddTicks(-1);
+            var dateRange = dateRangeService.GetDatesRange(startDate, endDate);
 
-            if (startDate > endDate)
+            if (dateRange.StartDate > dateRange.EndDate)
             {
                 return BadRequest("Start date cannot be later than end date.");
             }
             
-            var orders = await financialReportingService.GetOrdersForReportAsync(startDate.Value, endDate.Value, true,true);
+            var orders = await financialReportingService.GetOrdersForReportAsync(dateRange.StartDate, dateRange.EndDate, true,true);
 
-            var previousPeriodOrders = await financialReportingService.GetPreviousPeriodOrdersAsync(startDate.Value, endDate.Value);
+            var previousPeriodOrders = await financialReportingService.GetPreviousPeriodOrdersAsync(dateRange.StartDate, dateRange.EndDate);
 
             var reportData = financialReportingService.CalculateProfitLossReport(orders, previousPeriodOrders);
 
@@ -550,8 +517,8 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
             var reportConfig = new ReportConfig<Order>
             {
                 ReportTitle = "Profit & Loss Report",
-                StartDate = startDate,
-                EndDate = endDate,
+                StartDate = dateRange.StartDate,
+                EndDate = dateRange.EndDate,
                 Data = orders,
                 Columns = new List<ReportColumn<Order>>
         {
@@ -613,17 +580,16 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
             return File(
                 pdfBytes,
                 "application/pdf",
-                $"ProfitLossReport_{startDate:yyyyMMdd}_{endDate:yyyyMMdd}.pdf");
+                $"ProfitLossReport_{dateRange.StartDate:yyyyMMdd}_{dateRange.EndDate:yyyyMMdd}.pdf");
         }
         public async Task<IActionResult> TopSellingProducts(DateTime? startDate, DateTime? endDate, int count = 10)
         {
-            startDate ??= DateTime.Now.AddDays(-30);
-            endDate ??= DateTime.Now;
+            var dateRange = dateRangeService.GetDatesRange(startDate, endDate);
 
-            var topProducts = await financialReportingService.GetTopSellingProductsAsync(startDate.Value, endDate.Value, count);
+            var topProducts = await financialReportingService.GetTopSellingProductsAsync(dateRange.StartDate, dateRange.EndDate, count);
 
-            ViewBag.StartDate = startDate.Value.ToString("yyyy-MM-dd");
-            ViewBag.EndDate = endDate.Value.ToString("yyyy-MM-dd");
+            ViewBag.StartDate = dateRange.StartDate.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = dateRange.EndDate.ToString("yyyy-MM-dd");
             ViewBag.Count = count;
 
             return View(topProducts);

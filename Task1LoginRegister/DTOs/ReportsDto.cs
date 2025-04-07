@@ -43,6 +43,7 @@ namespace Task1LoginRegister.DTOs
 
         // Performance Metrics
         public decimal RefundRate { get; set; }
+        public decimal RefundAmount { get; set; }
         public decimal AverageTimeToShip { get; set; } // In days
 
         // Computed Properties
