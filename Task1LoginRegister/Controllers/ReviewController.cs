@@ -26,71 +26,65 @@ namespace Task1LoginRegister.Controllers
         [HttpPost]
         public async Task<IActionResult> AddReview(ReviewViewModel model)
         {
-            try
+            TempData["SavedRating"] = model.Rating;
+            TempData["SavedDescription"] = model.Description;
+
+            if(model.Rating < 1  || model.Rating > 5)
             {
-                if (!ModelState.IsValid)
-                {
-                    // Store the entered values to repopulate the form
-                    TempData["SavedRating"] = model.Rating;
-                    TempData["SavedDescription"] = model.Description;
-                    TempData["ErrorMessage"] = "Please correct the errors in your review";
-                    return RedirectToAction("Details", "Home", new { id = model.ProductId });
-                }
+                ModelState.AddModelError("Rating", "Please select a rating between 1 and 5");
+            }
 
-                var userId = userService.GetUserId();
-                if (userId == null)
-                {
-                    TempData["ErrorMessage"] = "You must be logged in to submit a review";
-                    return RedirectToAction("Details", "Home", new { id = model.ProductId });
-                }
+            if(!ModelState.IsValid)
+            {
+                var errors = string.Join("; ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+                TempData["ErrorMessage"] = "Please correct the errors in your review";
+                return RedirectToAction("Details","Home", new {id=model.ProductId});
+            }
 
-                bool hasPurchased = await context.OrderItems
-                    .AnyAsync(oi => oi.ProductId == model.ProductId &&
-                                  oi.Order.UserId == userId &&
-                                  oi.Order.OrderStatus == "Delivered");
-
-                // Uncomment this if you want to enforce purchase verification
-                /*
-                if (!hasPurchased)
-                {
-                    TempData["ErrorMessage"] = "You can only review products you have purchased";
-                    return RedirectToAction("Details", "Home", new { id = model.ProductId });
-                }
-                */
-
-                var existingReview = await context.Reviews
-                    .FirstOrDefaultAsync(r => r.ProductId == model.ProductId && r.UserId == userId);
-
-                if (existingReview != null)
-                {
-                    existingReview.Rating = model.Rating;
-                    existingReview.Description = model.Description;
-                    existingReview.CreatedDate = DateTime.Now;
-                    existingReview.IsApproved = true;  // Changed to auto-approve updated reviews too
-                }
-                else
-                {
-                    var review = new Review
-                    {
-                        ProductId = model.ProductId,
-                        UserId = (int)userId,
-                        Rating = model.Rating,
-                        Description = model.Description,
-                        CreatedDate = DateTime.Now,
-                        IsApproved = true  // Auto-approve new reviews
-                    };
-                    context.Reviews.Add(review);
-                }
-
-                await context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "Your review has been submitted successfully!";
+            var userId = userService.GetUserId();
+            if(userId == null)
+            {
+                TempData["ErrorMessage"] = "You must be logged in to submit a review";
                 return RedirectToAction("Details", "Home", new { id = model.ProductId });
             }
-            catch (Exception ex)
+
+            bool hasPurchased = await context.OrderItems.AnyAsync(oi => oi.ProductId == model.ProductId &&
+                            oi.Order.UserId == userId && oi.Order.OrderStatus == "Delivered");
+
+            if (!hasPurchased)
             {
-                TempData["ErrorMessage"] = "An error occurred while submitting your review";
+                TempData["ErrorMessage"] = "You can only review products you have purchased as well as deliverd to your door";
                 return RedirectToAction("Details", "Home", new { id = model.ProductId });
             }
+
+            var exisitngReview = await context.Reviews.FirstOrDefaultAsync(r => r.ProductId == model.ProductId && r.UserId == userId);
+            if(exisitngReview != null)
+            {
+                exisitngReview.Rating = model.Rating;
+                exisitngReview.Description=model.Description;
+                exisitngReview.CreatedDate=DateTime.Now;
+                exisitngReview.IsApproved=true;
+            }
+            else
+            {
+                var review = new Review
+                {
+                    Rating = model.Rating,
+                    Description = model.Description,
+                    ProductId = model.ProductId,
+                    UserId = (int)userId,
+                    CreatedDate = DateTime.Now,
+                    IsApproved=true
+                };   
+                context.Reviews.Add(review);
+            }
+            await context.SaveChangesAsync();
+
+            TempData.Remove("SavedRating");
+            TempData.Remove("SavedDescription");
+            TempData["SuccessMessage"]="Your review has been submitted successfully!";
+            return RedirectToAction("Details", "Home", new {id=model.ProductId});
+
         }
     }
 }

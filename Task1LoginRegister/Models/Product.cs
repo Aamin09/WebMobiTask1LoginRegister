@@ -92,6 +92,6 @@ namespace Task1LoginRegister.Models
         public double AverageRating => Reviews != null && Reviews.Any() ? Reviews.Average(r => r.Rating) : 0;
 
         [NotMapped]
-        public int ReviewCount=> Reviews != null  ? Reviews.Count : 0;
+        public int ReviewCount=> Reviews != null  ? Reviews.Count(r=>r.IsApproved) : 0;
     }
 }

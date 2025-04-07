@@ -34,7 +34,9 @@ namespace Task1LoginRegister.Models
         public bool IsApproved { get; set; }
 
         public DateTime? ApprovedDate { get; set; }
+
     }
+
 
     public class ReviewViewModel
     {
@@ -48,5 +50,6 @@ namespace Task1LoginRegister.Models
         [Required(ErrorMessage = "Review description is required")]
         [StringLength(500, ErrorMessage = "Review cannot exceed 500 characters")]
         public string Description { get; set; }
+
     }
 }
