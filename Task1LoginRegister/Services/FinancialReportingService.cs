@@ -35,7 +35,7 @@ namespace Task1LoginRegister.Services
                 data = data.Where(o => o.PaymentStatus == "Paid" || o.PaymentStatus == "Refunded");
             }
 
-            if (includeRefunds)
+            if (includeRefunds == true)
             {
                 data = data.Include(o => o.RefundDetails);
             }
@@ -78,52 +78,68 @@ namespace Task1LoginRegister.Services
             var validOrders = orders.Where(o => o.OrderStatus != "Cancelled" && o.PaymentStatus == "Paid").ToList();
             var validPreviousPeriodOrders = previousPeriodOrders.Where(o => o.OrderStatus != "Cancelled" && o.PaymentStatus == "Paid").ToList();
 
+            // Geting only completed refunds
+            var completedRefunds = orders.SelectMany(o => o.RefundDetails ?? new List<RefundDetailsModel>())
+                                       .Where(r => r.Status == "Completed").ToList();
+            var previousCompletedRefunds = previousPeriodOrders.SelectMany(o => o.RefundDetails ?? new List<RefundDetailsModel>())
+                                                             .Where(r => r.Status == "Completed").ToList();
+
             var report = new ProfitLossReportDto
             {
                 // Financial calculations for only valid orders
-                TotalRevenue = validOrders.Sum(o => o.TotalAmount),
                 ProductRevenue = validOrders.Sum(o => o.OrderItems.Sum(oi => oi.SnapshotPrice * oi.Quantity)),
                 DeliveryChargeRevenue = validOrders.Sum(o => o.OrderItems.Sum(oi => oi.DeliveryCharge)),
 
                 TotalProductCost = validOrders.Sum(o => o.OrderItems.Sum(oi => oi.SnapshotCostPrice * oi.Quantity)),
-                CGSTCollected = validOrders.Sum(o => o.OrderItems.Sum(oi => oi.SnapshotCGSTPercentage * oi.SnapshotPrice * oi.Quantity / 100)),
-                SGSTCollected = validOrders.Sum(o => o.OrderItems.Sum(oi => oi.SnapshotSGSTPercentage * oi.SnapshotPrice * oi.Quantity / 100)),
+                CGSTCollected = validOrders.Sum(o => o.OrderItems.Sum(oi => (oi.SnapshotCGSTPercentage / 100) * oi.SnapshotPrice * oi.Quantity)),
+                SGSTCollected = validOrders.Sum(o => o.OrderItems.Sum(oi => (oi.SnapshotSGSTPercentage / 100) * oi.SnapshotPrice * oi.Quantity)),
 
                 // orders count
                 TotalOrders = orders.Count,
                 CompletedOrders = orders.Count(o => o.OrderStatus == "Delivered"),
                 PendingOrders = orders.Count(o => o.OrderStatus != "Delivered" && o.OrderStatus != "Cancelled"),
-                CancelledOrders = orders.Count(o => o.OrderStatus == "Cancelled")
+                CancelledOrders = orders.Count(o => o.OrderStatus == "Cancelled"),
+
+                // Refunds
+                TotalRefunds = completedRefunds.Sum(r => r.Amount),
+                RefundCount = completedRefunds.Count
             };
 
+            // Calculate derived metrics
+            report.TotalRevenue = report.ProductRevenue + report.DeliveryChargeRevenue;
             report.TaxesCollected = report.CGSTCollected + report.SGSTCollected;
 
-            // Count refunds for valid orders
-            report.TotalRefunds = validOrders.Sum(o => o.RefundDetails?.Sum(r => r.Amount) ?? 0);
-            report.RefundCount = validOrders.Sum(o => o.RefundDetails?.Count ?? 0);
-
-            report.RevenueByPaymentMethod = validOrders.GroupBy(o => o.PaymentMethod ?? "Unknown")
-                .ToDictionary(g => g.Key, g => g.Sum(o => o.TotalAmount));
-
+            // Profit calculations
             report.GrossProfit = report.ProductRevenue - report.TotalProductCost;
-            // Subtract refunds amount
-            report.OperatingProfit = report.GrossProfit - report.TotalRefunds;
-            report.NetProfit = report.OperatingProfit;
+            report.OperatingProfit = report.GrossProfit + report.DeliveryChargeRevenue;
+            report.NetProfit = report.OperatingProfit - report.TotalRefunds;
 
-            report.GrossProfitMargin = report.TotalRevenue > 0 ? (report.GrossProfit / report.TotalRevenue) * 100 : 0;
-            report.OperatingProfitMargin = report.TotalRevenue > 0 ? (report.OperatingProfit / report.TotalRevenue) * 100 : 0;
-            report.NetProfitMargin = report.TotalRevenue > 0 ? (report.NetProfit / report.TotalRevenue) * 100 : 0;
+            // Profit margins (calculated against revenue before taxes)
+            decimal marginBase = report.TotalRevenue;
+            report.GrossProfitMargin = marginBase > 0 ? (report.GrossProfit / marginBase) * 100 : 0;
+            report.OperatingProfitMargin = marginBase > 0 ? (report.OperatingProfit / marginBase) * 100 : 0;
+            report.NetProfitMargin = marginBase > 0 ? (report.NetProfit / marginBase) * 100 : 0;
 
-            // Calculate previous period metrics including refunds
-            var previousPeriodRefunds = validPreviousPeriodOrders.Sum(o => o.RefundDetails?.Sum(r => r.Amount) ?? 0);
-            report.PreviousPeriodNetProfit = validPreviousPeriodOrders.Sum(o => o.TotalAmount) -
-                validPreviousPeriodOrders.Sum(o => o.OrderItems.Sum(oi => oi.SnapshotCostPrice * oi.Quantity)) -
-                previousPeriodRefunds;
+            // Payment method breakdown
+            report.RevenueByPaymentMethod = validOrders.GroupBy(o => o.PaymentMethod ?? "Unknown")
+                .ToDictionary(g => g.Key, g => g.Sum(o => o.OrderItems.Sum(oi => oi.SnapshotPrice * oi.Quantity + oi.DeliveryCharge)));
 
-            report.ProfitGrowthRate = report.PreviousPeriodNetProfit > 0 ?
-                ((report.NetProfit - report.PreviousPeriodNetProfit) / report.PreviousPeriodNetProfit) * 100 : 0;
+            // Previous period comparison
+            decimal prevProductRevenue = validPreviousPeriodOrders.Sum(o => o.OrderItems.Sum(oi => oi.SnapshotPrice * oi.Quantity));
+            decimal prevDeliveryRevenue = validPreviousPeriodOrders.Sum(o => o.OrderItems.Sum(oi => oi.DeliveryCharge));
+            decimal prevProductCost = validPreviousPeriodOrders.Sum(o => o.OrderItems.Sum(oi => oi.SnapshotCostPrice * oi.Quantity));
+            decimal prevRefunds = previousCompletedRefunds.Sum(r => r.Amount);
 
-            // Category metrics with only valid orders
+            report.PreviousPeriodNetProfit = (prevProductRevenue + prevDeliveryRevenue) - prevProductCost - prevRefunds;
+
+            // Growth rate calculation (handle division by zero and negative values)
+            decimal profitDifference = report.NetProfit - report.PreviousPeriodNetProfit;
+            decimal absPreviousProfit = Math.Abs(report.PreviousPeriodNetProfit);
+            report.ProfitGrowthRate = absPreviousProfit > 0 ? (profitDifference / absPreviousProfit) * 100 :
+                                      profitDifference > 0 ? 100 :
+                                      profitDifference < 0 ? -100 : 0;
+
+            // Category metrics
             report.RevenueByCategoryId = validOrders.SelectMany(o => o.OrderItems)
                 .GroupBy(oi => oi.Product.Category.Name)
                 .ToDictionary(g => g.Key, g => g.Sum(oi => oi.SnapshotPrice * oi.Quantity));
@@ -132,6 +148,7 @@ namespace Task1LoginRegister.Services
                 .GroupBy(oi => oi.Product.Category.Name)
                 .ToDictionary(g => g.Key, g => g.Sum(oi => (oi.SnapshotPrice - oi.SnapshotCostPrice) * oi.Quantity));
 
+            // Subcategory metrics
             report.RevenueBySubcategoryId = validOrders.SelectMany(o => o.OrderItems)
                 .GroupBy(oi => oi.Product.Subcategory.Name)
                 .ToDictionary(g => g.Key, g => g.Sum(oi => oi.SnapshotPrice * oi.Quantity));
@@ -142,15 +159,14 @@ namespace Task1LoginRegister.Services
 
             return report;
         }
-        
         // calculate sales report metrics
         public void CalculateSalesReportMetrics(SalesReportViewModel report)
         {
             var validaorders = report.Orders.Where(o => o.OrderStatus != "Cancelled");
-            var paidOrders = validaorders.Where(o => o.PaymentStatus == "Paid");
+            var paidOrders = validaorders.Where(o => o.PaymentStatus == "Paid" );
             var failedOrders = validaorders.Where(o => o.PaymentStatus == "Failed");
             var cancelledOrders = report.Orders.Where(o => o.OrderStatus == "Cancelled");
-
+           
             report.PaidOrders = paidOrders.Count();
             report.FailedOrders = failedOrders.Count();
             report.CancelledOrders = cancelledOrders.Count();
