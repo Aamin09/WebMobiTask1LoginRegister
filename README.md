@@ -23,6 +23,14 @@ If you want the database with complete **structure and data**:
 - Create a database named `WebMobiTask1DB`
 - Set up all tables and relationships
 - Insert predefined sample data
+- 
+### Important:
+After running the script, open your project and update the connection string in appsettings.json:
+
+"ConnectionStrings": {
+  "DefaultConnection": "Server=YOUR_SERVER_NAME;Database=WebMobiTask1DB;Trusted_Connection=True;TrustServerCertificate=True;"
+}
+🔁 Replace YOUR_SERVER_NAME with your actual SQL Server instance name.
 
 ### ✅ Result:
 You’ll have a fully working database that mirrors the original development setup.
@@ -51,4 +59,22 @@ Update-Database
 ##❗️NOTE:
 These commands will only create the schema (tables and relationships) in your database.
 They do not insert any sample data. If you need both schema and sample data, refer to Option 1 above.
+
+NuGet Package Restore
+After cloning the repository:
+
+Open the solution in Visual Studio.
+
+Required NuGet packages will restore automatically.
+
+If not, manually restore them by:
+
+Right-clicking the solution → Restore NuGet Packages
+
+Or run the command:
+
+nginx
+Copy
+Edit
+dotnet restore
 ```json
