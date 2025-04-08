@@ -280,7 +280,7 @@ namespace Task1LoginRegister.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var order= await context.Orders.FirstOrDefaultAsync(o=>o.OrderId == orderId && o.UserId == userId);
+            var order= await context.Orders.Include(o => o.OrderItems).FirstOrDefaultAsync(o=>o.OrderId == orderId && o.UserId == userId);
             if(order == null)  return NotFound();
             
             // checking if order is eligible for cancellation

@@ -66,7 +66,7 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                 return BadRequest("Start date cannot be later than end date.");
             }
 
-            var orders = await financialReportingService.GetOrdersForReportAsync(dateRange.StartDate, dateRange.EndDate);
+            var orders = await financialReportingService.GetOrdersForReportAsync(dateRange.StartDate, dateRange.EndDate,true);
 
             var finalData = new SalesReportViewModel
             {

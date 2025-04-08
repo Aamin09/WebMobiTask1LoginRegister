@@ -42,6 +42,7 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<RazorPayService>();
 builder.Services.AddScoped<PdfReportService>();
 builder.Services.AddScoped<FinancialReportingService>();
+builder.Services.AddScoped<DateRangeService>();
 
 builder.Services.AddSession(options =>
 {

@@ -20,7 +20,7 @@
                 <a asp-action="Index" asp-controller="Report" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left"></i> Back to Report</a>
                 <a asp-action="ExportProfitLossReport" asp-controller="Report" asp-route-startDate="@startDate" asp-route-endDate="@endDate" class="btn btn-sm btn-outline-success"><i class="fas fa-file-export"></i> Export Report</a>
 
-              
+
             </div>
         </div>
     </div>
@@ -104,7 +104,7 @@
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card shadow-sm h-100">
+            <div class="card shadow-sm">
                 <div class="card-header bg-white">
                     <h5 class="card-title mb-0">Order Status</h5>
                 </div>
@@ -112,469 +112,487 @@
                     <canvas id="orderStatusChart" height="200"></canvas>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                    <h5 class="card-title mb-0">Category Performance</h5>
+            <hr />
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Refunds Overview</h6>
                 </div>
                 <div class="card-body">
-                    <canvas id="categoryChart" height="300"></canvas>
+                    <div class="small text-gray-500">Total Refund Amount</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                        @Model.FinancialData.TotalRefunds.ToString("C")
+                    </div>
+                    <hr />
+                    <div class="small text-gray-500">Total Refunds Count</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                        @Model.FinancialData.RefundCount
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <div class="row mb-4 mt-4">
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">Category Performance</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="categoryChart" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">Top Selling Products</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="topProductsChart" height="300"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                    <h5 class="card-title mb-0">Top Selling Products</h5>
-                </div>
-                <div class="card-body">
-                    <canvas id="topProductsChart" height="300"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Detailed Financials -->
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                    <h5 class="card-title mb-0">Detailed Financial Breakdown</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h6 class="text-uppercase fw-bold mb-3">Revenue</h6>
-                            <table class="table table-sm">
-                                <tbody>
-                                    <tr>
-                                        <td>Product Revenue</td>
-                                        <td class="text-end">@Model.FinancialData.ProductRevenue.ToString("C")</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Delivery Charges</td>
-                                        <td class="text-end">@Model.FinancialData.DeliveryChargeRevenue.ToString("C")</td>
-                                    </tr>
-                                    <tr class="table-active fw-bold">
-                                        <td>Total Revenue</td>
-                                        <td class="text-end">@Model.FinancialData.TotalRevenue.ToString("C")</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+        <!-- Detailed Financials -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">Detailed Financial Breakdown</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-uppercase fw-bold mb-3">Revenue</h6>
+                                <table class="table table-sm">
+                                    <tbody>
+                                        <tr>
+                                            <td>Product Revenue</td>
+                                            <td class="text-end">@Model.FinancialData.ProductRevenue.ToString("C")</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Delivery Charges</td>
+                                            <td class="text-end">@Model.FinancialData.DeliveryChargeRevenue.ToString("C")</td>
+                                        </tr>
+                                        <tr class="table-active fw-bold">
+                                            <td>Total Revenue</td>
+                                            <td class="text-end">@Model.FinancialData.TotalRevenue.ToString("C")</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
 
-                            <h6 class="text-uppercase fw-bold mb-3 mt-4">Costs</h6>
-                            <table class="table table-sm">
-                                <tbody>
-                                    <tr>
-                                        <td>Product Cost</td>
-                                        <td class="text-end">@Model.FinancialData.TotalProductCost.ToString("C")</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Refunds</td>
-                                        <td class="text-end">@Model.FinancialData.TotalRefunds.ToString("C")</td>
-                                    </tr>
-                                    <tr class="table-active fw-bold">
-                                        <td>Total Costs</td>
-                                        <td class="text-end">@((Model.FinancialData.TotalProductCost + Model.FinancialData.TotalRefunds).ToString("C"))</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                                <h6 class="text-uppercase fw-bold mb-3 mt-4">Costs</h6>
+                                <table class="table table-sm">
+                                    <tbody>
+                                        <tr>
+                                            <td>Product Cost</td>
+                                            <td class="text-end">@Model.FinancialData.TotalProductCost.ToString("C")</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Refunds</td>
+                                            <td class="text-end">@Model.FinancialData.TotalRefunds.ToString("C")</td>
+                                        </tr>
+                                        <tr class="table-active fw-bold">
+                                            <td>Total Costs</td>
+                                            <td class="text-end">@((Model.FinancialData.TotalProductCost + Model.FinancialData.TotalRefunds).ToString("C"))</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
 
-                        <div class="col-md-6">
-                            <h6 class="text-uppercase fw-bold mb-3">Profit</h6>
-                            <table class="table table-sm">
-                                <tbody>
-                                    <tr>
-                                        <td>Gross Profit</td>
-                                        <td class="text-end">@Model.FinancialData.GrossProfit.ToString("C")</td>
-                                        <td class="text-end">@Model.FinancialData.GrossProfitMargin.ToString("N2")%</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Operating Profit</td>
-                                        <td class="text-end">@Model.FinancialData.OperatingProfit.ToString("C")</td>
-                                        <td class="text-end">@Model.FinancialData.OperatingProfitMargin.ToString("N2")%</td>
-                                    </tr>
-                                    <tr class="table-active fw-bold">
-                                        <td>Net Profit</td>
-                                        <td class="text-end">@Model.FinancialData.NetProfit.ToString("C")</td>
-                                        <td class="text-end">@Model.FinancialData.NetProfitMargin.ToString("N2")%</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            <div class="col-md-6">
+                                <h6 class="text-uppercase fw-bold mb-3">Profit</h6>
+                                <table class="table table-sm">
+                                    <tbody>
+                                        <tr>
+                                            <td>Gross Profit</td>
+                                            <td class="text-end">@Model.FinancialData.GrossProfit.ToString("C")</td>
+                                            <td class="text-end">@Model.FinancialData.GrossProfitMargin.ToString("N2")%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Operating Profit</td>
+                                            <td class="text-end">@Model.FinancialData.OperatingProfit.ToString("C")</td>
+                                            <td class="text-end">@Model.FinancialData.OperatingProfitMargin.ToString("N2")%</td>
+                                        </tr>
+                                        <tr class="table-active fw-bold">
+                                            <td>Net Profit</td>
+                                            <td class="text-end">@Model.FinancialData.NetProfit.ToString("C")</td>
+                                            <td class="text-end">@Model.FinancialData.NetProfitMargin.ToString("N2")%</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
 
-                            <h6 class="text-uppercase fw-bold mb-3 mt-4">Taxes</h6>
-                            <table class="table table-sm">
-                                <tbody>
-                                    <tr>
-                                        <td>CGST Collected</td>
-                                        <td class="text-end">@Model.FinancialData.CGSTCollected.ToString("C")</td>
-                                    </tr>
-                                    <tr>
-                                        <td>SGST Collected</td>
-                                        <td class="text-end">@Model.FinancialData.SGSTCollected.ToString("C")</td>
-                                    </tr>
-                                    <tr class="table-active fw-bold">
-                                        <td>Total Tax</td>
-                                        <td class="text-end">@Model.FinancialData.TaxesCollected.ToString("C")</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                                <h6 class="text-uppercase fw-bold mb-3 mt-4">Taxes</h6>
+                                <table class="table table-sm">
+                                    <tbody>
+                                        <tr>
+                                            <td>CGST Collected</td>
+                                            <td class="text-end">@Model.FinancialData.CGSTCollected.ToString("C")</td>
+                                        </tr>
+                                        <tr>
+                                            <td>SGST Collected</td>
+                                            <td class="text-end">@Model.FinancialData.SGSTCollected.ToString("C")</td>
+                                        </tr>
+                                        <tr class="table-active fw-bold">
+                                            <td>Total Tax</td>
+                                            <td class="text-end">@Model.FinancialData.TaxesCollected.ToString("C")</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Payment Methods and Category Tables -->
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                    <h5 class="card-title mb-0">Revenue by Payment Method</h5>
-                </div>
-                <div class="card-body">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Payment Method</th>
-                                <th class="text-end">Revenue (₹)</th>
-                                <th class="text-end">% of Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var method in Model.FinancialData.RevenueByPaymentMethod)
-                            {
-                                var percentage = (method.Value / Model.FinancialData.TotalRevenue) * 100;
+        <!-- Payment Methods and Category Tables -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">Revenue by Payment Method</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
                                 <tr>
-                                    <td>@method.Key</td>
-                                    <td class="text-end">@method.Value.ToString("N2")</td>
-                                    <td class="text-end">@percentage.ToString("N2")%</td>
+                                    <th>Payment Method</th>
+                                    <th class="text-end">Revenue (₹)</th>
+                                    <th class="text-end">% of Total</th>
                                 </tr>
-                            }
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @foreach (var method in Model.FinancialData.RevenueByPaymentMethod)
+                                {
+                                    var percentage = (method.Value / Model.FinancialData.TotalRevenue) * 100;
+                                    <tr>
+                                        <td>@method.Key</td>
+                                        <td class="text-end">@method.Value.ToString("N2")</td>
+                                        <td class="text-end">@percentage.ToString("N2")%</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">Revenue by Category</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th class="text-end">Revenue (₹)</th>
+                                    <th class="text-end">Profit (₹)</th>
+                                    <th class="text-end">Margin</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var category in Model.FinancialData.RevenueByCategoryId)
+                                {
+                                    var profit = Model.FinancialData.ProfitByCategoryId.ContainsKey(category.Key) ?
+                                    Model.FinancialData.ProfitByCategoryId[category.Key] : 0;
+                                    var margin = category.Value > 0 ? (profit / category.Value) * 100 : 0;
+                                    <tr>
+                                        <td>@category.Key</td>
+                                        <td class="text-end">@category.Value.ToString("N2")</td>
+                                        <td class="text-end">@profit.ToString("N2")</td>
+                                        <td class="text-end">@margin.ToString("N2")%</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                    <h5 class="card-title mb-0">Revenue by Category</h5>
-                </div>
-                <div class="card-body">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Category</th>
-                                <th class="text-end">Revenue (₹)</th>
-                                <th class="text-end">Profit (₹)</th>
-                                <th class="text-end">Margin</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var category in Model.FinancialData.RevenueByCategoryId)
-                            {
-                                var profit = Model.FinancialData.ProfitByCategoryId.ContainsKey(category.Key) ?
-                                Model.FinancialData.ProfitByCategoryId[category.Key] : 0;
-                                var margin = category.Value > 0 ? (profit / category.Value) * 100 : 0;
-                                <tr>
-                                    <td>@category.Key</td>
-                                    <td class="text-end">@category.Value.ToString("N2")</td>
-                                    <td class="text-end">@profit.ToString("N2")</td>
-                                    <td class="text-end">@margin.ToString("N2")%</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+
+
     </div>
 
-    
-</div>
-
-@section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
-    <script>
-        // Helper function to generate random colors
-        function getRandomColor() {
-            const letters = '0123456789ABCDEF';
-            let color = '#';
-            for (let i = 0; i < 6; i++) {
-                color += letters[Math.floor(Math.random() * 16)];
-            }
-            return color;
-        }
-
-        // Get chart data from model
-        const timeLabels = @Html.Raw(Json.Serialize(Model.ChartData.TimeLabels));
-        const revenueData = @Html.Raw(Json.Serialize(Model.ChartData.RevenueData));
-        const costData = @Html.Raw(Json.Serialize(Model.ChartData.CostData));
-        const profitData = @Html.Raw(Json.Serialize(Model.ChartData.ProfitData));
-        const categoryLabels = @Html.Raw(Json.Serialize(Model.ChartData.CategoryLabels));
-        const categoryRevenueData = @Html.Raw(Json.Serialize(Model.ChartData.CategoryRevenueData));
-        const categoryProfitData = @Html.Raw(Json.Serialize(Model.ChartData.CategoryProfitData));
-        const topProducts = @Html.Raw(Json.Serialize(Model.TopSellingProducts));
-        const topProductsRevenue = @Html.Raw(Json.Serialize(Model.TopSellingProductsRevenue));
-        const topProductsProfit = @Html.Raw(Json.Serialize(Model.TopSellingProductsProfit));
-
-        // Order Status Data
-        const completedOrders = @Model.FinancialData.CompletedOrders;
-        const pendingOrders = @Model.FinancialData.PendingOrders;
-        const cancelledOrders = @Model.FinancialData.CancelledOrders;
-
-        // Revenue & Profit Trend Chart
-        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-        const revenueChart = new Chart(revenueCtx, {
-            type: 'line',
-            data: {
-                labels: timeLabels,
-                datasets: [
-                    {
-                        label: 'Revenue',
-                        data: revenueData,
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        backgroundColor: 'rgba(54, 162, 235, 0.1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.4
-                    },
-                    {
-                        label: 'Cost',
-                        data: costData,
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        backgroundColor: 'rgba(255, 99, 132, 0.1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.4
-                    },
-                    {
-                        label: 'Profit',
-                        data: profitData,
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        backgroundColor: 'rgba(75, 192, 192, 0.1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.4
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Revenue, Cost and Profit Trend'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return context.dataset.label + ': ₹' + context.raw.toLocaleString('en-IN');
-                            }
-                        }
-                    },
-                    legend: {
-                        position: 'top',
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return '₹' + value.toLocaleString('en-IN');
-                            }
-                        }
-                    }
+    @section Scripts {
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+        <script>
+            // Helper function to generate random colors
+            function getRandomColor() {
+                const letters = '0123456789ABCDEF';
+                let color = '#';
+                for (let i = 0; i < 6; i++) {
+                    color += letters[Math.floor(Math.random() * 16)];
                 }
+                return color;
             }
-        });
 
-        // Order Status Chart (Doughnut)
-        const orderStatusCtx = document.getElementById('orderStatusChart').getContext('2d');
-        const orderStatusChart = new Chart(orderStatusCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Delivered', 'Pending', 'Cancelled'],
-                datasets: [{
-                    data: [completedOrders, pendingOrders, cancelledOrders],
-                    backgroundColor: [
-                        'rgba(75, 192, 192, 0.7)',
-                        'rgba(255, 206, 86, 0.7)',
-                        'rgba(255, 99, 132, 0.7)'
-                    ],
-                    borderColor: [
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(255, 99, 132, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                      datalabels: {
-                             font: {
-                                 weight: 'bold'
-                             }
+            // Get chart data from model
+            const timeLabels = @Html.Raw(Json.Serialize(Model.ChartData.TimeLabels));
+            const revenueData = @Html.Raw(Json.Serialize(Model.ChartData.RevenueData));
+            const costData = @Html.Raw(Json.Serialize(Model.ChartData.CostData));
+            const profitData = @Html.Raw(Json.Serialize(Model.ChartData.ProfitData));
+            const categoryLabels = @Html.Raw(Json.Serialize(Model.ChartData.CategoryLabels));
+            const categoryRevenueData = @Html.Raw(Json.Serialize(Model.ChartData.CategoryRevenueData));
+            const categoryProfitData = @Html.Raw(Json.Serialize(Model.ChartData.CategoryProfitData));
+            const topProducts = @Html.Raw(Json.Serialize(Model.TopSellingProducts));
+            const topProductsRevenue = @Html.Raw(Json.Serialize(Model.TopSellingProductsRevenue));
+            const topProductsProfit = @Html.Raw(Json.Serialize(Model.TopSellingProductsProfit));
+
+            // Order Status Data
+            const completedOrders = @Model.FinancialData.CompletedOrders;
+            const pendingOrders = @Model.FinancialData.PendingOrders;
+            const cancelledOrders = @Model.FinancialData.CancelledOrders;
+
+            // Revenue & Profit Trend Chart
+            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+            const revenueChart = new Chart(revenueCtx, {
+                type: 'line',
+                data: {
+                    labels: timeLabels,
+                    datasets: [
+                        {
+                            label: 'Revenue',
+                            data: revenueData,
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4
                         },
-                    legend: {
-                        position: 'right',
+                        {
+                            label: 'Cost',
+                            data: costData,
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Profit',
+                            data: profitData,
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Revenue, Cost and Profit Trend'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ₹' + context.raw.toLocaleString('en-IN');
+                                }
+                            }
+                        },
+                        legend: {
+                            position: 'top',
+                        }
                     },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const label = context.label || '';
-                                const value = context.raw || 0;
-                                const total = context.dataset.data.reduce((acc, data) => acc + data, 0);
-                                const percentage = Math.round((value / total) * 100);
-                                return `${label}: ${value} (${percentage}%)`;
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₹' + value.toLocaleString('en-IN');
+                                }
                             }
                         }
                     }
                 }
-            },
-            plugins: [ChartDataLabels]
-        });
+            });
 
-        // Category Performance Chart (Bar)
-        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
-        const categoryChart = new Chart(categoryCtx, {
-            type: 'bar',
-            data: {
-                labels: categoryLabels,
-                datasets: [
-                    {
-                        label: 'Revenue',
-                        data: categoryRevenueData,
-                        backgroundColor: 'rgba(54, 162, 235, 0.7)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
+            // Order Status Chart (Doughnut)
+            const orderStatusCtx = document.getElementById('orderStatusChart').getContext('2d');
+            const orderStatusChart = new Chart(orderStatusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Delivered', 'Pending', 'Cancelled'],
+                    datasets: [{
+                        data: [completedOrders, pendingOrders, cancelledOrders],
+                        backgroundColor: [
+                            'rgba(75, 192, 192, 0.7)',
+                            'rgba(255, 206, 86, 0.7)',
+                            'rgba(255, 99, 132, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(255, 99, 132, 1)'
+                        ],
                         borderWidth: 1
-                    },
-                    {
-                        label: 'Profit',
-                        data: categoryProfitData,
-                        backgroundColor: 'rgba(75, 192, 192, 0.7)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 1
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Revenue and Profit by Category'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return context.dataset.label + ': ₹' + context.raw.toLocaleString('en-IN');
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                          datalabels: {
+                                 font: {
+                                     weight: 'bold'
+                                 }
+                            },
+                        legend: {
+                            position: 'right',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.dataset.data.reduce((acc, data) => acc + data, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
                             }
                         }
-                    },
-                    legend: {
-                        position: 'top',
                     }
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return '₹' + value.toLocaleString('en-IN');
-                            }
-                        }
-                    }
-                }
-            }
-        });
+                plugins: [ChartDataLabels]
+            });
 
-        // Top Selling Products Chart (Horizontal Bar)
-        const topProductsCtx = document.getElementById('topProductsChart').getContext('2d');
-        const topProductsChart = new Chart(topProductsCtx, {
-            type: 'bar',
-            data: {
-                labels: topProducts,
-                datasets: [
-                    {
-                        label: 'Revenue',
-                        data: topProductsRevenue,
-                        backgroundColor: 'rgba(153, 102, 255, 0.7)',
-                        borderColor: 'rgba(153, 102, 255, 1)',
-                        borderWidth: 1
-                    },
-                    {
-                        label: 'Profit',
-                        data: topProductsProfit,
-                        backgroundColor: 'rgba(255, 159, 64, 0.7)',
-                        borderColor: 'rgba(255, 159, 64, 1)',
-                        borderWidth: 1
-                    }
-                ]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Top Selling Products'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return context.dataset.label + ': ₹' + context.raw.toLocaleString('en-IN');
-                            }
+            // Category Performance Chart (Bar)
+            const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+            const categoryChart = new Chart(categoryCtx, {
+                type: 'bar',
+                data: {
+                    labels: categoryLabels,
+                    datasets: [
+                        {
+                            label: 'Revenue',
+                            data: categoryRevenueData,
+                            backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Profit',
+                            data: categoryProfitData,
+                            backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1
                         }
-                    },
-                    legend: {
-                        position: 'top',
-                    }
+                    ]
                 },
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return '₹' + value.toLocaleString('en-IN');
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Revenue and Profit by Category'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ₹' + context.raw.toLocaleString('en-IN');
+                                }
+                            }
+                        },
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₹' + value.toLocaleString('en-IN');
+                                }
                             }
                         }
                     }
                 }
-            }
-        });
+            });
 
-        // Format all currency values on the page
-        document.querySelectorAll('.currency-format').forEach(element => {
-            const value = parseFloat(element.textContent.replace(/[^0-9.-]+/g,""));
-            if (!isNaN(value)) {
-                element.textContent = '₹' + value.toLocaleString('en-IN', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                });
-            }
-        });
+            // Top Selling Products Chart (Horizontal Bar)
+            const topProductsCtx = document.getElementById('topProductsChart').getContext('2d');
+            const topProductsChart = new Chart(topProductsCtx, {
+                type: 'bar',
+                data: {
+                    labels: topProducts,
+                    datasets: [
+                        {
+                            label: 'Revenue',
+                            data: topProductsRevenue,
+                            backgroundColor: 'rgba(153, 102, 255, 0.7)',
+                            borderColor: 'rgba(153, 102, 255, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Profit',
+                            data: topProductsProfit,
+                            backgroundColor: 'rgba(255, 159, 64, 0.7)',
+                            borderColor: 'rgba(255, 159, 64, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Top Selling Products'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ₹' + context.raw.toLocaleString('en-IN');
+                                }
+                            }
+                        },
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₹' + value.toLocaleString('en-IN');
+                                }
+                            }
+                        }
+                    }
+                }
+            });
 
-        // Format percentage values
-        document.querySelectorAll('.percentage-format').forEach(element => {
-            const value = parseFloat(element.textContent);
-            if (!isNaN(value)) {
-                element.textContent = value.toLocaleString('en-IN', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                }) + '%';
-            }
-        });
-    </script>
-}
+            // Format all currency values on the page
+            document.querySelectorAll('.currency-format').forEach(element => {
+                const value = parseFloat(element.textContent.replace(/[^0-9.-]+/g,""));
+                if (!isNaN(value)) {
+                    element.textContent = '₹' + value.toLocaleString('en-IN', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    });
+                }
+            });
+
+            // Format percentage values
+            document.querySelectorAll('.percentage-format').forEach(element => {
+                const value = parseFloat(element.textContent);
+                if (!isNaN(value)) {
+                    element.textContent = value.toLocaleString('en-IN', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }) + '%';
+                }
+            });
+        </script>
+    }

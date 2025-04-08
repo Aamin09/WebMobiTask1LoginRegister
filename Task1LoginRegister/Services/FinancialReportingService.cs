@@ -29,13 +29,13 @@ namespace Task1LoginRegister.Services
                 .Include(o => o.DeliveryAddress)
                 .Include(o => o.User)
                 .Where(o => o.OrderDate >= startDate && o.OrderDate <= endDate);
-          
+
             if (paidOnly)
             {
                 data = data.Where(o => o.PaymentStatus == "Paid" || o.PaymentStatus == "Refunded");
             }
 
-            if (includeRefunds == true)
+            if (includeRefunds)
             {
                 data = data.Include(o => o.RefundDetails);
             }
@@ -163,10 +163,10 @@ namespace Task1LoginRegister.Services
         public void CalculateSalesReportMetrics(SalesReportViewModel report)
         {
             var validaorders = report.Orders.Where(o => o.OrderStatus != "Cancelled");
-            var paidOrders = validaorders.Where(o => o.PaymentStatus == "Paid" );
+            var paidOrders = validaorders.Where(o => o.PaymentStatus == "Paid");
             var failedOrders = validaorders.Where(o => o.PaymentStatus == "Failed");
             var cancelledOrders = report.Orders.Where(o => o.OrderStatus == "Cancelled");
-           
+
             report.PaidOrders = paidOrders.Count();
             report.FailedOrders = failedOrders.Count();
             report.CancelledOrders = cancelledOrders.Count();
