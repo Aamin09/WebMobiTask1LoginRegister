@@ -28,6 +28,9 @@ namespace Task1LoginRegister.Models
 
         public DateTime CreatedAt { get; set; }=DateTime.Now;
         public bool IsActive { get; set; } = true;
+        public int? ProductVariantId { get; set; }
+        [ForeignKey("ProductVariantId")]
+        public virtual ProductVariant? ProductVariant { get; set; }
 
         [NotMapped]
         public decimal TotalGST

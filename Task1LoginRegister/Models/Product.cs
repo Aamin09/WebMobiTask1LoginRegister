@@ -66,7 +66,10 @@ namespace Task1LoginRegister.Models
         [DisplayName("Subcategory")]
         public int SubcategoryId { get; set; }
         [ForeignKey("SubcategoryId")]
-        public virtual Subcategory Subcategory { get; set; } 
+        public virtual Subcategory Subcategory { get; set; }
+
+        [Required, DisplayName("Has Variants")]
+        public bool HasVarinats { get; set; } = false;
 
         public virtual ICollection<ProductImage> ProductImages  { get; set; }   
 
@@ -85,13 +88,17 @@ namespace Task1LoginRegister.Models
                    CalculatedSellingPrice > 0 &&
                    CalculatedSellingPrice <= Price;
         }
-
-        public virtual ICollection<Review> Reviews { get; set; }
+       
+        public virtual ICollection<Review>? Reviews { get; set; }
 
         [NotMapped]
         public double AverageRating => Reviews != null && Reviews.Any() ? Reviews.Average(r => r.Rating) : 0;
 
         [NotMapped]
         public int ReviewCount=> Reviews != null  ? Reviews.Count(r=>r.IsApproved) : 0;
+
+        public virtual ICollection<ProductVariant>? ProductVariants { get; set; }
+
+
     }
 }

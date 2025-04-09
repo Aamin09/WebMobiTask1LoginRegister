@@ -55,5 +55,11 @@ namespace Task1LoginRegister.Models
 
 
         public DateTime CreatedAt { get; set; }= DateTime.Now;
+
+        public int? ProductVariantId { get; set; }
+        [ForeignKey("ProductVariantId")]
+        public virtual ProductVariant? ProductVariant { get; set; }
+        public string? VariantDetails { get; set; } // Stores variant attributes as text (e.g., "Color: Red, Size: Large")
+     
     }
 }

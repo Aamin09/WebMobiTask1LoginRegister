@@ -30,139 +30,171 @@ public partial class WebMobiTask1DbContext : DbContext
 
     public virtual DbSet<RefundDetailsModel> RefundDetails { get; set; }
     public virtual DbSet<Review> Reviews { get; set; }
-
+    public virtual DbSet<ProductVariant> ProductVariants { get; set; }
+    public virtual DbSet<ProductAttribute> ProductAttributes { get; set; }
+    public virtual DbSet<ProductAttributeValue> ProductAttributeValues { get; set; }
+    public virtual DbSet<VariantAttributeValue> VariantAttributeValues { get; set; }
     public virtual DbSet<Cart> Carts { get; set; }
+    public virtual DbSet<GstTax> GstTax { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+
+        ConfigureUserEntity(modelBuilder);
+
+        ConfigureComputedColumns(modelBuilder);
+
+        ConfigureUniqueIndexes(modelBuilder);
+
+        ConfigureDecimalProperties(modelBuilder);
+
+        ConfigureEntityRelationship(modelBuilder);
+
+        modelBuilder.Entity<ProductImage>(entity =>
+        {
+            entity.ToTable("ProductImages");
+
+            entity.Property(e => e.ImageUrl)
+                .IsRequired()
+                .IsUnicode(false);
+
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("datetime")
+                .HasDefaultValueSql("(getdate())");
+
+            entity.Property(e => e.IsPrimaryImage)
+                .HasDefaultValue(false);
+        });
+
+
+        OnModelCreatingPartial(modelBuilder);
+    }
+
+    private void ConfigureUserEntity(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Userlogin>(entity =>
         {
             entity.ToTable("userlogin");
-
             entity.HasIndex(e => e.Id, "email_unique_userlogin").IsUnique();
-
-            entity.Property(e => e.Email)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.FirstName)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.Gender)
-                .HasMaxLength(6)
-                .IsUnicode(false);
-            entity.Property(e => e.LastName)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+            entity.Property(e => e.Email).HasMaxLength(50).IsUnicode(false);
+            entity.Property(e => e.FirstName).HasMaxLength(50).IsUnicode(false);
+            entity.Property(e => e.Gender).HasMaxLength(6).IsUnicode(false);
+            entity.Property(e => e.LastName).HasMaxLength(50).IsUnicode(false);
             entity.Property(e => e.Password).IsUnicode(false);
-            entity.Property(e => e.Phone)
-                .HasMaxLength(10)
-                .IsFixedLength();
+            entity.Property(e => e.Phone).HasMaxLength(10).IsFixedLength();
             entity.Property(e => e.Photo).IsUnicode(false);
         });
+    }
 
+    private void ConfigureComputedColumns(ModelBuilder modelBuilder)
+    {
         modelBuilder.Entity<OrderItem>()
-        .Property(o => o.TotalPrice)
-        .HasComputedColumnSql("[SnapshotPrice] * [Quantity]");
+       .Property(o => o.TotalPrice)
+       .HasComputedColumnSql("[SnapshotPrice] * [Quantity]");
+    }
 
+    private void ConfigureUniqueIndexes(ModelBuilder modelBuilder)
+    {
         modelBuilder.Entity<Cart>()
-            .HasIndex(c => c.UserId )
-             .IsUnique();
-        //Order configuration 
-        modelBuilder.Entity<Order>()
-            .HasIndex(c =>  c.OrderNumber)
-             .IsUnique();
+           .HasIndex(c => c.UserId)
+            .IsUnique();
 
         modelBuilder.Entity<Order>()
-         .Property(p => p.TotalAmount)
-         .HasColumnType("decimal(18,2)");
+            .HasIndex(c => c.OrderNumber)
+             .IsUnique();
 
-        modelBuilder.Entity<OrderItem>()
-          .Property(p => p.SnapshotPrice)
-          .HasColumnType("decimal(18,2)");
-
-        modelBuilder.Entity<OrderItem>()
-          .Property(p => p.TotalPrice)
-          .HasColumnType("decimal(18,2)");
-
-        modelBuilder.Entity<OrderItem>()
-       .Property(p => p.SnapshotSGSTPercentage)
-       .HasColumnType("decimal(18,2)");
-
-        modelBuilder.Entity<OrderItem>()
-       .Property(p => p.SnapshotCGSTPercentage)
-       .HasColumnType("decimal(18,2)");
-
-        modelBuilder.Entity<OrderItem>()
-       .Property(p => p.SnapshotCostPrice)
-       .HasColumnType("decimal(18,2)");
-
-        modelBuilder.Entity<OrderItem>()
-       .Property(p => p.SnapshotDiscountPercentage)
-       .HasColumnType("decimal(18,2)");
-
-        modelBuilder.Entity<OrderItem>()
-               .Property(p => p.SnapshotGSTAmount)
-               .HasColumnType("decimal(18,2)");
-
-        modelBuilder.Entity<OrderItem>()
-       .Property(p => p.SnapshotProfitPercentage)
-       .HasColumnType("decimal(18,2)");
-
-        modelBuilder.Entity<OrderItem>()
-       .Property(p => p.DeliveryCharge)
-       .HasColumnType("decimal(18,2)");
-
-        modelBuilder.Entity<OrderItem>()
-       .Property(p => p.BasePrice)
-       .HasColumnType("decimal(18,2)");
-        // Product Price Configuration
-        modelBuilder.Entity<Product>()
-            .Property(p => p.Price)
-            .HasColumnType("decimal(18,2)");
+        modelBuilder.Entity<Category>()
+          .HasIndex(c => c.Name)
+          .IsUnique()
+          .HasDatabaseName("Category_Name_Unique");
 
         modelBuilder.Entity<Product>()
-            .Property(p => p.SellingPricePercent)
-            .HasColumnType("decimal(18,2)");
+          .HasIndex(c => c.SKU)
+          .IsUnique()
+          .HasDatabaseName("Product_SKU_Unique");
+
+        modelBuilder.Entity<Subcategory>()
+            .HasIndex(s => s.Name)
+            .IsUnique()
+            .HasDatabaseName("Subcategory_Name_Unique");
 
         modelBuilder.Entity<Product>()
-            .Property(p => p.CalculatedSellingPrice)
-            .HasColumnType("decimal(18,2)");
+            .HasIndex(p => p.Name)
+            .IsUnique()
+            .HasDatabaseName("Product_Name_Unique");
+    }
 
+    private void ConfigureDecimalProperties(ModelBuilder modelBuilder)
+    {
+        // useing reflection to automatically configure all decimal properties
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            var decimalProperties = entityType.GetProperties()
+                .Where(p => p.ClrType == typeof(decimal) || p.ClrType == typeof(decimal?));
+
+            // configure each element property with precision(18,2)
+            foreach (var property in decimalProperties)
+            {
+                property.SetColumnType("decimal(18,2)");
+            }
+        }
+    }
+
+    private void ConfigureEntityRelationship(ModelBuilder modelBuilder)
+    {
+        // ProductVariant and ProductImage relationship
+        modelBuilder.Entity<ProductImage>()
+            .HasOne(pi => pi.ProductVariant)
+            .WithMany()
+            .HasForeignKey(pi => pi.VariantId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        // Product and ProductVariant relationship
         modelBuilder.Entity<Product>()
-           .Property(p => p.CostPrice)
-           .HasColumnType("decimal(18,2)");
+            .HasMany(p => p.ProductVariants)
+            .WithOne(pv => pv.Product)
+            .HasForeignKey(pv => pv.ProductId)
+            .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<Product>()
-           .Property(p => p.ProfitPercentage)
-           .HasColumnType("decimal(18,2)");
+        // ProductAttribute and ProductAttributeValue relationship
+        modelBuilder.Entity<ProductAttribute>()
+            .HasMany(pa => pa.ProductAttributeValue)
+            .WithOne(pav => pav.Attribute)
+            .HasForeignKey(pav => pav.AttributeId)
+            .OnDelete(DeleteBehavior.Cascade);
 
+        // ProductVariant and VariantAttributeValue relationship
+        modelBuilder.Entity<ProductVariant>()
+            .HasMany<VariantAttributeValue>()
+            .WithOne(vav => vav.ProductVariant)
+            .HasForeignKey(vav => vav.VarinatId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // VariantAttributeValue and ProductAttributeValue relationship
+        modelBuilder.Entity<VariantAttributeValue>()
+                      .HasOne(vav => vav.ProductAttributeValue)
+                      .WithMany()
+                      .HasForeignKey(vav => vav.AttrbuteValueId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+        // ProductVariant and OrderItem relationship
+        modelBuilder.Entity<OrderItem>()
+            .HasOne(oi => oi.ProductVariant)
+            .WithMany()
+            .HasForeignKey(oi => oi.ProductVariantId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        // ProductVariant and Cart relationship
         modelBuilder.Entity<Cart>()
-            .Property(p => p.Price)
-            .HasColumnType("decimal(18,2)");
-
-        modelBuilder.Entity<Product>()
-           .Property(p => p.DeliveryCharge)
-           .HasColumnType("decimal(18,2)");
-
-        modelBuilder.Entity<GstTax>()
-          .Property(p => p.CGST)
-          .HasColumnType("decimal(18,2)");
-
-        modelBuilder.Entity<GstTax>()
-          .Property(p => p.SGST)
-          .HasColumnType("decimal(18,2)");
-
-        modelBuilder.Entity<RazorpayOrderModel>()
-           .Property(p => p.Amount)
-           .HasColumnType("decimal(18,2)");
-
-        modelBuilder.Entity<RefundDetailsModel>()
-           .Property(p => p.Amount)
-           .HasColumnType("decimal(18,2)");
+            .HasOne(c => c.ProductVariant)
+            .WithMany()
+            .HasForeignKey(c => c.ProductVariantId)
+            .OnDelete(DeleteBehavior.NoAction);
 
         // order and refund razorpay 
         modelBuilder.Entity<RefundDetailsModel>()
               .HasOne(r => r.Order)
-              .WithMany(o => o.RefundDetails) 
+              .WithMany(o => o.RefundDetails)
               .HasForeignKey(r => r.OrderId)
               .OnDelete(DeleteBehavior.Cascade);
 
@@ -262,45 +294,7 @@ public partial class WebMobiTask1DbContext : DbContext
      .WithOne(r => r.User)
      .HasForeignKey(r => r.UserId)
      .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<ProductImage>(entity =>
-        {
-            entity.ToTable("ProductImages");
-
-            entity.Property(e => e.ImageUrl)
-                .IsRequired()
-                .IsUnicode(false);
-
-            entity.Property(e => e.CreatedAt)
-                .HasColumnType("datetime")
-                .HasDefaultValueSql("(getdate())");
-
-            entity.Property(e => e.IsPrimaryImage)
-                .HasDefaultValue(false);
-        });
-        modelBuilder.Entity<Category>()
-           .HasIndex(c => c.Name)
-           .IsUnique()
-           .HasDatabaseName("Category_Name_Unique");
-        modelBuilder.Entity<Product>()
-          .HasIndex(c => c.SKU)
-          .IsUnique()
-          .HasDatabaseName("Product_SKU_Unique");
-
-        modelBuilder.Entity<Subcategory>()
-            .HasIndex(s => s.Name)
-            .IsUnique()
-            .HasDatabaseName("Subcategory_Name_Unique");
-
-        modelBuilder.Entity<Product>()
-            .HasIndex(p => p.Name)
-            .IsUnique()
-            .HasDatabaseName("Product_Name_Unique");
-
-        OnModelCreatingPartial(modelBuilder);
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
-
-public DbSet<Task1LoginRegister.Models.GstTax> GstTax { get; set; } = default!;
 }
