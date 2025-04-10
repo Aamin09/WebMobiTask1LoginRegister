@@ -27,6 +27,7 @@
     <Folder Include="Areas\Admin\Data\" />
     <Folder Include="Areas\Admin\Models\" />
     <Folder Include="Views\Review\" />
+    <Folder Include="wwwroot\Images\variants\" />
   </ItemGroup>
 
 </Project>

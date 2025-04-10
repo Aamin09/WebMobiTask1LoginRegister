@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Task1LoginRegister.DTOs;
+using Task1LoginRegister.Interfaces;
 using Task1LoginRegister.Models;
 
 namespace Task1LoginRegister.Areas.Admin.Controllers
@@ -14,12 +15,12 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
     public class ProductsController : Controller
     {
         private readonly WebMobiTask1DbContext context;
-        private readonly IWebHostEnvironment env;
+        private readonly IImageService imageService;
 
-        public ProductsController(WebMobiTask1DbContext context, IWebHostEnvironment env)
+        public ProductsController(WebMobiTask1DbContext context, IImageService imageService)
         {
             this.context = context;
-            this.env = env;
+            this.imageService = imageService;
         }
         // GET: Products
         public async Task<IActionResult> Index()
@@ -31,6 +32,7 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                 .Include(p => p.Subcategory)
                 .ThenInclude(g=>g.Taxes)
                 .Include(p => p.ProductImages)
+                .Include(p=>p.ProductVariants)
                 .OrderByDescending(p=>p.ProductId).ToListAsync();
             return View(data);
         }
@@ -46,6 +48,7 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
             var product = await context.Products
                    .Include(p => p.ProductImages)
                    .Include(p => p.Category)
+                   .Include(p=>p.ProductVariants)
                    .Include(p => p.Subcategory)
                    .ThenInclude(g => g.Taxes)
                    .OrderByDescending(p => p.ProductId)
@@ -98,6 +101,7 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                         CategoryId = model.CategoryId,
                         SubcategoryId = model.SubcategoryId,
                         DeliveryCharge=model.DeliveryCharge,
+                        HasVarinats=model.HasVariants,
                     };
 
                     product.CalculatePricing();
@@ -107,12 +111,13 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
 
                     if (model.PrimaryImage != null)
                     {
-                        var primaryImagePath = await SaveImageFile(model.PrimaryImage);
+                        var primaryImagePath = await imageService.SaveImage(model.PrimaryImage);
                         var primaryImage = new ProductImage
                         {
                             ProductId = product.ProductId,
                             ImageUrl = primaryImagePath,
-                            IsPrimaryImage = true
+                            IsPrimaryImage = true,
+                            IsVariantImage=false,
                         };
                         context.ProductImages.Add(primaryImage);
                         await context.SaveChangesAsync();
@@ -122,12 +127,13 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                     {
                         foreach (var image in model.GalleryImages)
                         {
-                            var galleryImagePath = await SaveImageFile(image);
+                            var galleryImagePath = await imageService.SaveImage(image);
                             var galleryImage = new ProductImage
                             {
                                 ProductId = product.ProductId,
                                 ImageUrl = galleryImagePath,
-                                IsPrimaryImage = false
+                                IsPrimaryImage = false,
+                                IsVariantImage = false,
                             };
                             context.ProductImages.Add(galleryImage);
                         }
@@ -192,8 +198,9 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                 StockQuantity=product.StockQuantity,
                 MinimumStockLevel=product.MinimumStockLevel,
                 SubcategoryId = product.SubcategoryId,
-                PrimaryImageUrl = product.ProductImages.FirstOrDefault(pi => pi.IsPrimaryImage)?.ImageUrl,
+                PrimaryImageUrl = product.ProductImages.FirstOrDefault(pi => pi.IsPrimaryImage && !pi.IsVariantImage)?.ImageUrl,
                 DeliveryCharge=product.DeliveryCharge,
+                HasVariants=product.HasVarinats,
             };
 
             // Reload existing images for the model
@@ -243,6 +250,7 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                 product.DeliveryCharge= model.DeliveryCharge;
                 product.StockQuantity = model.StockQuantity;
                 product.MinimumStockLevel = model.MinimumStockLevel;
+                product.HasVarinats = model.HasVariants;
 
                 product.CalculatePricing();
 
@@ -250,12 +258,12 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                 if (model.ImagesToDelete != null && model.ImagesToDelete.Any())
                 {
                     var imagesToDelete = product.ProductImages
-                        .Where(pi => model.ImagesToDelete.Contains(pi.Id) && !pi.IsPrimaryImage)
+                        .Where(pi => model.ImagesToDelete.Contains(pi.Id) && !pi.IsPrimaryImage && !pi.IsVariantImage)
                         .ToList();
 
                     foreach (var image in imagesToDelete)
                     {
-                        DeleteImageFile(image.ImageUrl);
+                        imageService.DeleteImage(image.ImageUrl);
                         context.ProductImages.Remove(image);
                     }
                     // saving changes 
@@ -266,23 +274,24 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                 if (model.PrimaryImage != null)
                 {
                     var oldPrimaryImage = product.ProductImages
-                        .FirstOrDefault(pi => pi.IsPrimaryImage);
+                        .FirstOrDefault(pi => pi.IsPrimaryImage && !pi.IsVariantImage);
 
                     if (oldPrimaryImage != null)
                     {
                         var oldImageUrl = oldPrimaryImage.ImageUrl;
                         context.ProductImages.Remove(oldPrimaryImage);
                         await context.SaveChangesAsync(); // update into table
-                        DeleteImageFile(oldImageUrl); // remove from folder
+                        imageService.DeleteImage(oldImageUrl); // remove from folder
                     }
 
                     // Adding new primary image
-                    var newPrimaryImagePath = await SaveImageFile(model.PrimaryImage);
+                    var newPrimaryImagePath = await imageService.SaveImage(model.PrimaryImage);
                     var newPrimaryImage = new ProductImage
                     {
                         ProductId = product.ProductId,
                         ImageUrl = newPrimaryImagePath,
-                        IsPrimaryImage = true
+                        IsPrimaryImage = true,
+                        IsVariantImage = false,
                     };
                     context.ProductImages.Add(newPrimaryImage);
                     await context.SaveChangesAsync();
@@ -295,12 +304,13 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                     {
                         if (imageFile.Length > 0)
                         {
-                            var galleryImagePath = await SaveImageFile(imageFile);
+                            var galleryImagePath = await imageService.SaveImage(imageFile);
                             var galleryImage = new ProductImage
                             {
                                 ProductId = product.ProductId,
                                 ImageUrl = galleryImagePath,
-                                IsPrimaryImage = false
+                                IsPrimaryImage = false,
+                                IsVariantImage = false,
                             };
                             context.ProductImages.Add(galleryImage);
                         }
@@ -328,54 +338,6 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
             }
         }
 
-        // image save method code 
-        private async Task<string> SaveImageFile(IFormFile file)
-        {
-            if (file == null || file.Length == 0)
-            {
-                throw new ArgumentException("Invalid file");
-            }
-
-            var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
-            var filePath = Path.Combine(env.WebRootPath, "Images", "ProductsImage", fileName);
-
-            // checking directory exists
-            var directory = Path.GetDirectoryName(filePath);
-            if (!Directory.Exists(directory))
-            {
-                Directory.CreateDirectory(directory);
-            }
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            return $"/Images/ProductsImage/{fileName}";
-        }
-
-        //delete method code for deleting the images from folder 
-        private void DeleteImageFile(string imageUrl)
-        {
-            if (string.IsNullOrEmpty(imageUrl)) return;
-
-            var filePath = Path.Combine(env.WebRootPath, imageUrl.TrimStart('/'));
-
-            if (System.IO.File.Exists(filePath))
-            {
-                try
-                {
-                    System.IO.File.Delete(filePath);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error deleting file {filePath}: {ex.Message}");
-                }
-            }
-        }
-
-
-
         // Add this new helper method to reload existing images
         public async Task ReloadExistingImages(ProductDto model)
         {
@@ -386,14 +348,14 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
             if (product != null)
             {
                 model.ExistingGalleryImages = product.ProductImages
-                    .Where(pi => !pi.IsPrimaryImage)
+                    .Where(pi => !pi.IsPrimaryImage && !pi.IsVariantImage) 
                     .Select(pi => new ProductImageDto
                     {
                         ProductImageId = pi.Id,
-                        ImageUrl = pi.ImageUrl
+                        ImageUrl = pi.ImageUrl,
                     })
                     .ToList();
-                var primaryImage = product.ProductImages.FirstOrDefault(pi => pi.IsPrimaryImage);
+                var primaryImage = product.ProductImages.FirstOrDefault(pi => pi.IsPrimaryImage && !pi.IsVariantImage);
                 if (primaryImage != null)
                 {
                     model.PrimaryImageUrl = primaryImage.ImageUrl; // Assigning the primary image URL

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
+using Task1LoginRegister.Interfaces;
 using Task1LoginRegister.Models;
 using Task1LoginRegister.Services;
 
@@ -43,6 +44,7 @@ builder.Services.AddScoped<RazorPayService>();
 builder.Services.AddScoped<PdfReportService>();
 builder.Services.AddScoped<FinancialReportingService>();
 builder.Services.AddScoped<DateRangeService>();
+builder.Services.AddScoped<IImageService,ImageService>();
 
 builder.Services.AddSession(options =>
 {

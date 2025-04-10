@@ -66,6 +66,8 @@ namespace Task1LoginRegister.DTOs
         [Range(0, double.MaxValue)]
         public decimal CalculatedSellingPrice { get; set; }
 
+        [Required,DisplayName("Has Variants")]
+        public bool HasVariants { get; set; } = false;
         // Existing CalculatePricing method is good, but you could enhance it
         public void CalculatePricing()
         {
