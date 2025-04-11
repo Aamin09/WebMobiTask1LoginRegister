@@ -14,7 +14,7 @@ namespace Task1LoginRegister.Models
         public string Name { get; set; }
 
         [Required]
-        public bool IsAcrive { get; set; } = true;
+        public bool IsActive { get; set; } = true;
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         public virtual ICollection<ProductAttributeValue>? ProductAttributeValue { get; set; }

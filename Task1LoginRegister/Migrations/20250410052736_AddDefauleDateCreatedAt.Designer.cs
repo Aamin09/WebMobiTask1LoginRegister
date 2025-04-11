@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Task1LoginRegister.Models;
 
@@ -11,9 +12,11 @@ using Task1LoginRegister.Models;
 namespace Task1LoginRegister.Migrations
 {
     [DbContext(typeof(WebMobiTask1DbContext))]
-    partial class WebMobiTask1DbContextModelSnapshot : ModelSnapshot
+    [Migration("20250410052736_AddDefauleDateCreatedAt")]
+    partial class AddDefauleDateCreatedAt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -408,7 +411,7 @@ namespace Task1LoginRegister.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETDATE()");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<bool>("IsAcrive")
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")
@@ -524,7 +527,7 @@ namespace Task1LoginRegister.Migrations
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("ProfitPercentage")
+                    b.Property<decimal>("ProfirPercentage")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("SKU")
@@ -537,9 +540,6 @@ namespace Task1LoginRegister.Migrations
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("VarinatDescription")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("VarinatName")
                         .IsRequired()

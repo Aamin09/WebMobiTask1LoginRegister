@@ -50,6 +50,8 @@ public partial class WebMobiTask1DbContext : DbContext
 
         ConfigureEntityRelationship(modelBuilder);
 
+        ConfigureCreatedAtDateProperties(modelBuilder);
+
         modelBuilder.Entity<ProductImage>(entity =>
         {
             entity.ToTable("ProductImages");
@@ -122,6 +124,21 @@ public partial class WebMobiTask1DbContext : DbContext
             .HasIndex(p => p.Name)
             .IsUnique()
             .HasDatabaseName("Product_Name_Unique");
+    }
+    private void ConfigureCreatedAtDateProperties(ModelBuilder modelBuilder)
+    {
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            var createdAtProperties = entityType.GetProperties()
+                .Where(p => p.Name == "CreatedAt" &&
+                           (p.ClrType == typeof(DateTime) || p.ClrType == typeof(DateTime?)));
+
+            // Configure each CreatedAt property with default value of GETDATE() or CURRENT_TIMESTAMP
+            foreach (var property in createdAtProperties)
+            {
+                property.SetDefaultValueSql("GETDATE()");
+            }
+        }
     }
 
     private void ConfigureDecimalProperties(ModelBuilder modelBuilder)

@@ -16,6 +16,8 @@ namespace Task1LoginRegister.Models
 
         [Required, StringLength(100), DisplayName("Variant Name")]
         public string VarinatName { get; set; }
+        [DisplayName("Variant Description")]
+        public string? VarinatDescription { get; set; }
 
         [Required, StringLength(50), DisplayName("SKU")]
         public string SKU { get; set; }
@@ -24,7 +26,7 @@ namespace Task1LoginRegister.Models
         public decimal CostPrice { get; set; }
 
         [Required,Range(0,1000),DisplayName("Profit (%)")]
-        public decimal ProfirPercentage { get; set; }
+        public decimal ProfitPercentage { get; set; }
 
         [Required,Range(0,double.MaxValue),DisplayName("Price")]
         public decimal BasePrice { get; set; } = 0;
@@ -41,14 +43,14 @@ namespace Task1LoginRegister.Models
         public DateTime? UpdatedAt { get; set; }
         public void CalculatePricing()
         {
-            BasePrice = Math.Round(CostPrice * (1 + (ProfirPercentage / 100m)), 2);
+            BasePrice = Math.Round(CostPrice * (1 + (ProfitPercentage / 100m)), 2);
             FinalSellingPrice=Math.Round(BasePrice * (1-(DiscountPercentage/100m)), 2);
         }
 
         public void InitializeFromBaseProductPrice(Product product)
         {
             CostPrice = product.CostPrice; 
-            ProfirPercentage=product.ProfitPercentage;
+            ProfitPercentage=product.ProfitPercentage;
             DiscountPercentage=product.SellingPricePercent;
             CalculatePricing();
         }
