@@ -1,0 +1,142 @@
+﻿@model Task1LoginRegister.DTOs.ProductVariantDto
+@{
+    var index = ViewBag.VariantIndex;
+    var attributes = ViewBag.ProductAttributes as IEnumerable<Task1LoginRegister.Models.ProductAttribute>;
+    var isEditMode = ViewBag.IsEditMode ?? false;
+
+    var namePrefix = isEditMode ? "Variant" : $"Variant[{index}]";
+}
+
+<div class="variant-container border p-3 mb-4" data-variant-index="@index">
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <div class="form-group">
+                <label asp-for="VarinatName" class="control-label"></label>
+                <input asp-for="VarinatName" name="@(namePrefix).VarinatName" class="form-control" />
+                <span asp-validation-for="VarinatName" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <div class="form-group">
+                <label asp-for="VarinatDescription" class="control-label"></label>
+                <input asp-for="VarinatDescription" name="@(namePrefix).VarinatDescription" class="form-control" />
+            </div>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label asp-for="CostPrice" class="form-label fw-bold">Cost Price</label>
+            <input asp-for="CostPrice" type="number" step="0.01" name="@(namePrefix).CostPrice" data-index="@index" class="form-control pricing-input border-primary text-primary costPrice" id="CostPrice" />
+            <span asp-validation-for="CostPrice" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="ProfitPercentage" class="form-label fw-bold">Profit Margin (%)</label>
+            <input asp-for="ProfitPercentage" type="number" step="0.01" name="@(namePrefix).ProfitPercentage" data-index="@index" class="form-control pricing-input fw-bold text-success border-success profitPercentage" id="ProfitPercentage" />
+            <span asp-validation-for="ProfitPercentage" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label class="form-label fw-bold">Calculated Base Price</label>
+            <input type="text" asp-for="BasePrice" class="form-control calculatedBasePrice" name="@(namePrefix).BasePrice" data-index="@index" id="CalculatedBasePrice" readonly />
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="DiscountPercentage" class="form-label fw-bold">Selling Price Percentage (Discount %)</label>
+            <input asp-for="DiscountPercentage" step="0.01" type="number" class="form-control pricing-input sellingPricePercentage" name="@(namePrefix).DiscountPercentage" data-index="@index" id="SellingPricePercentage" />
+            <span asp-validation-for="DiscountPercentage" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label class="form-label fw-bold">Final Selling Price</label>
+            <input type="text" asp-for="FinalSellingPrice" class="form-control finalSellingPrice" name="@(namePrefix).FinalSellingPrice" data-index="@index" id="FinalSellingPrice" readonly />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label fw-bold">Final Profit</label>
+            <input type="text" class="form-control fw-bold text-success finalProfit border-success" id="FinalProfit" readonly />
+        </div>
+
+        <div class="alert alert-danger mt-3 pricingValidationAlert" id="pricingValidationAlert" style="display:none;">
+            Invalid Pricing: Selling Price Cannot Be Less Than Cost Price
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label asp-for="StockQuantity" class="control-label"></label>
+                <input asp-for="StockQuantity" name="@(namePrefix).StockQuantity" class="form-control" />
+                <span asp-validation-for="StockQuantity" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="IsActive" class="form-label fw-bold">Status</label>
+            <select asp-for="IsActive" class="form-select" name="@(namePrefix).IsActive">
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
+            </select>
+            <span asp-validation-for="IsActive" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label asp-for="VarinatPrimaryImage" class="form-label fw-bold">Primary Image</label>
+            <input asp-for="VarinatPrimaryImage" type="file" name="@(namePrefix).VarinatPrimaryImage" class="form-control" />
+            <span asp-validation-for="VarinatPrimaryImage" class="text-danger"></span>
+            @if (isEditMode)
+            {
+                <small class="text-muted">Upload a new image to replace the current primary image</small>
+            }
+
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="VarinatGalleryImages" class="form-label fw-bold">Gallery Images</label>
+            <input asp-for="VarinatGalleryImages" type="file" name="@(namePrefix).VarinatGalleryImages" multiple class="form-control" />
+            <span asp-validation-for="VarinatGalleryImages" class="text-danger"></span>
+            @if (isEditMode)
+            {
+                <small class="text-muted">These will be added to the existing gallery images</small>
+            }
+        </div>
+    </div>
+
+    @foreach (var attrib in attributes)
+    {
+        <div class="card-body">
+            <div class="form-group mt-3">
+                <label class="control-label">@attrib.Name</label>
+                <div>
+                    @foreach (var value in attrib.ProductAttributeValue)
+                    {
+                        var isChecked = Model.AttributeValueIds != null && Model.AttributeValueIds.Contains(value.ValueId);
+
+                        <div class="form-check form-check-inline">
+                            <input type="checkbox" class="form-check-input"
+                                   name="@(namePrefix).AttributeValueIds"
+                                   value="@value.ValueId"
+                                   id="attr_@index@value.ValueId"
+                            @(isChecked ? "checked" : "") />
+                            <label class="form-check-label" for="attr_@index@value.ValueId">@value.Value</label>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        <hr />
+    }
+    @if (!isEditMode && index > 0)
+    {
+        <div class="text-right mt-2">
+            <button type="button" class="btn btn-danger remove-variant" data-variant-index="@index">Remove</button>
+        </div>
+    }
+</div>

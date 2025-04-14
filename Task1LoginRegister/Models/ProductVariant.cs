@@ -33,7 +33,7 @@ namespace Task1LoginRegister.Models
 
         [Required, Range(0,100), DisplayName("Discount (%)")]
         public decimal DiscountPercentage { get; set; } = 0;
-        [Required, Range(0, 100), DisplayName("Final Selling Price")]
+        [Required, Range(0, double.MaxValue), DisplayName("Final Selling Price")]
         public decimal FinalSellingPrice { get; set; } = 0;
         [Required, DisplayName("Stock")]
         public int StockQuantity { get; set; } = 0;
@@ -41,6 +41,8 @@ namespace Task1LoginRegister.Models
         public bool IsActive { get; set; }=true;
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime? UpdatedAt { get; set; }
+        public virtual ICollection<ProductImage> ProductImages { get; set; }
+
         public void CalculatePricing()
         {
             BasePrice = Math.Round(CostPrice * (1 + (ProfitPercentage / 100m)), 2);

@@ -161,10 +161,10 @@ public partial class WebMobiTask1DbContext : DbContext
     {
         // ProductVariant and ProductImage relationship
         modelBuilder.Entity<ProductImage>()
-            .HasOne(pi => pi.ProductVariant)
-            .WithMany()
-            .HasForeignKey(pi => pi.VariantId)
-            .OnDelete(DeleteBehavior.NoAction);
+             .HasOne(pi => pi.ProductVariant)
+             .WithMany(pv => pv.ProductImages)  
+             .HasForeignKey(pi => pi.VariantId)
+             .OnDelete(DeleteBehavior.NoAction);
 
         // Product and ProductVariant relationship
         modelBuilder.Entity<Product>()

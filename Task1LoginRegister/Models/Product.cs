@@ -97,7 +97,7 @@ namespace Task1LoginRegister.Models
         [NotMapped]
         public int ReviewCount=> Reviews != null  ? Reviews.Count(r=>r.IsApproved) : 0;
 
-        public virtual ICollection<ProductVariant>? ProductVariants { get; set; }
+        public virtual ICollection<ProductVariant> ProductVariants { get; set; }
 
 
     }

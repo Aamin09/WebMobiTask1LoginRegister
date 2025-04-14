@@ -62,7 +62,7 @@ namespace Task1LoginRegister.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Carts");
+                    b.ToTable("Carts", (string)null);
                 });
 
             modelBuilder.Entity("Task1LoginRegister.Models.Category", b =>
@@ -84,7 +84,7 @@ namespace Task1LoginRegister.Migrations
                         .IsUnique()
                         .HasDatabaseName("Category_Name_Unique");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("Task1LoginRegister.Models.DeliveryAddress", b =>
@@ -148,7 +148,7 @@ namespace Task1LoginRegister.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("DeliveryAddresses");
+                    b.ToTable("DeliveryAddresses", (string)null);
                 });
 
             modelBuilder.Entity("Task1LoginRegister.Models.GstTax", b =>
@@ -181,7 +181,7 @@ namespace Task1LoginRegister.Migrations
                     b.HasIndex("SubcategoryId")
                         .IsUnique();
 
-                    b.ToTable("GstTax");
+                    b.ToTable("GstTax", (string)null);
                 });
 
             modelBuilder.Entity("Task1LoginRegister.Models.Order", b =>
@@ -233,7 +233,7 @@ namespace Task1LoginRegister.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Orders", (string)null);
                 });
 
             modelBuilder.Entity("Task1LoginRegister.Models.OrderItem", b =>
@@ -312,7 +312,7 @@ namespace Task1LoginRegister.Migrations
 
                     b.HasIndex("ProductVariantId");
 
-                    b.ToTable("OrderItems");
+                    b.ToTable("OrderItems", (string)null);
                 });
 
             modelBuilder.Entity("Task1LoginRegister.Models.Product", b =>
@@ -392,7 +392,7 @@ namespace Task1LoginRegister.Migrations
 
                     b.HasIndex("SubcategoryId");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("Task1LoginRegister.Models.ProductAttribute", b =>
@@ -418,7 +418,7 @@ namespace Task1LoginRegister.Migrations
 
                     b.HasKey("AttributeId");
 
-                    b.ToTable("ProductAttributes");
+                    b.ToTable("ProductAttributes", (string)null);
                 });
 
             modelBuilder.Entity("Task1LoginRegister.Models.ProductAttributeValue", b =>
@@ -449,7 +449,7 @@ namespace Task1LoginRegister.Migrations
 
                     b.HasIndex("AttributeId");
 
-                    b.ToTable("ProductAttributeValues");
+                    b.ToTable("ProductAttributeValues", (string)null);
                 });
 
             modelBuilder.Entity("Task1LoginRegister.Models.ProductImage", b =>
@@ -550,7 +550,7 @@ namespace Task1LoginRegister.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductVariants");
+                    b.ToTable("ProductVariants", (string)null);
                 });
 
             modelBuilder.Entity("Task1LoginRegister.Models.RazorpayOrderModel", b =>
@@ -597,7 +597,7 @@ namespace Task1LoginRegister.Migrations
                     b.HasIndex("ApplicationOrderId")
                         .IsUnique();
 
-                    b.ToTable("RazorpayOrders");
+                    b.ToTable("RazorpayOrders", (string)null);
                 });
 
             modelBuilder.Entity("Task1LoginRegister.Models.RefundDetailsModel", b =>
@@ -636,7 +636,7 @@ namespace Task1LoginRegister.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("RefundDetails");
+                    b.ToTable("RefundDetails", (string)null);
                 });
 
             modelBuilder.Entity("Task1LoginRegister.Models.Review", b =>
@@ -676,7 +676,7 @@ namespace Task1LoginRegister.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Reviews");
+                    b.ToTable("Reviews", (string)null);
                 });
 
             modelBuilder.Entity("Task1LoginRegister.Models.Subcategory", b =>
@@ -703,7 +703,7 @@ namespace Task1LoginRegister.Migrations
                         .IsUnique()
                         .HasDatabaseName("Subcategory_Name_Unique");
 
-                    b.ToTable("Subcategories");
+                    b.ToTable("Subcategories", (string)null);
                 });
 
             modelBuilder.Entity("Task1LoginRegister.Models.Userlogin", b =>
@@ -795,7 +795,7 @@ namespace Task1LoginRegister.Migrations
 
                     b.HasIndex("VarinatId");
 
-                    b.ToTable("VariantAttributeValues");
+                    b.ToTable("VariantAttributeValues", (string)null);
                 });
 
             modelBuilder.Entity("Task1LoginRegister.Models.Cart", b =>

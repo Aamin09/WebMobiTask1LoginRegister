@@ -34,7 +34,7 @@ namespace Task1LoginRegister.Services
 
         }
 
-        public async Task<string> SaveImage(IFormFile file, string subfolder = "ProductImage")
+        public async Task<string> SaveImage(IFormFile file, string subfolder = "ProductsImage")
         {
             if (file == null || file.Length == 0)
             {
@@ -57,7 +57,7 @@ namespace Task1LoginRegister.Services
                 await file.CopyToAsync(stream);
             }
 
-            return $"/Images/ProductsImage/{fileName}";
+            return $"/Images/{subfolder}/{fileName}";
         }
 
     }

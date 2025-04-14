@@ -1,0 +1,131 @@
+﻿@model Task1LoginRegister.DTOs.ProductVariantCreateDto
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+<div class="container">
+    @if (TempData["success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Success!</strong> @TempData["success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["error"] != null)
+    {
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <strong>Warning!</strong> @TempData["error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["info"] != null)
+    {
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <strong>Info:</strong> @TempData["info"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    <h1>Create Variants for @Model.ProductName</h1>
+
+    <hr />
+
+    <form asp-action="Create" method="post" id="varinatForm" enctype="multipart/form-data">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="ProductId" />
+        <input type="hidden" asp-for="ProductName" />
+
+        <div id="variant-container">
+            @for (var i = 0; i < Model.Variants.Count; i++)
+            {
+                ViewBag.VariantIndex = i;
+                ViewBag.ProductId = Model.ProductId;
+                ViewBag.ProductAttributes = Model.AvailableAttributes;
+                <partial name="_VariantForm" model="Model.Variants[i]" />
+            }
+        </div>
+
+        <div class="form-group mt-3">
+            <button type="button" id="addMoreBtn" class="btn btn-secondary">Add More Variant</button>
+        </div>
+
+        <div class="form-group mt-3">
+            <input type="submit" id="submitButton" value="Save" class="btn btn-primary" />
+            <a asp-controller="ProductVariant" asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
+        </div>
+    </form>
+</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    
+    <script>
+        $(document).ready(function(){
+            initializeVariantPricing();
+            // add more variant button
+            $('#addMoreBtn').click(function(){
+            var varinatCount=$(".variant-container").length;
+            $.ajax({
+               url: '@Url.Action("AddVariantForm", "ProductVariant", new { area = "Admin" })',
+                type:'GET',
+                data:{
+                    index:varinatCount,
+                    productId:@Model.ProductId
+                },
+                success:function(data){
+                    $("#variant-container").append(data);
+                     calculateVariantPricing(variantCount);
+                }
+            });
+        });
+
+        $(document).on('click', '.remove-variant', function() {
+            var index = $(this).data('variant-index');
+            $('[data-variant-index="' + index + '"]').remove();
+        });
+                function initializeVariantPricing() {
+            // Initialize calculations for all existing variants
+            $('.variant-container').each(function() {
+                const index = $(this).data('variant-index');
+                calculateVariantPricing(index);
+            });
+
+            // Set up event delegation for dynamically added elements
+            $(document).on('input', '.variant-container .pricing-input', function() {
+                const index = $(this).closest('.variant-container').data('variant-index');
+                calculateVariantPricing(index);
+            });
+        }
+
+        function calculateVariantPricing(index) {
+            const container = $(`.variant-container[data-variant-index="${index}"]`);
+            const costPrice = parseFloat(container.find(`input[name="Variants[${index}].CostPrice"]`).val()) || 0;
+            const profitPercentage = parseFloat(container.find(`input[name="Variants[${index}].ProfitPercentage"]`).val()) || 0;
+            const discountPercentage = parseFloat(container.find(`input[name="Variants[${index}].DiscountPercentage"]`).val()) || 0;
+
+            // Calculate Base Price
+            const basePrice = costPrice * (1 + (profitPercentage / 100));
+            container.find(`input[name="Variants[${index}].BasePrice"]`).val(basePrice.toFixed(2));
+
+            // Calculate Final Selling Price
+            const finalSellingPrice = basePrice * (1 - (discountPercentage / 100));
+            container.find(`input[name="Variants[${index}].FinalSellingPrice"]`).val(finalSellingPrice.toFixed(2));
+
+            // Calculate Final Profit
+            const finalProfit = finalSellingPrice - costPrice;
+            container.find(`.finalProfit`).val(finalProfit.toFixed(2));
+
+            // Validate Pricing
+            const isValidPricing = finalSellingPrice > costPrice;
+            container.find(`.pricingValidationAlert`).toggle(!isValidPricing);
+
+            // Check if any variant has invalid pricing
+            const anyInvalidPricing = $('.pricingValidationAlert:visible').length > 0;
+            $('#submitButton').prop('disabled', anyInvalidPricing);
+        }
+
+        });
+    </script>
+}

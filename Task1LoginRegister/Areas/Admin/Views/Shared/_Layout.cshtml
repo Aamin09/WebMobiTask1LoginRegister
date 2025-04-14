@@ -61,6 +61,7 @@
                     </li>
                 </ul>
             </li>
+
             <li class="nav-item has-dropdown">
                 <a class="nav-link" href="#">
                     <i class="fas fa-fw fa-box"></i>
@@ -78,6 +79,21 @@
                             <span>Add New Product</span>
                         </a>
                     </li>
+                </ul>
+            </li>
+
+            <li class="nav-item has-dropdown">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-fw fa-box"></i>
+                    <span>Product Variants</span>
+                    <i class="fas fa-angle-down ml-auto"></i>
+                </a>
+                <ul class="nav-dropdown">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="Admin" asp-controller="ProductVariant" asp-action="Index">
+                            <span>All Variants</span>
+                        </a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" asp-area="Admin" asp-controller="ProductAttributes" asp-action="Index">
                             <span>Product Attributes</span>
@@ -85,11 +101,17 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" asp-area="Admin" asp-controller="ProductAttributeValues" asp-action="Index">
-                            <span>Product Attribute Values</span>
+                            <span>Attribute Values</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="Admin" asp-controller="VariantAttributeValues" asp-action="Index">
+                            <span>Variant Attribute Values</span>
                         </a>
                     </li>
                 </ul>
             </li>
+
             <li class="nav-item has-dropdown">
                 <a class="nav-link" href="#">
                     <i class="fas fa-fw fa-shopping-cart"></i>

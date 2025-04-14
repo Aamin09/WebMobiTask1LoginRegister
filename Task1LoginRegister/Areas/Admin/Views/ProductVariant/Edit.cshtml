@@ -1,0 +1,126 @@
+﻿@model Task1LoginRegister.DTOs.ProductVariantEditDto
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    @if (TempData["success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Success!</strong> @TempData["success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["error"] != null)
+    {
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <strong>Warning!</strong> @TempData["error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["info"] != null)
+    {
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <strong>Info:</strong> @TempData["info"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h3 class="m-0 font-weight-bold text-primary">Edit Variant for Product: @Model.ProductName</h3>
+            <a asp-action="Index" asp-controller="ProductVariant" asp-area="Admin"  class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Variants
+            </a>
+        </div>
+        <div class="card-body">
+            <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                <input type="hidden" asp-for="VariantId" />
+                <input type="hidden" asp-for="ProductId" />
+                <input type="hidden" asp-for="ProductName" />
+
+                @* Include the variant form partial view *@
+                @{
+                    ViewBag.VariantIndex = 0;
+                    ViewBag.ProductAttributes = Model.AvailableAttributes;
+                    ViewBag.IsEditMode = true;
+                }
+                <partial name="_VariantForm" model="Model.Variant" />
+
+                @* Show existing images *@
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h5 class="font-weight-bold">Current Images</h5>
+                        <div class="row">
+                            @foreach (var image in Model.ExistingImages)
+                            {
+                                <div class="col-md-3 mb-3">
+                                    <div class="card">
+                                        <img src="@image.ImageUrl" class="card-img-top" alt="Variant Image" style="height: 150px; object-fit: cover;">
+                                        <div class="card-body">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="Variant.ImagesToDelete" value="@image.Id" id="img_@image.Id">
+                                                <label class="form-check-label" for="img_@image.Id">
+                                                    Delete @(image.IsPrimaryImage ? "Primary" : "Gallery") Image
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Pricing calculation logic
+            $('.pricing-input').on('input', function () {
+                updatePricing(0);
+            });
+
+            // Initialize pricing on page load
+            updatePricing(0);
+
+            function updatePricing(index) {
+                const costPrice = parseFloat($('.costPrice').val()) || 0;
+                const profitPercentage = parseFloat($('.profitPercentage').val()) || 0;
+                const discountPercentage = parseFloat($('.sellingPricePercentage').val()) || 0;
+
+                // Calculate base price (cost + profit margin)
+                const basePrice = costPrice + (costPrice * profitPercentage / 100);
+                $('.calculatedBasePrice').val(basePrice.toFixed(2));
+
+                // Calculate final selling price (base price - discount)
+                const finalSellingPrice = basePrice - (basePrice * discountPercentage / 100);
+                $('.finalSellingPrice').val(finalSellingPrice.toFixed(2));
+
+                // Calculate final profit
+                const finalProfit = finalSellingPrice - costPrice;
+                $('.finalProfit').val(finalProfit.toFixed(2));
+
+                // Show validation message if selling price is less than cost price
+                if (finalSellingPrice < costPrice) {
+                    $('.pricingValidationAlert').show();
+                } else {
+                    $('.pricingValidationAlert').hide();
+                }
+            }
+        });
+    </script>
+}
