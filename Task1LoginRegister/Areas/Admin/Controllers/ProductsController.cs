@@ -403,6 +403,7 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
 
             if (productImage != null)
             {
+                imageService.DeleteImage(productImage.ImageUrl);
                 context.ProductImages.Remove(productImage);
                 await context.SaveChangesAsync();
             }
@@ -416,12 +417,18 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
         {
             var product = await context.Products
                 .Include(p => p.ProductImages)
+                .Include(pv=>pv.ProductVariants)
                 .FirstOrDefaultAsync(p => p.ProductId == id);
 
             if (product != null)
             {
                 // Delete all product images associated with the product
-                context.ProductImages.RemoveRange(product.ProductImages);
+                foreach (var image in product.ProductImages)
+                {
+                    imageService.DeleteImage(image.ImageUrl);
+                    context.ProductImages.Remove(image);
+                }
+                context.ProductVariants.RemoveRange(product.ProductVariants);
                 context.Products.Remove(product);
                 await context.SaveChangesAsync();
             }
