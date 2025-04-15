@@ -138,7 +138,7 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                             {
                                 var variantAttributeValue = new VariantAttributeValue
                                 {
-                                    VarinatId = variant.VariantId,
+                                    VariantId = variant.VariantId,
                                     AttrbuteValueId = attributeValueId
                                 };
                                 context.Add(variantAttributeValue);
@@ -240,7 +240,7 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
             if (variants == null) return NotFound();
 
             var variantAttributeValues = await context.VariantAttributeValues
-                .Where(vav => vav.VarinatId == id).ToListAsync();
+                .Where(vav => vav.VariantId == id).ToListAsync();
 
             var productAttributes = await context.ProductAttributes
                 .Where(a => a.IsActive).Include(a => a.ProductAttributeValue).ToListAsync();
@@ -334,7 +334,7 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
 
                     // remove existing attribute values
                     var exisitingAttributeValues = await context.VariantAttributeValues
-                        .Where(vav => vav.VarinatId == id).ToListAsync();
+                        .Where(vav => vav.VariantId == id).ToListAsync();
                     context.VariantAttributeValues.RemoveRange(exisitingAttributeValues);
                     await context.SaveChangesAsync();
 
@@ -345,7 +345,7 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                         {
                             var variantAttributeValues = new VariantAttributeValue
                             {
-                                VarinatId = variant.VariantId,
+                                VariantId = variant.VariantId,
                                 AttrbuteValueId = attributeValueId,
                             };
                             context.Add(variantAttributeValues);
@@ -489,7 +489,7 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
             if (variants == null) return NotFound();
 
             var variantAttributeValues = await context.VariantAttributeValues
-                .Where(vav => vav.VarinatId == id).ToListAsync();
+                .Where(vav => vav.VariantId == id).ToListAsync();
 
             context.VariantAttributeValues.RemoveRange(variantAttributeValues);
 

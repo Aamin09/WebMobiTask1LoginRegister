@@ -70,7 +70,7 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["AttrbuteValueId"] = new SelectList(_context.ProductAttributeValues, "ValueId", "Value", variantAttributeValue.AttrbuteValueId);
-            ViewData["VarinatId"] = new SelectList(_context.ProductVariants, "VariantId", "SKU", variantAttributeValue.VarinatId);
+            ViewData["VarinatId"] = new SelectList(_context.ProductVariants, "VariantId", "SKU", variantAttributeValue.VariantId);
             return View(variantAttributeValue);
         }
 
@@ -88,7 +88,7 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                 return NotFound();
             }
             ViewData["AttrbuteValueId"] = new SelectList(_context.ProductAttributeValues, "ValueId", "Value", variantAttributeValue.AttrbuteValueId);
-            ViewData["VarinatId"] = new SelectList(_context.ProductVariants, "VariantId", "SKU", variantAttributeValue.VarinatId);
+            ViewData["VarinatId"] = new SelectList(_context.ProductVariants, "VariantId", "SKU", variantAttributeValue.VariantId);
             return View(variantAttributeValue);
         }
 
@@ -125,7 +125,7 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["AttrbuteValueId"] = new SelectList(_context.ProductAttributeValues, "ValueId", "Value", variantAttributeValue.AttrbuteValueId);
-            ViewData["VarinatId"] = new SelectList(_context.ProductVariants, "VariantId", "SKU", variantAttributeValue.VarinatId);
+            ViewData["VarinatId"] = new SelectList(_context.ProductVariants, "VariantId", "SKU", variantAttributeValue.VariantId);
             return View(variantAttributeValue);
         }
 
