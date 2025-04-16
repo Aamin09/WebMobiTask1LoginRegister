@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Org.BouncyCastle.Security.Certificates;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Task1LoginRegister.Models
@@ -31,7 +32,8 @@ namespace Task1LoginRegister.Models
         public int? ProductVariantId { get; set; }
         [ForeignKey("ProductVariantId")]
         public virtual ProductVariant? ProductVariant { get; set; }
-
+        
+        public string? SelectedAttributes { get; set; }// Store as JSON or comma-separated values
         [NotMapped]
         public decimal TotalGST
         {
@@ -39,7 +41,12 @@ namespace Task1LoginRegister.Models
             {
                 var taxes = Product?.Subcategory?.Taxes;
                 if (taxes == null) return 0; 
-                return ((Price * Quantity) * ((taxes.CGST + taxes.SGST) / 100));
+
+                decimal appicablePrice= ProductVariantId != null && ProductVariant != null 
+                    ? ProductVariant.FinalSellingPrice 
+                    :Price;
+
+                return ((appicablePrice * Quantity) * ((taxes.CGST + taxes.SGST) / 100));
             }
         }
     

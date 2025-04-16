@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using Task1LoginRegister.DTOs;
 using Task1LoginRegister.Models;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
@@ -24,7 +25,7 @@ namespace Task1LoginRegister.Controllers
                 .Include(p => p.Category)
                 .Include(p => p.Subcategory)
                 .Where(p => p.Status)
-                .OrderByDescending(p=>p.ProductId)
+                .OrderByDescending(p => p.ProductId)
                 .Take(8)
                 .ToListAsync();
             return View(products);
@@ -75,7 +76,7 @@ namespace Task1LoginRegister.Controllers
             // sorting
             data = sortOrder switch
             {
-                "oldest"=> data.OrderBy(p => p.ProductId),
+                "oldest" => data.OrderBy(p => p.ProductId),
                 "name_asc" => data.OrderBy(p => p.Name),
                 "name_desc" => data.OrderByDescending(p => p.Name),
                 "price_asc" => data.OrderBy(p => p.CalculatedSellingPrice),
@@ -168,33 +169,103 @@ namespace Task1LoginRegister.Controllers
             return Json(priceRange);
         }
 
-        // details page code 
         [HttpGet]
-        public async Task<IActionResult> Details(int id)
+        public async Task<IActionResult> Details(int id, int? variantId)
         {
             var product = await context.Products
-                .Include(p => p.ProductImages)
                 .Include(p => p.Category)
                 .Include(p => p.Subcategory)
-                 .Include(p => p.Reviews)
-                 .ThenInclude(r=>r.User)
+                .Include(p => p.ProductImages)
+                .Include(p => p.Reviews).ThenInclude(r => r.User)
+                .Include(p => p.ProductVariants).ThenInclude(pv => pv.ProductImages)
                 .FirstOrDefaultAsync(p => p.ProductId == id);
 
-            if (product == null)
-            {
-                return NotFound();
-            }
-            // getting relted products
-            var relatedProducts = await context.Products
-                .Include(p => p.ProductImages)
-                .Where(p => p.CategoryId == product.CategoryId && p.ProductId != id)
-                .Take(4)
+            if (product == null) return NotFound();
+
+            var variantAttributeValues = await context.VariantAttributeValues
+                .Include(vav => vav.ProductAttributeValue).ThenInclude(pav => pav.Attribute)
+                .Where(vav => product.ProductVariants.Select(pv => pv.VariantId).Contains(vav.VariantId))
                 .ToListAsync();
 
+            ViewBag.VariantAttributeValues = variantAttributeValues;
 
-            ViewBag.relatedProducts = relatedProducts;
+            var selectedAttributes = Request.Query.Keys
+                .Where(key => key.StartsWith("attr_"))
+                .ToDictionary(key => key.Substring(5), key => (string)Request.Query[key]);
+
+            ProductVariant selectedVariant = null;
+
+            if (variantId.HasValue && variantId > 0)
+            {
+                selectedVariant = product.ProductVariants.FirstOrDefault(pv => pv.VariantId == variantId && pv.ProductId == id);
+                if (selectedVariant != null && selectedAttributes.Count == 0)
+                {
+                    selectedAttributes = variantAttributeValues
+                        .Where(v => v.VariantId == selectedVariant.VariantId)
+                        .ToDictionary(v => v.ProductAttributeValue.Attribute.Name, v => v.ProductAttributeValue.Value);
+                }
+            }
+            else if (selectedAttributes.Count > 0)
+            {
+                selectedVariant = product.ProductVariants
+                    .Where(variant => selectedAttributes.All(attr => variantAttributeValues.Any(vav =>
+                        vav.VariantId == variant.VariantId &&
+                        vav.ProductAttributeValue.Attribute.Name == attr.Key &&
+                        vav.ProductAttributeValue.Value == attr.Value)))
+                    .OrderByDescending(v => v.StockQuantity > 0)
+                    .FirstOrDefault();
+            }
+
+            ViewBag.SelectedVariant = selectedVariant;
+            ViewBag.SelectedAttributes = selectedAttributes;
+
+            var availableVariantsByAttribute = variantAttributeValues
+                .GroupBy(vav => vav.ProductAttributeValue.Attribute.Name)
+                .ToDictionary(
+                    group => group.Key,
+                    group => group.GroupBy(vav => vav.ProductAttributeValue.Value)
+                    .ToDictionary(
+                        valueGroup => valueGroup.Key,
+                        valueGroup => valueGroup.Select(v => v.VariantId).Distinct().ToList()
+                     )
+                 );
+
+            var attributeGroups = availableVariantsByAttribute.ToDictionary(
+                kvp => kvp.Key,
+                kvp =>
+                {
+                    var currentAttrName = kvp.Key;
+                    var attrValues = kvp.Value;
+
+                    return attrValues.Select(valueEntry =>
+                    {
+                        var variantIds = valueEntry.Value;
+                        var anyAvailable = variantIds.Any(vid => product.ProductVariants.Any(pv => pv.VariantId == vid && pv.StockQuantity > 0));
+                        var isCompatible = selectedAttributes.Count == 0 || selectedAttributes.All(selctedAttr =>
+                            selctedAttr.Key == currentAttrName || variantIds.Any(vid =>
+                            variantAttributeValues.Any(vav => vav.VariantId == vid &&
+                                                        vav.ProductAttributeValue.Attribute.Name == selctedAttr.Key &&
+                                                        vav.ProductAttributeValue.Value == selctedAttr.Value)));
+
+                        return new
+                        {
+                            ValueName = valueEntry.Key,
+                            VariantIds = variantIds,
+                            IsAvailable = anyAvailable,
+                            IsCompatible = isCompatible
+                        };
+                    }).ToList<dynamic>();
+                });
+
+            ViewBag.AttributeGroups = attributeGroups;
+            ViewBag.relatedProducts = await context.Products
+              .Include(p => p.ProductImages)
+              .Where(p => p.CategoryId == product.CategoryId && p.ProductId != id)
+              .Take(4)
+              .ToListAsync();
 
             return View(product);
+
         }
 
         public IActionResult About()

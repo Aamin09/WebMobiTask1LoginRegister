@@ -63,7 +63,11 @@
     
     <script>
         $(document).ready(function(){
-            initializeVariantPricing();
+            // Initialize pricing calculations for all existing variants
+            $('.variant-container').each(function() {
+                const index = $(this).data('variant-index');
+                updateVariantPricing(index);
+            });
             // add more variant button
             $('#addMoreBtn').click(function(){
             var varinatCount=$(".variant-container").length;
@@ -76,7 +80,7 @@
                 },
                 success:function(data){
                     $("#variant-container").append(data);
-                     calculateVariantPricing(variantCount);
+                     updateVariantPricing(variantCount);
                 }
             });
         });
@@ -85,47 +89,44 @@
             var index = $(this).data('variant-index');
             $('[data-variant-index="' + index + '"]').remove();
         });
-                function initializeVariantPricing() {
-            // Initialize calculations for all existing variants
-            $('.variant-container').each(function() {
-                const index = $(this).data('variant-index');
-                calculateVariantPricing(index);
-            });
-
-            // Set up event delegation for dynamically added elements
-            $(document).on('input', '.variant-container .pricing-input', function() {
+               // Pricing calculation for any variant input change
+            $(document).on('input', '.pricing-input', function() {
                 const index = $(this).closest('.variant-container').data('variant-index');
-                calculateVariantPricing(index);
+                updateVariantPricing(index);
             });
-        }
 
-        function calculateVariantPricing(index) {
-            const container = $(`.variant-container[data-variant-index="${index}"]`);
-            const costPrice = parseFloat(container.find(`input[name="Variants[${index}].CostPrice"]`).val()) || 0;
-            const profitPercentage = parseFloat(container.find(`input[name="Variants[${index}].ProfitPercentage"]`).val()) || 0;
-            const discountPercentage = parseFloat(container.find(`input[name="Variants[${index}].DiscountPercentage"]`).val()) || 0;
+            // Function to update pricing for a specific variant
+            function updateVariantPricing(index) {
+                const container = $(`.variant-container[data-variant-index="${index}"]`);
 
-            // Calculate Base Price
-            const basePrice = costPrice * (1 + (profitPercentage / 100));
-            container.find(`input[name="Variants[${index}].BasePrice"]`).val(basePrice.toFixed(2));
+                const costPrice = parseFloat(container.find('.costPrice').val()) || 0;
+                const profitPercentage = parseFloat(container.find('.profitPercentage').val()) || 0;
+                const discountPercentage = parseFloat(container.find('.sellingPricePercentage').val()) || 0;
 
-            // Calculate Final Selling Price
-            const finalSellingPrice = basePrice * (1 - (discountPercentage / 100));
-            container.find(`input[name="Variants[${index}].FinalSellingPrice"]`).val(finalSellingPrice.toFixed(2));
+                // Calculate base price (cost + profit margin)
+                const basePrice = costPrice * (1 + (profitPercentage / 100));
+                container.find('.calculatedBasePrice').val(basePrice.toFixed(2));
 
-            // Calculate Final Profit
-            const finalProfit = finalSellingPrice - costPrice;
-            container.find(`.finalProfit`).val(finalProfit.toFixed(2));
+                // Calculate final selling price (base price - discount)
+                const finalSellingPrice = basePrice * (1 - (discountPercentage / 100));
+                container.find('.finalSellingPrice').val(finalSellingPrice.toFixed(2));
 
-            // Validate Pricing
-            const isValidPricing = finalSellingPrice > costPrice;
-            container.find(`.pricingValidationAlert`).toggle(!isValidPricing);
+                // Calculate final profit
+                const finalProfit = finalSellingPrice - costPrice;
+                container.find('.finalProfit').val(finalProfit.toFixed(2));
 
-            // Check if any variant has invalid pricing
-            const anyInvalidPricing = $('.pricingValidationAlert:visible').length > 0;
-            $('#submitButton').prop('disabled', anyInvalidPricing);
-        }
-
+                // Show validation message if selling price is less than cost price
+                const pricingAlert = container.find('.pricingValidationAlert');
+                if (finalSellingPrice < costPrice) {
+                    pricingAlert.show();
+                    $('#submitButton').prop('disabled', true);
+                } else {
+                    pricingAlert.hide();
+                    // Only enable submit button if no variants have invalid pricing
+                    const anyInvalidPricing = $('.pricingValidationAlert:visible').length > 0;
+                    $('#submitButton').prop('disabled', anyInvalidPricing);
+                }
+            }
         });
     </script>
 }

@@ -7,7 +7,7 @@ namespace Task1LoginRegister.DTOs
     {
         public int ProductId { get; set; }
         public string ProductName { get; set; }
-        public List<ProductVariantDto> Variants { get; set; }
+        public List<ProductVariantDto> Variants { get; set; } = new List<ProductVariantDto>();
         [ValidateNever]
         public IEnumerable<ProductAttribute> AvailableAttributes { get; set; }
     }

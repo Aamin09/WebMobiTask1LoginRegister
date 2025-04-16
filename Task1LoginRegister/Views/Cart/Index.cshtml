@@ -1,5 +1,5 @@
 ﻿@model IEnumerable<Task1LoginRegister.Models.Cart>
-
+@using System.Text.Json;
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_UserLayout.cshtml";
@@ -19,7 +19,7 @@
     .product-image, .product-video {
     max-width: 100%;
     width: 100%;
-    height: 150px;
+    height: 180px;
     object-fit: cover;
     border: 2px solid #ddd;
     padding: 5px;
@@ -169,16 +169,50 @@
                         {
                             <div class="row border-bottom py-3 d-flex align-items-center cart-item">
                                 <div class="col-4 col-sm-3 col-md-2">
-                                    <partial name="_ProductImageVideoPartialView" model="@item.Product" />
+                                    @if (item.ProductVariantId != null && item.ProductVariant.ProductImages != null)
+                                    {
+                                        <partial name="_ProductVariantImageVideoPartialView" model="@item.ProductVariant" />
+                                    }
+                                    else
+                                    {
+                                        <partial name="_ProductImageVideoPartialView" model="@item.Product" />
+                                    }
                                 </div>
                                 <div class="col-8 col-sm-5 col-md-6 product-details">
-                                    <h5><a href="/Home/Details/@item.ProductId" class="text-decoration-none text-dark" target="_blank" rel="noopener noreferrer">@item.Product.Name</a></h5>
+                                    <h5>
+                                        <a href="/Home/Details/@item.ProductId?variantId=@item.ProductVariant.VariantId" class="text-decoration-none text-dark" target="_blank" rel="noopener noreferrer">
+                                            @if (item.ProductVariantId != null && item.ProductVariant != null)
+                                            {
+                                                @item.ProductVariant.VarinatName
+                                            }
+                                            else
+                                            {
+                                                @item.Product.Name
+                                            }
+                                        </a>
+                                    </h5>
+
+                                    @if (item.ProductVariantId != null && !string.IsNullOrEmpty(item.SelectedAttributes))
+                                    {
+                                        <p class="badge bg-black">
+                                            @{
+                                                var selectedAttrs = JsonSerializer.Deserialize<Dictionary<string, string>>(item.SelectedAttributes);
+                                                var formAttedAttrs = selectedAttrs.Select(a => $"{a.Key}: {a.Value}");
+                                            }
+                                            @string.Join(", ", formAttedAttrs)
+                                        </p>
+                                    }
                                     <p class="small"><a href="/Home/Details/@item.ProductId" class="text-decoration-none text-dark">@item.Product.ShortDescription</a></p>
                                     <h6 class="d-flex gap-3 align-items-center flex-wrap">
-                                        <span class="text-black fw-bold">@item.Product.CalculatedSellingPrice.ToString("C")</span>
-                                        <span class="text-muted text-decoration-line-through">@item.Product.Price.ToString("C")</span>
+                                        @{
+                                            var price = item.ProductVariantId != null ? item.ProductVariant.FinalSellingPrice : item.Product.CalculatedSellingPrice;
+                                            var basePrice = item.ProductVariantId != null ? item.ProductVariant.BasePrice : item.Product.Price;
+                                            var discountPercentage = item.ProductVariantId != null ? item.ProductVariant.DiscountPercentage : item.Product.SellingPricePercent;
+                                        }
+                                        <span class="text-black fw-bold">@price.ToString("C")</span>
+                                        <span class="text-muted text-decoration-line-through">@basePrice.ToString("C")</span>
                                         <span class="fw-bold btn btn-warning btn-sm">
-                                            @item.Product.SellingPricePercent.ToString("0")% off
+                                            @discountPercentage.ToString("0")% off
                                         </span>
                                     </h6>
                                     @{
@@ -239,39 +273,48 @@
                     <form asp-action="Checkout" method="get" asp-controller="Order">
                         <h5 class="fw-bold">Price Details</h5>
                         <hr />
-                        <p>Price (@Model.Count() Items): <span class="float-end">@Model.Sum(x => x.Quantity * x.Product.Price).ToString("C")</span></p>
-                        <p>Discount: <span class="float-end text-success">- @Model.Sum(x => x.Quantity * (x.Product.Price - x.Product.CalculatedSellingPrice)).ToString("C")</span></p>
                         @{
-                            var highestDeliverycharge = Model.Where(x => x.Product.DeliveryCharge > 0)
+                            var totalBasePrice = Model.Sum(x => x.Quantity * (x.ProductVariantId != null ? x.ProductVariant.BasePrice : x.Product.Price));
+                            var totalSellingPrice = Model.Sum(x => x.Quantity * (x.ProductVariantId != null ? x.ProductVariant.FinalSellingPrice : x.Product.CalculatedSellingPrice));
+                            var totalDiscount = totalBasePrice - totalSellingPrice;
+                            var highestDeliveryCharge = Model.Where(x => x.Product.DeliveryCharge > 0)
                             .Max(x => (decimal?)x.Product.DeliveryCharge) ?? 0;
-                            if (highestDeliverycharge > 0)
+
+                            var totalGST = Model.Sum(x => x.TotalGST);
+                            var totalAmount = totalSellingPrice + totalGST + highestDeliveryCharge;
+                         }
+                        <p>Price (@Model.Count() Items): <span class="float-end">@totalBasePrice.ToString("C")</span></p>
+                        <p>Discount: <span class="float-end text-success">- @totalDiscount.ToString("C")</span></p>
+                        @{
+                           if (@highestDeliveryCharge > 0)
                             {
-                                <p>Delivery Charges: <span class="float-end text-success fw-bold">@highestDeliverycharge.ToString("C")</span></p>
+                                <p>Delivery Charges: <span class="float-end text-success fw-bold">@highestDeliveryCharge.ToString("C")</span></p>
                             }
                             else
                             {
                                 <p>Delivery Charges: <strong class="float-end text-success fw-bold">Free</strong> </p>
                             }
                         }
-
                         <hr />
-                        <p class="fw-bold">Tax</p>
+                        <p class="fw-bold">
+                            Before Tax:
+                            <span class="float-end">
+                                @((totalBasePrice - totalDiscount + @highestDeliveryCharge).ToString("C"))
+                            </span>
+                        </p>
                         <hr />
-                        <p>CGST: <span class="float-end">@Model.Sum(x => x.TotalGST > 0 ? x.TotalGST / 2 : 0).ToString("C")</span></p>
-                        <p>SGST: <span class="float-end">@Model.Sum(x => x.TotalGST > 0 ? x.TotalGST / 2 : 0).ToString("C")</span></p>
+                        <p>CGST: <span class="float-end">@((totalGST /2).ToString("C"))</span></p>
+                        <p>SGST: <span class="float-end">@((totalGST / 2).ToString("C"))</span></p>
 
                         <hr>
                         <h5 class="fw-bold">
                             Total Amount:
                             <span class="float-end">
-                                @{
-                                    var totalAmount = Model.Sum(x => x.TotalPrice + x.TotalGST) + highestDeliverycharge;
-                                }
                                 @totalAmount.ToString("C")
                             </span>
                         </h5>
 
-                        <p class="text-success">You will save @Model.Sum(x => x.Quantity * (x.Product.Price - x.Product.CalculatedSellingPrice)).ToString("C") on this order</p>
+                        <p class="text-success">You will save @totalDiscount.ToString("C") on this order</p>
                         <button class="btn btn-warning w-100 mt-2">Place Order</button>
 
                     </form>

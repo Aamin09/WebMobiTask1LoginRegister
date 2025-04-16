@@ -17,7 +17,7 @@ namespace Task1LoginRegister.Models
         [Required, StringLength(100), DisplayName("Variant Name")]
         public string VarinatName { get; set; }
         [DisplayName("Variant Description")]
-        public string? VarinatDescription { get; set; }
+        public string? VarinatDescription { get; set; } = null;
 
         [Required, StringLength(50), DisplayName("SKU")]
         public string SKU { get; set; }
@@ -42,6 +42,10 @@ namespace Task1LoginRegister.Models
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime? UpdatedAt { get; set; }
         public virtual ICollection<ProductImage> ProductImages { get; set; }
+        public virtual ICollection<VariantAttributeValue>? VariantAttributeValues { get; set; }
+        public virtual ICollection<Cart> Carts { get; set; }
+
+        public virtual ICollection<OrderItem> OrderItems { get; set; }
 
         public void CalculatePricing()
         {

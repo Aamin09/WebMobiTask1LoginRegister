@@ -10,7 +10,7 @@ namespace Task1LoginRegister.Models
         public int Id { get; set; }
 
         [Required]
-        public int VarinatId { get; set; }
+        public int VariantId { get; set; }
         [ForeignKey("VariantId")]
         public virtual ProductVariant? ProductVariant { get; set; }
 

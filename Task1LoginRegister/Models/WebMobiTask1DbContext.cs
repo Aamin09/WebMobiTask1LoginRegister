@@ -182,32 +182,32 @@ public partial class WebMobiTask1DbContext : DbContext
 
         // ProductVariant and VariantAttributeValue relationship
         modelBuilder.Entity<ProductVariant>()
-            .HasMany<VariantAttributeValue>()
+            .HasMany(pv => pv.VariantAttributeValues)
             .WithOne(vav => vav.ProductVariant)
-            .HasForeignKey(vav => vav.VarinatId)
+            .HasForeignKey(vav => vav.VariantId)
             .OnDelete(DeleteBehavior.Cascade);
 
         // VariantAttributeValue and ProductAttributeValue relationship
         modelBuilder.Entity<VariantAttributeValue>()
                       .HasOne(vav => vav.ProductAttributeValue)
-                      .WithMany()
+                      .WithMany(pav => pav.VariantAttributeValues)
                       .HasForeignKey(vav => vav.AttrbuteValueId)
                       .OnDelete(DeleteBehavior.Restrict);
 
         // ProductVariant and OrderItem relationship
         modelBuilder.Entity<OrderItem>()
             .HasOne(oi => oi.ProductVariant)
-            .WithMany()
+            .WithMany(pv => pv.OrderItems)
             .HasForeignKey(oi => oi.ProductVariantId)
-            .OnDelete(DeleteBehavior.NoAction);
-
+            .OnDelete(DeleteBehavior.Restrict);
+    
         // ProductVariant and Cart relationship
         modelBuilder.Entity<Cart>()
             .HasOne(c => c.ProductVariant)
-            .WithMany()
+            .WithMany(pv=>pv.Carts)
             .HasForeignKey(c => c.ProductVariantId)
             .OnDelete(DeleteBehavior.NoAction);
-
+      
         // order and refund razorpay 
         modelBuilder.Entity<RefundDetailsModel>()
               .HasOne(r => r.Order)

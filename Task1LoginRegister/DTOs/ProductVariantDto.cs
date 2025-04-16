@@ -9,7 +9,7 @@ namespace Task1LoginRegister.DTOs
         [Required, StringLength(100), DisplayName("Variant Name")]
         public string VarinatName { get; set; }
         [DisplayName("Variant Description")]
-        public string? VarinatDescription { get; set; }
+        public string? VarinatDescription { get; set; } = null;
 
         [Required, Range(0, double.MaxValue), DisplayName("Variant Cost Price")]
         public decimal CostPrice { get; set; }

@@ -4,7 +4,7 @@
     var attributes = ViewBag.ProductAttributes as IEnumerable<Task1LoginRegister.Models.ProductAttribute>;
     var isEditMode = ViewBag.IsEditMode ?? false;
 
-    var namePrefix = isEditMode ? "Variant" : $"Variant[{index}]";
+    var namePrefix = isEditMode ? "Variant" : $"Variants[{index}]";
 }
 
 <div class="variant-container border p-3 mb-4" data-variant-index="@index">

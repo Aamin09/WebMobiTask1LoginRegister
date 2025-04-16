@@ -3,6 +3,8 @@
 @{
     ViewData["Title"] = "Details";
     Layout = "~/Views/Shared/_UserLayout.cshtml";
+
+    var selectedAttributes = ViewBag.SelectedAttributes as Dictionary<string, string> ?? new Dictionary<string, string>();
 }
 
 
@@ -31,7 +33,7 @@
     .main-product-media {
         max-width: 100%;
         width: 100%;
-        height: 450px;
+        height: 500px;
         object-fit: cover;
         border: 2px solid #ddd;
         padding: 5px;
@@ -168,32 +170,55 @@
             <div class="image-section">
                 <div class="card">
                     <div class="text-center mb-3">
-                        @if (Model.ProductImages != null && Model.ProductImages.Any())
-                        {
-                            var firstMedia = Model.ProductImages.FirstOrDefault(img => img.ProductId == Model.ProductId);
-
-                            <div id="mainDisplay">
-                                @if (firstMedia != null)
+                        @{
+                            var productImages = Model.ProductImages.Where(img => img.ProductId == Model.ProductId && !img.IsVariantImage);
+                            if (ViewBag.SelectedVariant != null)
+                            {
+                                var variantImage = Model.ProductImages.Where(img => img.VariantId == ViewBag.SelectedVariant.VariantId && img.IsVariantImage);
+                                if (variantImage.Any())
                                 {
-                                    var fileExt = System.IO.Path.GetExtension(firstMedia.ImageUrl)?.ToLower();
-                                    if (fileExt == ".jpg" || fileExt == ".jpeg" || fileExt == ".png" || fileExt == ".gif" || fileExt == ".webp")
-                                    {
-                                        <img id="mainImage" src="@firstMedia.ImageUrl" class="img-fluid main-product-media" alt="Main Product Image">
-                                    }
-                                    else if (fileExt == ".mp4" || fileExt == ".webm" || fileExt == ".ogg")
-                                    {
-                                        <video id="mainVideo" class="img-fluid main-product-media" controls autoplay loop>
-                                            <source src="@firstMedia.ImageUrl" type="video/@fileExt.Substring(1)">
-                                            Your browser does not support the video tag.
-                                        </video>
-                                    }
+                                    productImages = variantImage;
                                 }
-                            </div>
+                            }
+                            var firstMedia = productImages.FirstOrDefault();
+
                         }
+
+
+                        <div id="mainDisplay">
+                            @if (firstMedia != null)
+                            {
+                                var fileExt = System.IO.Path.GetExtension(firstMedia.ImageUrl)?.ToLower();
+                                if (fileExt == ".jpg" || fileExt == ".jpeg" || fileExt == ".png" || fileExt == ".gif" || fileExt == ".webp")
+                                {
+                                    <img id="mainImage" src="@firstMedia.ImageUrl" class="img-fluid main-product-media" alt="Main Product Image">
+                                }
+                                else if (fileExt == ".mp4" || fileExt == ".webm" || fileExt == ".ogg")
+                                {
+                                    <video id="mainVideo" class="img-fluid main-product-media" controls autoplay loop>
+                                        <source src="@firstMedia.ImageUrl" type="video/@fileExt.Substring(1)">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                }
+                            }
+                        </div>
+
                     </div>
 
                     <div class="thumbnail-container mt-3 d-flex justify-content-center">
-                        @foreach (var media in Model.ProductImages.Where(img => img.ProductId == Model.ProductId))
+                        @{
+                            var thumbnails = Model.ProductImages.Where(img => img.ProductId == Model.ProductId && !img.IsVariantImage);
+
+                            if (ViewBag.SelectedVariant != null)
+                            {
+                                var variantThumbnails = Model.ProductImages.Where(img => img.VariantId == ViewBag.SelectedVariant.VariantId && img.IsVariantImage);
+                                if (variantThumbnails.Any())
+                                {
+                                    thumbnails = variantThumbnails;
+                                }
+                            }
+                        }
+                        @foreach (var media in thumbnails)
                         {
                             var extension = System.IO.Path.GetExtension(media.ImageUrl)?.ToLower();
 
@@ -216,17 +241,56 @@
         <div class="col-12 col-lg-6">
             <div class="details-section">
                 <div class="card-body">
-                    <h2 class="card-title text-dark mb-3">@Model.Name</h2>
-                    <h5>@Model.ShortDescription</h5>
+                    <h2 class="card-title text-dark mb-3">
+                        @if (ViewBag.SelectedVariant != null)
+                        {
+                            @ViewBag.SelectedVariant.VarinatName
+                        }
+                        else
+                        {
+                            @Model.Name
+                        }
+                    </h2>
+                    <h5>
+                        @if (ViewBag.SelectedVariant != null && !string.IsNullOrEmpty(ViewBag.SelectedVariant.VarinatDescription))
+                        {
+                            @ViewBag.SelectedVariant.VarinatDescription
+                        }
+                        else
+                        {
+                            @Model.ShortDescription
+                        }
+                    </h5>
                     <h5 class="d-flex gap-3 align-items-center flex-wrap">
-                        <span class="text-black fw-bold">@Model.CalculatedSellingPrice.ToString("C")</span>
-                        <span class="text-muted text-decoration-line-through">@Model.Price.ToString("C")</span>
-                        <span class="fw-bold btn btn-success">
-                            @Model.SellingPricePercent.ToString("0")% off
-                        </span>
+                        @if (ViewBag.SelectedVariant != null)
+                        {
+                            <span class="text-black fw-bold">@ViewBag.SelectedVariant.FinalSellingPrice.ToString("C")</span>
+                            <span class="text-muted text-decoration-line-through">@ViewBag.SelectedVariant.BasePrice.ToString("C")</span>
+                            <span class="fw-bold btn btn-success">
+                                @ViewBag.SelectedVariant.DiscountPercentage.ToString("0")% off
+                            </span>
+                        }
+                        else
+                        {
+
+                            <span class="text-black fw-bold">@Model.CalculatedSellingPrice.ToString("C")</span>
+                            <span class="text-muted text-decoration-line-through">@Model.Price.ToString("C")</span>
+                            <span class="fw-bold btn btn-success">
+                                @Model.SellingPricePercent.ToString("0")% off
+                            </span>
+                        }
                     </h5>
                     <div class="d-block">
-                        <div>You Save @((Model.Price - Model.CalculatedSellingPrice).ToString("C"))</div>
+                        <div>
+                            @if (ViewBag.SelectedVariant != null)
+                            {
+                                @:You Save @((ViewBag.SelectedVariant.BasePrice - ViewBag.SelectedVariant.FinalSellingPrice).ToString("C"))
+                            }
+                            else
+                            {
+                                @:You Save @((Model.Price - Model.CalculatedSellingPrice).ToString("C"))
+                            }
+                        </div>
                         @{
                             if (Model.DeliveryCharge > 0)
                             {
@@ -240,32 +304,75 @@
                             <div>Get it by : @DateTime.Now.AddDays(2).ToString("dddd, dd MMMM yyyy") </div>
                         }
                         <div class="mt-2">
-                            @if (Model.StockQuantity > 0)
+                            @if (ViewBag.SelectedVariant != null)
                             {
-                                <span class="badge bg-success">
-                                    @Model.StockQuantity Item(s) Left in Stock
-                                </span>
+                                @if (ViewBag.SelectedVariant.StockQuantity > 0)
+                                {
+                                    <span class="badge bg-success">
+                                        @ViewBag.SelectedVariant.StockQuantity Item(s) Left in Stock
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">
+                                        Out of Stock
+                                    </span>
+                                }
                             }
                             else
                             {
-                                <span class="badge bg-danger">
-                                    Out of Stock
-                                </span>
+                                @if (Model.StockQuantity > 0)
+                                {
+                                    <span class="badge bg-success">
+                                        @Model.StockQuantity Item(s) Left in Stock
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">
+                                        Out of Stock
+                                    </span>
+                                }
                             }
                         </div>
 
                     </div>
                     <div class="buy-details mb-4 mt-3">
-                        @if (Model.StockQuantity > 0)
+                        @{
+                            bool inStock = ViewBag.SelectedVariant != null
+                            ? ViewBag.SelectedVariant.StockQuantity > 0
+                            : Model.StockQuantity > 0;
+
+                            int maxStock = ViewBag.SelectedVariant != null
+                            ? ViewBag.SelectedVariant.StockQuantity
+                            : Model.StockQuantity;
+                        }
+                        @if (inStock)
                         {
                             <form asp-action="AddToCart" asp-controller="Cart" method="post">
                                 <div class="quantity-input d-flex mb-2">
                                     <input type="hidden" name="productId" value="@Model.ProductId" />
+                                    @if (ViewBag.SelectedVariant != null)
+                                    {
+                                        <input type="hidden" name="variantId" value="@ViewBag.SelectedVariant.VariantId" />
+                                    }
+                                    <!--  include selected attributes -->
+                                    @if (ViewBag.SelectedAttributes != null)
+                                    {
+                                        var attrs = ViewBag.SelectedAttributes as Dictionary<string, string>;
+                                        if (attrs != null)
+                                        {
+                                            foreach (var attr in attrs)
+                                            {
+                                                <input type="hidden" name="attr_@attr.Key" value="@attr.Value" />
+                                            }
+                                        }
+                                    }
                                     <button type="button" class="quantity-btn minus">
                                         <i class="fas fa-minus"></i>
                                     </button>
                                     <input type="number" id="quantityInput" name="quantity" min="1"
-                                           max="@Model.StockQuantity" value="1" class="form-control quantity">
+                                           max="@maxStock" value="1" class="form-control quantity">
                                     <button type="button" class="quantity-btn plus">
                                         <i class="fas fa-plus"></i>
                                     </button>
@@ -275,6 +382,46 @@
                                     <button type="submit" class="btn btn-buy text-white">Add To Cart</button>
                                 </div>
                             </form>
+                            @if (TempData["ErrorMessage"] != null)
+                            {
+                                <div class="alert alert-danger mt-2">
+                                    @TempData["ErrorMessage"]
+                                </div>
+                            }
+                            <script>
+                                function validateVariantSelection() {
+                                    // Check if all attribute groups have a selection
+                                    var allSelected = true;
+                                    var attributeGroups = document.querySelectorAll('.attribute-group');
+                                    var missingAttributes = [];
+
+                                    attributeGroups.forEach(function(group) {
+                                        var hasSelection = false;
+                                        var groupLabel = group.querySelector('label').innerText.replace(':', '');
+                                        var options = group.querySelectorAll('input[type="radio"]');
+
+                                        options.forEach(function(option) {
+                                            if (option.checked) {
+                                                hasSelection = true;
+                                            }
+                                        });
+
+                                        if (!hasSelection) {
+                                            allSelected = false;
+                                            missingAttributes.push(groupLabel);
+                                        }
+                                    });
+
+                                    if (!allSelected) {
+                                        alert("Please select options for: " + missingAttributes.join(', '));
+                                    } else {
+                                        // If you've selected all attributes but no variant was found
+                                        alert("The selected combination is not available. Please choose another option.");
+                                        // Optionally, submit the form to let the controller handle it
+                                        // document.querySelector('form[asp-action="AddToCart"]').submit();
+                                    }
+                                }
+                            </script>
                         }
                         else
                         {
@@ -287,6 +434,81 @@
                             </form>
                         }
                     </div>
+                    <!-- Debug info - remove in production -->
+                    <!-- Debug info - remove in production -->
+                    <div class="bg-light p-3 mt-3">
+                        <h6>Debug Info:</h6>
+                        <p>
+                            Selected Attributes:
+                            @{
+                                if (ViewBag.SelectedAttributes != null)
+                                {
+                                    var attrs = ViewBag.SelectedAttributes as Dictionary<string, string>;
+                                    if (attrs != null)
+                                    {
+                                        @string.Join(", ", attrs.Select(a => $"{a.Key}: {a.Value}"))
+                                        ;
+                                    }
+                                }
+                                else
+                                {
+                                    <span>No attributes selected</span>
+                                }
+                            }
+                        </p>
+                        <p>Selected Variant: @(ViewBag.SelectedVariant?.VariantId ?? 0)</p>
+                        <p>Has Variants: @Model.HasVarinats</p>
+                        <p>Total Variants: @(Model.ProductVariants?.Count() ?? 0)</p>
+                    </div>
+                    @if (Model.HasVarinats && Model.ProductVariants?.Any() == true)
+                    {
+                        <div class="variant-section mb-4 p-3 bg-light border rounded">
+                            <h5 class="mb-3">Available Options</h5>
+                            <form id="variantForm" method="get" asp-action="Details" asp-asp-controller="Home">
+                                <input type="hidden" name="id" value="@Model.ProductId" />
+
+                                @foreach (var attrGroup in ViewBag.AttributeGroups)
+                                {
+                                    <div class="attribute-group mb-3">
+                                        <label class="fw-bold">@attrGroup.Key:</label>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            @foreach (var attrValue in attrGroup.Value)
+                                            {
+                                                var isSelected = ViewBag.SelectedAttributes.ContainsKey(attrGroup.Key) &&
+                                                ViewBag.SelectedAttributes[attrGroup.Key] == attrValue.ValueName;
+                                                var isDisabled = !attrValue.IsAvailable || !attrValue.IsCompatible;
+
+                                                <div class="form-check form-check-inline">
+                                                    <input type="radio" name="attr_@attrGroup.Key" class="form-check-input attribute-option"
+                                                           id="@(attrGroup.Key)_@attrValue.ValueName" value="@attrValue.ValueName"
+                                                    @(isSelected ? "checked" : "") @(isDisabled ? "disabled" : "")
+                                                           data-attribute="@attrGroup.Key" data-value="@attrValue.ValueName"
+                                                           onchange="this.form.submit();" />
+                                                    <label class="form-check-lable @(isDisabled? "text-muted" :"")" for="@(attrGroup.Key)_@attrValue.ValueName">
+                                                        @attrValue.ValueName
+                                                    </label>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+
+                                <div class="d-flex justify-content-end mt-3">
+                                    <button type="button" id="clearAllBtn" class="btn btn-outline-secondary">
+                                        Clear All Selections
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <script>
+                            document.addEventListener('DOMContentLoaded',function(){
+                                document.getElementById('clearAllBtn').addEventListener('click',function(){
+                                    window.location.href='@Url.Action("Details", "Home", new { id = Model.ProductId })';
+                                });
+                            });
+                        </script>
+                    }
 
                     <div class="product-details">
                         <h3 class="text-dark">Product details</h3>
@@ -298,7 +520,14 @@
                                     @Html.DisplayNameFor(model => model.Name)
                                 </th>
                                 <td>
-                                    @Html.DisplayFor(model => model.Name)
+                                    @if (ViewBag.SelectedVariant != null)
+                                    {
+                                        @ViewBag.SelectedVariant.VarinatName
+                                    }
+                                    else
+                                    {
+                                        @Html.DisplayFor(model => model.Name)
+                                    }
                                 </td>
                             </tr>
                             <tr>
@@ -306,7 +535,14 @@
                                     Model Number
                                 </th>
                                 <td>
-                                    @Html.DisplayFor(model => model.SKU)
+                                    @if (ViewBag.SelectedVariant != null)
+                                    {
+                                        @ViewBag.SelectedVariant.SKU
+                                    }
+                                    else
+                                    {
+                                        @Html.DisplayFor(model => model.SKU)
+                                    }
                                 </td>
                             </tr>
                             <tr>
@@ -314,7 +550,14 @@
                                     @Html.DisplayNameFor(model => model.Description)
                                 </th>
                                 <td>
-                                    @Html.DisplayFor(model => model.Description)
+                                    @if (ViewBag.SelectedVariant != null && !string.IsNullOrEmpty(ViewBag.SelectedVariant.VarinatDescription))
+                                    {
+                                        @ViewBag.SelectedVariant.VarinatDescription
+                                    }
+                                    else
+                                    {
+                                        @Html.DisplayFor(model => model.Description)
+                                    }
                                 </td>
                             </tr>
 
@@ -352,7 +595,7 @@
     </div>
 
     <partial name="_ReviewPartialView" model="Model" />
-   
+
 </div>
 
 @section Scripts {
