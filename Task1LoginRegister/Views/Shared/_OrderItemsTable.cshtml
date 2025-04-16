@@ -79,12 +79,12 @@
                         <tr>
                             <td>
                                 <div class="align-items-center">
-                                    <a asp-action="Details" asp-controller="Products" asp-route-id="@item.ProductId" class="text-decoration-none text-truncate">
+                                    <a asp-action="Details" asp-controller="Home" asp-route-id="@item.ProductId" asp-route-variantId="@item.ProductVariantId" class="text-decoration-none text-truncate">
                                         @item.ProductName
                                     </a>
                                     <br />
-                                    <span class="small" style="font-size:10px;"><strong>CGST:</strong> @(item?.SnapshotCGSTPercentage ?? 0m)%</span>  <br />
-                                    <span class="small" style="font-size:10px;"><strong>SGST:</strong> @(item?.SnapshotSGSTPercentage ?? 0m)%</span>
+                                    <span class="small" style="font-size:10px;"><strong>CGST:</strong> @(item?.SnapshotCGSTPercentage ?? 0m)% | <strong>SGST:</strong> @(item?.SnapshotSGSTPercentage ?? 0m)%</span>  <br />
+                                    <span class="small" style="font-size:10px;"><strong>Model Number:</strong> @item.ProductSKU</span>
                                 </div>
                             </td>
                             <td>@item.BasePrice.ToString("N2")</td>

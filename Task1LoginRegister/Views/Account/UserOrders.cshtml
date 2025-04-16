@@ -156,10 +156,17 @@
                             @foreach (var item in order.OrderItems)
                             {
                                 <div class="d-flex align-items-center mb-2">
-                                    <partial name="_ProductImageVideoPartialView" model="@item.Product" />
+                                    @if (item.ProductVariantId != null && item.ProductVariant.ProductImages != null)
+                                    {
+                                        <partial name="_ProductVariantImageVideoPartialView" model="@item.ProductVariant" />
+                                    }
+                                    else
+                                    {
+                                        <partial name="_ProductImageVideoPartialView" model="@item.Product" />
+                                    }
                                     <div style="padding-left:10px">
-                                        <p class="mb-1"><strong><a asp-action="Details" asp-controller="Home" asp-route-id="@item.ProductId" class="text-decoration-none text-black">@item.Product.Name</a></strong></p>
-                                        <p class="mb-0">Price: ₹@item.Product.CalculatedSellingPrice | Qty: @item.Quantity</p>
+                                        <p class="mb-1"><strong><a asp-action="Details" asp-controller="Home" asp-route-id="@item.ProductId" asp-route-variantId="@item.ProductVariantId"  class="text-decoration-none text-black">@item.ProductName</a></strong></p>
+                                        <p class="mb-0">Price: ₹@item.SnapshotPrice | Qty: @item.Quantity</p>
                                     </div>
                                 </div>
                                 <hr>

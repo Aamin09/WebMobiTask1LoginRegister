@@ -143,6 +143,9 @@ namespace Task1LoginRegister.Controllers
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Product)
                     .ThenInclude(p => p.ProductImages)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.ProductVariant)
+                    .ThenInclude(p => p.ProductImages)
                 .OrderByDescending(o => o.OrderDate)
                 .ToListAsync();
 

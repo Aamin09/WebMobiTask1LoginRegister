@@ -5,36 +5,36 @@
 }
 <style>
     .quantity {
-        text-align: center;
-        width: 50px;
-        padding: 5px;
-        font-size: 14px;
-        outline: none;
+    text-align: center;
+    width: 50px;
+    padding: 5px;
+    font-size: 14px;
+    outline: none;
     }
 
     .increment, .decrement {
-        cursor: pointer;
-        width: 30px;
-        border: none;
-        transition: background-color 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    width: 30px;
+    border: none;
+    transition: background-color 0.2s, box-shadow 0.2s;
     }
 
-        .increment, .decrement:focus {
-            box-shadow: none;
-        }
+    .increment, .decrement:focus {
+    box-shadow: none;
+    }
 
 
     .d-flex.border {
-        border: 1px solid #dee2e6;
-        border-radius: 8px;
-        overflow: hidden;
-        max-width: 100%;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+    max-width: 100%;
     }
 
     .product-image, .product-video {
-        width: 50px;
-        height: 50px;
-        object-fit: cover;
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
     }
 
 </style>
@@ -67,7 +67,7 @@
                                                         Email: @address.Email<br />
                                                     </label>
                                                 </div>
-                                              
+
                                             </div>
                                         </div>
                                         <div class="col-md-2 justify-content-center align-items-center d-flex">
@@ -215,11 +215,26 @@
                         {
                             <div class="d-flex mb-3 border-bottom pb-3">
                                 <div style="width: 60px; height: 60px;">
-                                    <partial name="_ProductImageVideoPartialView" model="@item.Product" />
-
+                                    @if (item.ProductVariantId != null && item.ProductVariant.ProductImages != null)
+                                    {
+                                        <partial name="_ProductVariantImageVideoPartialView" model="@item.ProductVariant" />
+                                    }
+                                    else
+                                    {
+                                        <partial name="_ProductImageVideoPartialView" model="@item.Product" />
+                                    }
                                 </div>
                                 <div class="ms-3 flex-grow-1">
-                                    <h6 class="mb-0">@item.Product.Name</h6>
+                                    <h6 class="mb-0">
+                                        @if (item.ProductVariantId != null && item.ProductVariant != null)
+                                        {
+                                            @item.ProductVariant.VarinatName
+                                        }
+                                        else
+                                        {
+                                            @item.Product.Name
+                                        }
+                                    </h6>
                                     <div class="d-flex justify-content-between">
 
                                         <div class="d-flex mt-2 small">
@@ -229,13 +244,15 @@
                                                     <i class="fas fa-minus"></i>
                                                 </button>
                                                 <input type="number" data-cartid="@item.CartId" name="quantity" value="@item.Quantity" min="1"
-                                                       class="form-control quantity text-center border-0">
+                                                class="form-control quantity text-center border-0">
                                                 <button class="btn btn-outline-secondary btn-sm increment " type="button">
                                                     <i class="fas fa-plus"></i>
                                                 </button>
                                             </span>
                                         </div>
-                                        <span>@item.Product.CalculatedSellingPrice.ToString("C")</span>
+                                        <span>
+                                            @item.Price.ToString("C")
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -243,26 +260,44 @@
                     </div>
 
                     <div class="border-top pt-3">
+                        @{
+                            // before discount
+                            decimal subtotal = Model.CartItems.Sum(x => x.Quantity *
+                            (x.ProductVariantId != null && x.ProductVariant != null 
+                                ? x.ProductVariant.BasePrice 
+                                :x.Product.Price));
+
+                                //after discount
+                            decimal sellingPriceTotal = Model.CartItems.Sum(x => x.Quantity *
+                            (x.ProductVariantId != null && x.ProductVariant != null
+                            ? x.ProductVariant.FinalSellingPrice
+                            : x.Product.CalculatedSellingPrice));
+
+                            decimal totalDiscount = subtotal - sellingPriceTotal;
+
+
+
+                        }
                         <div class="d-flex justify-content-between mb-2 fw-bold">
                             <span>Subtotal</span>
-                            <span>@Model.CartItems.Sum(x => x.Quantity * x.Product.Price).ToString("C")</span>
+                            <span>@subtotal.ToString("C")</span>
                         </div>
                         <div class="d-flex justify-content-between mb-2">
                             <span>Discount</span>
-                            <span class="text-success">- @Model.CartItems.Sum(x => x.Quantity * (x.Product.Price - x.Product.CalculatedSellingPrice)).ToString("C")</span>
+                            <span class="text-success">- @totalDiscount.ToString("C")</span>
                         </div>
                         <div class="d-flex justify-content-between mb-2">
                             <span>Delivery Charges</span>
                             @{
                                 var highestDeliverycharge = Model.CartItems.Where(x => x.Product.DeliveryCharge > 0)
                                 .Max(x => (decimal?)x.Product.DeliveryCharge) ?? 0;
-                                if (highestDeliverycharge >0)
+                                if (highestDeliverycharge > 0)
                                 {
-                                     <span class="float-end text-success fw-bold">@highestDeliverycharge.ToString("C")</span>
+                                    <span class="float-end text-success fw-bold">@highestDeliverycharge.ToString("C")</span>
                                 }
                                 else
                                 {
-                                   <strong class="float-end text-success fw-bold">Free</strong>
+                                    <strong class="float-end text-success fw-bold">Free</strong>
                                 }
                             }
                         </div>
@@ -285,7 +320,7 @@
                             </strong>
                         </div>
                         <div class="text-success text-center">
-                            You will save @Model.CartItems.Sum(x => x.Quantity * (x.Product.Price - x.Product.CalculatedSellingPrice)).ToString("C") on this order
+                            You will save @totalDiscount.ToString("C") on this order
                         </div>
                     </div>
                 </div>
@@ -298,7 +333,7 @@
     <script src="~/js/quantityincrement.js"></script>
     <script>
          $(document).ready(function() {
-       
+
         function removeAddress(addressId) {
             if (confirm("Are you sure you want to remove this address?")) {
                 $.ajax({
@@ -308,7 +343,7 @@
                     data: JSON.stringify({ addressId: addressId }),
                     success: function(response) {
                         if (response) {
-                            location.reload(); 
+                            location.reload();
                         }
                     },
                     error: function(xhr, status, error) {

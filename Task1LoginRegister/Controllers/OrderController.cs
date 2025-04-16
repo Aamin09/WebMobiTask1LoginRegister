@@ -33,8 +33,10 @@ namespace Task1LoginRegister.Controllers
             var cartItems = await context.Carts
                 .Where(c => c.UserId == userId && c.IsActive)
                 .Include(p => p.Product).ThenInclude(p => p.ProductImages)
-                .Include(c => c.Product.Subcategory)
-                .ThenInclude(s => s.Taxes)
+                    .Include(c => c.Product.Subcategory)
+                    .ThenInclude(s => s.Taxes)
+                .Include(c => c.ProductVariant).ThenInclude(pv => pv.VariantAttributeValues).ThenInclude(vav => vav.ProductAttributeValue).ThenInclude(pav => pav.Attribute)
+                .Include(c => c.ProductVariant.ProductImages)
                 .ToListAsync();
 
             if (!cartItems.Any())
@@ -68,8 +70,11 @@ namespace Task1LoginRegister.Controllers
             var cartItems = await context.Carts
                 .Where(c => c.UserId == userId && c.IsActive)
                 .Include(c => c.Product)
-                .ThenInclude(p => p.Subcategory)
-                .ThenInclude(s => s.Taxes).ToListAsync();
+                    .ThenInclude(p => p.Subcategory)
+                    .ThenInclude(s => s.Taxes)
+                .Include(c => c.ProductVariant).ThenInclude(pv => pv.VariantAttributeValues).ThenInclude(vav => vav.ProductAttributeValue).ThenInclude(pav => pav.Attribute)
+                .Include(c => c.ProductVariant.ProductImages)
+                .ToListAsync();
 
             if (!cartItems.Any())
             {
@@ -126,36 +131,77 @@ namespace Task1LoginRegister.Controllers
 
             foreach (var item in cartItems)
             {
-                var product = await context.Products.Include(p=>p.Subcategory).ThenInclude(s=>s.Taxes).FirstOrDefaultAsync(p => p.ProductId == item.ProductId); 
-
-                if (product != null)
+                // update stock quantity based on whether a variant was purchased
+                if (item.ProductVariantId != null && item.ProductVariant != null)
                 {
-                    product.StockQuantity -= item.Quantity;
+                    var variant = await context.ProductVariants.FindAsync(item.ProductVariantId);
+                    if (variant != null)
+                    {
+                        variant.StockQuantity -= item.Quantity;
+                        await context.SaveChangesAsync();
+                    }
                 }
-                await context.SaveChangesAsync();
+                else
+                {
+                    var product = await context.Products.Include(p => p.Subcategory).ThenInclude(s => s.Taxes).FirstOrDefaultAsync(p => p.ProductId == item.ProductId);
 
+                    if (product != null)
+                    {
+                        product.StockQuantity -= item.Quantity;
+                    }
+                    await context.SaveChangesAsync();
+                }
+
+                decimal sellingPrice, basePrice, discountPercetage;
+                string productName, productSku, variantDetails;
+                if (item.ProductVariantId != null && item.ProductVariant != null)
+                {
+                    sellingPrice = item.ProductVariant.FinalSellingPrice;
+                    basePrice = item.ProductVariant.BasePrice;
+                    discountPercetage = item.ProductVariant.DiscountPercentage;
+                    productName = item.ProductVariant.VarinatName;
+                    productSku = item.ProductVariant.SKU ?? item.Product.SKU;
+
+                    //creating and passing variant details string
+                    if (item.ProductVariant.VariantAttributeValues != null && item.ProductVariant.VariantAttributeValues.Any())
+                    {
+                        var attribute = item.ProductVariant.VariantAttributeValues
+                            .Select(v => v.ProductAttributeValue).Where(v => v != null)
+                            .Select(v => $"{v.Attribute.Name}: {v.Value}");
+                        variantDetails = string.Join(", ", attribute);
+                    }
+                }
+                else
+                {
+                    sellingPrice = item.Product.CalculatedSellingPrice;
+                    discountPercetage = item.Product.SellingPricePercent;
+                    basePrice = item.Product.Price;
+                    productName = item.Product.Name;
+                    productSku = item.Product.SKU;
+                }
                 // Calculating GST dynamically
                 var gstPercentage = (item.Product.Subcategory?.Taxes?.CGST ?? 0) +
                                     (item.Product.Subcategory?.Taxes?.SGST ?? 0);
-                var gstAmount = Math.Round((item.Product.CalculatedSellingPrice * gstPercentage) / 100m, 2);
+                var gstAmount = Math.Round((sellingPrice * gstPercentage) / 100m, 2);
 
                 var orderItem = new OrderItem
                 {
                     OrderId = order.OrderId,
                     ProductId = item.ProductId,
                     Quantity = item.Quantity,
-                    BasePrice = item.Product.Price,
-                    SnapshotDiscountPercentage = item.Product.SellingPricePercent,
-                    SnapshotPrice = item.Product.CalculatedSellingPrice,
-                    ProductSKU = item.Product.SKU,
-                    ProductName = item.Product.Name,
-                    SnapshotCostPrice = item.Product.CostPrice,
-                    SnapshotProfitPercentage = item.Product.ProfitPercentage,
+                    BasePrice = basePrice,
+                    SnapshotDiscountPercentage = discountPercetage,
+                    SnapshotPrice = sellingPrice,
+                    ProductSKU = productSku,
+                    ProductName = productName,
+                    SnapshotCostPrice = item.ProductVariantId != null && item.ProductVariant != null ? item.ProductVariant.CostPrice : item.Product.CostPrice,
+                    SnapshotProfitPercentage = item.ProductVariantId != null && item.ProductVariant != null ? item.ProductVariant.ProfitPercentage : item.Product.SellingPricePercent,
                     SnapshotCGSTPercentage = item.Product?.Subcategory?.Taxes?.CGST ?? 0,
                     SnapshotSGSTPercentage = item.Product?.Subcategory?.Taxes?.SGST ?? 0,
-                    SnapshotGSTAmount = gstAmount * item.Quantity, 
+                    SnapshotGSTAmount = gstAmount * item.Quantity,
                     DeliveryCharge = item.Product?.DeliveryCharge ?? 0,
-
+                    ProductVariantId=item.ProductVariantId,
+                    VariantDetails= item.SelectedAttributes,
                 };
 
                 context.OrderItems.Add(orderItem);
@@ -170,13 +216,13 @@ namespace Task1LoginRegister.Controllers
 
             if (checkoutView.PaymentMethod == "Online Payment")
             {
-                return RedirectToAction("ProcessPayment","Payment", new { orderId = order.OrderId });
+                return RedirectToAction("ProcessPayment", "Payment", new { orderId = order.OrderId });
             }
 
             return RedirectToAction("OrderConfirmation", new { orderId = order.OrderId });
         }
 
-  
+
         public async Task<IActionResult> OrderConfirmation(int orderId)
         {
             var userId = await userService.GetCurrentUserIdAsync();
@@ -194,6 +240,10 @@ namespace Task1LoginRegister.Controllers
                     .ThenInclude(oi => oi.Product)
                         .ThenInclude(p => p.Subcategory)
                             .ThenInclude(s => s.Taxes)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.ProductVariant)
+                        .ThenInclude(p => p.VariantAttributeValues)
+                            .ThenInclude(s => s.ProductAttributeValue).ThenInclude(pav=>pav.Attribute)
                 .FirstOrDefaultAsync(o => o.OrderId == orderId && o.UserId == userId);
 
             if (order == null)
@@ -214,13 +264,15 @@ namespace Task1LoginRegister.Controllers
 
             var order = await context.Orders
                  .Include(o => o.DeliveryAddress)
-                 .Include(o => o.OrderItems)
-                    .ThenInclude(oi => oi.Product)
-                        .ThenInclude(p => p.ProductImages)
+                 
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Product)
                         .ThenInclude(p => p.Subcategory)
                             .ThenInclude(s => s.Taxes)
+                 .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.ProductVariant)
+                        .ThenInclude(p => p.VariantAttributeValues)
+                            .ThenInclude(s => s.ProductAttributeValue).ThenInclude(pav => pav.Attribute)
                 .FirstOrDefaultAsync(o => o.OrderId == orderId && o.UserId == userId);
 
             if (order == null)
@@ -280,11 +332,11 @@ namespace Task1LoginRegister.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var order= await context.Orders.Include(o => o.OrderItems).FirstOrDefaultAsync(o=>o.OrderId == orderId && o.UserId == userId);
-            if(order == null)  return NotFound();
-            
+            var order = await context.Orders.Include(o => o.OrderItems).FirstOrDefaultAsync(o => o.OrderId == orderId && o.UserId == userId);
+            if (order == null) return NotFound();
+
             // checking if order is eligible for cancellation
-            if(order.OrderStatus == "Delivered" || order.OrderStatus == "Shipped" || order.OrderStatus == "Cancelled" || order.OrderStatus == "Cancellation Requested")
+            if (order.OrderStatus == "Delivered" || order.OrderStatus == "Shipped" || order.OrderStatus == "Cancelled" || order.OrderStatus == "Cancellation Requested")
             {
                 TempData["ErrorMessage"] = $"Order cannot be cancelled as it is already {order.OrderStatus}.";
                 return RedirectToAction("OrderDetails", new { orderId = orderId });
@@ -293,10 +345,24 @@ namespace Task1LoginRegister.Controllers
             // Restore stock if order is cancelled
             foreach (var item in order.OrderItems)
             {
-                var product = await context.Products.FindAsync(item.ProductId);
-                if(product != null)
+                if (item.ProductVariantId != null && item.ProductVariant != null)
                 {
-                    product.StockQuantity += item.Quantity;
+                    var variant = await context.ProductVariants.FindAsync(item.ProductVariantId);
+                    if (variant != null)
+                    {
+                        variant.StockQuantity += item.Quantity;
+                        await context.SaveChangesAsync();
+                    }
+                }
+                else
+                {
+                    var product = await context.Products.Include(p => p.Subcategory).ThenInclude(s => s.Taxes).FirstOrDefaultAsync(p => p.ProductId == item.ProductId);
+
+                    if (product != null)
+                    {
+                        product.StockQuantity += item.Quantity;
+                    }
+                    await context.SaveChangesAsync();
                 }
             }
 
@@ -308,7 +374,7 @@ namespace Task1LoginRegister.Controllers
             else
             {
                 order.OrderStatus = "Cancelled";
-                if(order.PaymentStatus == "Pending")
+                if (order.PaymentStatus == "Pending")
                 {
                     order.PaymentStatus = "Failed";
                 }
