@@ -139,7 +139,7 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                                 var variantAttributeValue = new VariantAttributeValue
                                 {
                                     VariantId = variant.VariantId,
-                                    AttrbuteValueId = attributeValueId
+                                    AttributeValueId = attributeValueId
                                 };
                                 context.Add(variantAttributeValue);
                             }
@@ -194,7 +194,7 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                         return RedirectToAction("Details", "Products", new { id = model.ProductId });
                     }
                     TempData["success"] = "Product variants created successfully!";
-                    return RedirectToAction("Details", "Products", new { id = model.ProductId });
+                    return RedirectToAction("Details", "ProductVariant", new { id = model.ProductId });
                 }
                 catch (Exception ex)
                 {
@@ -260,7 +260,7 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                 FinalSellingPrice = variants.FinalSellingPrice,
                 StockQuantity = variants.StockQuantity,
                 IsActive = variants.IsActive,
-                AttributeValueIds = variantAttributeValues.Select(vav => vav.AttrbuteValueId).ToList()
+                AttributeValueIds = variantAttributeValues.Select(vav => vav.AttributeValueId).ToList()
             };
             // model for exisiting product
             var model = new ProductVariantEditDto
@@ -346,7 +346,7 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                             var variantAttributeValues = new VariantAttributeValue
                             {
                                 VariantId = variant.VariantId,
-                                AttrbuteValueId = attributeValueId,
+                                AttributeValueId = attributeValueId,
                             };
                             context.Add(variantAttributeValues);
                         }
@@ -484,37 +484,56 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteVariant(int id)
         {
-            var variants = await context.ProductVariants.Include(pv=>pv.ProductImages).FirstOrDefaultAsync(pv=>pv.VariantId ==id);
-           
+            var variants = await context.ProductVariants
+                .Include(pv => pv.ProductImages)
+                .FirstOrDefaultAsync(pv => pv.VariantId == id);
+
             if (variants == null) return NotFound();
 
-            var variantAttributeValues = await context.VariantAttributeValues
-                .Where(vav => vav.VariantId == id).ToListAsync();
+            bool hasOrders = await context.OrderItems.AnyAsync(oi => oi.ProductVariantId == id);
 
-            context.VariantAttributeValues.RemoveRange(variantAttributeValues);
-
-            foreach (var image in variants.ProductImages)
+            if (hasOrders)
             {
-                imageService.DeleteImage(image.ImageUrl);
-                context.ProductImages.Remove(image);
+                // Soft delete
+                variants.IsActive = false; // Mark it as inactive
+                context.Update(variants);
+                TempData["WarningMessage"] = "This variant is linked to existing orders and cannot be deleted. It has been marked as inactive to preserve order history.";
             }
-            context.ProductVariants.Remove(variants);
+            else
+            {
+                var variantAttributeValues = await context.VariantAttributeValues
+                    .Where(vav => vav.VariantId == id).ToListAsync();
+
+                context.VariantAttributeValues.RemoveRange(variantAttributeValues);
+
+                foreach (var image in variants.ProductImages)
+                {
+                    imageService.DeleteImage(image.ImageUrl);
+                    context.ProductImages.Remove(image);
+                }
+
+                context.ProductVariants.Remove(variants);
+            }
+
             await context.SaveChangesAsync();
 
-            // checking if product still has variant
-            var hasVariants = await context.ProductVariants.AnyAsync(v => v.ProductId == variants.ProductId);
+            // Check if product still has any active variants
+            var hasVariants = await context.ProductVariants
+                .AnyAsync(v => v.ProductId == variants.ProductId && v.IsActive == true);
 
             if (!hasVariants)
             {
-                var product = await context.Products.FindAsync(variants.VariantId);
-                if(product != null)
+                var product = await context.Products.FindAsync(variants.ProductId);
+                if (product != null)
                 {
                     product.HasVarinats = false;
                     context.Update(product);
                     await context.SaveChangesAsync();
                 }
             }
-            return View(variants);
+
+            return RedirectToAction("Index");
         }
+
     }
 }

@@ -35,6 +35,7 @@ public partial class WebMobiTask1DbContext : DbContext
     public virtual DbSet<ProductAttributeValue> ProductAttributeValues { get; set; }
     public virtual DbSet<VariantAttributeValue> VariantAttributeValues { get; set; }
     public virtual DbSet<Cart> Carts { get; set; }
+    public virtual DbSet<ProductAttributeValueMapping> ProductAttributeValueMappings { get; set; }
     public virtual DbSet<GstTax> GstTax { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -159,6 +160,21 @@ public partial class WebMobiTask1DbContext : DbContext
 
     private void ConfigureEntityRelationship(ModelBuilder modelBuilder)
     {
+        // Product and ProductAttributeValueMapping relationship
+        modelBuilder.Entity<ProductAttributeValueMapping>()
+            .HasOne(pam => pam.Product)
+            .WithMany(p => p.ProductAttributeValueMappings)
+            .HasForeignKey(pam => pam.ProductId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // ProductAttributeValue and ProductAttributeValueMapping relationship
+        modelBuilder.Entity<ProductAttributeValueMapping>()
+            .HasOne(pam => pam.ProductAttributeValue)
+            .WithMany(pav => pav.ProductAttributeValueMappings)
+            .HasForeignKey(pam => pam.AttributeValueId) 
+            .HasPrincipalKey(pav => pav.ValueId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         // ProductVariant and ProductImage relationship
         modelBuilder.Entity<ProductImage>()
              .HasOne(pi => pi.ProductVariant)
@@ -191,7 +207,7 @@ public partial class WebMobiTask1DbContext : DbContext
         modelBuilder.Entity<VariantAttributeValue>()
                       .HasOne(vav => vav.ProductAttributeValue)
                       .WithMany(pav => pav.VariantAttributeValues)
-                      .HasForeignKey(vav => vav.AttrbuteValueId)
+                      .HasForeignKey(vav => vav.AttributeValueId)
                       .OnDelete(DeleteBehavior.Restrict);
 
         // ProductVariant and OrderItem relationship

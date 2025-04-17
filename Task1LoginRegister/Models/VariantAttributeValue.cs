@@ -15,7 +15,7 @@ namespace Task1LoginRegister.Models
         public virtual ProductVariant? ProductVariant { get; set; }
 
         [Required]
-        public int AttrbuteValueId { get; set; }
+        public int AttributeValueId { get; set; }
         [ForeignKey("AttributeValueId")]
         public virtual ProductAttributeValue? ProductAttributeValue { get; set; }
     }
