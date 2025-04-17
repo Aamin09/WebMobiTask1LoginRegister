@@ -466,25 +466,32 @@
                             <h5 class="mb-3">Available Options</h5>
                             <form id="variantForm" method="get" asp-action="Details" asp-asp-controller="Home">
                                 <input type="hidden" name="id" value="@Model.ProductId" />
-
+                               
                                 @foreach (var attrGroup in ViewBag.AttributeGroups)
                                 {
                                     <div class="attribute-group mb-3">
                                         <label class="fw-bold">@attrGroup.Key:</label>
-                                        <div class="d-flex flex-wrap gap-2">
+                                        <div class="d-flex flex-wrap">
                                             @foreach (var attrValue in attrGroup.Value)
                                             {
                                                 var isSelected = ViewBag.SelectedAttributes.ContainsKey(attrGroup.Key) &&
                                                 ViewBag.SelectedAttributes[attrGroup.Key] == attrValue.ValueName;
-                                                var isDisabled = !attrValue.IsAvailable || !attrValue.IsCompatible;
-
-                                                <div class="form-check form-check-inline">
-                                                    <input type="radio" name="attr_@attrGroup.Key" class="form-check-input attribute-option"
-                                                           id="@(attrGroup.Key)_@attrValue.ValueName" value="@attrValue.ValueName"
-                                                    @(isSelected ? "checked" : "") @(isDisabled ? "disabled" : "")
-                                                           data-attribute="@attrGroup.Key" data-value="@attrValue.ValueName"
+                                              
+                                                
+                                                var isDisabled =  !attrValue.IsAvailable || !attrValue.IsCompatible;
+                                                <div class="btn-group btn-group-sm">
+                                                    <input type="radio"
+                                                           name="attr_@attrGroup.Key"
+                                                           class="btn-check"
+                                                           id="@(attrGroup.Key)_@attrValue.ValueName"
+                                                           value="@attrValue.ValueName"
+                                                    @(isSelected ? "checked" : "")
+                                                    @(isDisabled ? "disabled" : "")
+                                                           data-attribute="@attrGroup.Key"
+                                                           data-value="@attrValue.ValueName"
                                                            onchange="this.form.submit();" />
-                                                    <label class="form-check-lable @(isDisabled? "text-muted" :"")" for="@(attrGroup.Key)_@attrValue.ValueName">
+                                                    <label class="btn @(isSelected ? "btn-primary" : "btn-outline-secondary") @(isDisabled ? "disabled" : "")"
+                                                           for="@(attrGroup.Key)_@attrValue.ValueName">
                                                         @attrValue.ValueName
                                                     </label>
                                                 </div>
@@ -494,7 +501,7 @@
                                 }
 
                                 <div class="d-flex justify-content-end mt-3">
-                                    <button type="button" id="clearAllBtn" class="btn btn-outline-secondary">
+                                    <button type="button" id="clearAllBtn" class="btn btn-sm btn-outline-secondary">
                                         Clear All Selections
                                     </button>
                                 </div>

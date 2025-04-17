@@ -232,6 +232,32 @@
                 </div>
             </div>
         </div>
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Attribute Details (Optional)</h5>
+            </div>
+            <div class="card-body">
+                @foreach (var item in ViewBag.ProductAttributes)
+                {
+                    <div class="form-group mt-3">
+                        <label class="form-label fw-bold">@item.Name:</label>
+                        <div>
+                            @foreach (var value in item.ProductAttributeValue)
+                            {
+                                var isChecked = Model.SelectedAttributeValueIds != null && Model.SelectedAttributeValueIds.Contains(value.ValueId);
+
+                                <div class="form-check form-check-inline">
+                                    <input type="checkbox" class="form-check-input" name="SelectedAttributeValueIds" value="@value.ValueId"
+                                           id="attr_@value.ValueId" @(isChecked ? "checked" : "") />
+                                    <label class="form-check-label" for="attr_@value.ValueId">@value.Value</label>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <hr />
+                }
+            </div>
+        </div>
 
         <div class="form-group mt-4">
             <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>

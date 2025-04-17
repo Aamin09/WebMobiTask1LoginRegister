@@ -121,7 +121,7 @@
                             <!-- Payment Timeline -->
                             <div class="timeline">
 
-                                @if (order.PaymentStatus == "Failed" && order.PaymentMethod == "Online Payment")
+                                @if (order.PaymentStatus == "Failed" && order.PaymentMethod == "Online Payment" && order.OrderStatus != "Cancelled")
                                 {
                                     <div class="text-center mt-3">
                                         <a asp-action="ProcessPayment" asp-controller="Payment" asp-route-orderId="@order.OrderId" class="btn btn-danger">
@@ -129,7 +129,7 @@
                                         </a>
                                     </div>
                                 }
-                                else if (order.PaymentMethod == "Cash on Delivery" && order.PaymentStatus != "Paid" && order.PaymentStatus != "Failed")
+                                else if (order.PaymentMethod == "Cash on Delivery" && order.PaymentStatus != "Paid" && order.PaymentStatus != "Failed" && order.OrderStatus != "Cancelled")
                                 {
                                     <div class="text-center mt-3">
                                         <h5>Want to Pay Now?</h5>

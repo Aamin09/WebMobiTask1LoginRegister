@@ -177,17 +177,30 @@ namespace Task1LoginRegister.Controllers
                 .Include(p => p.Subcategory)
                 .Include(p => p.ProductImages)
                 .Include(p => p.Reviews).ThenInclude(r => r.User)
+                .Include(p=>p.ProductAttributeValueMappings).ThenInclude(pavm => pavm.ProductAttributeValue).ThenInclude(pav => pav.Attribute)
                 .Include(p => p.ProductVariants).ThenInclude(pv => pv.ProductImages)
                 .FirstOrDefaultAsync(p => p.ProductId == id);
 
             if (product == null) return NotFound();
 
+            // getting the variant product attributes
             var variantAttributeValues = await context.VariantAttributeValues
                 .Include(vav => vav.ProductAttributeValue).ThenInclude(pav => pav.Attribute)
                 .Where(vav => product.ProductVariants.Select(pv => pv.VariantId).Contains(vav.VariantId))
                 .ToListAsync();
 
+            // getting main product attributes
+            var mainProductAttributeValues = product.ProductAttributeValueMappings
+                .Select(pavm => new ProductAttributeDisplayDto
+                {
+                    AttributeName = pavm.ProductAttributeValue.Attribute.Name,
+                    AttributeValue = pavm.ProductAttributeValue.Value,
+                    VariantId=null,
+                    IsProductAttribute=true
+                }).ToList();
+
             ViewBag.VariantAttributeValues = variantAttributeValues;
+            ViewBag.MainProductAttributeValues = mainProductAttributeValues;
 
             var selectedAttributes = Request.Query.Keys
                 .Where(key => key.StartsWith("attr_"))
@@ -205,25 +218,56 @@ namespace Task1LoginRegister.Controllers
                         .ToDictionary(v => v.ProductAttributeValue.Attribute.Name, v => v.ProductAttributeValue.Value);
                 }
             }
-            else if (selectedAttributes.Count > 0)
+            else if (selectedAttributes.Count == 0) {
+                selectedAttributes = new Dictionary<string, string>();
+                selectedVariant = null;
+            }
+            else
             {
-                selectedVariant = product.ProductVariants
-                    .Where(variant => selectedAttributes.All(attr => variantAttributeValues.Any(vav =>
-                        vav.VariantId == variant.VariantId &&
-                        vav.ProductAttributeValue.Attribute.Name == attr.Key &&
-                        vav.ProductAttributeValue.Value == attr.Value)))
-                    .OrderByDescending(v => v.StockQuantity > 0)
-                    .FirstOrDefault();
+
+                bool matchesMainProduct = selectedAttributes.All(attr =>
+                        mainProductAttributeValues.Any(pav =>
+                            pav.AttributeName == attr.Key &&
+                            pav.AttributeValue == attr.Value));
+
+                if (matchesMainProduct)
+                {
+                    selectedVariant = null; // Reset, it's not a variant selection
+                }
+                else
+                {
+                    selectedVariant = product.ProductVariants
+                        .Where(variant => selectedAttributes.All(attr =>
+                            variantAttributeValues.Any(vav =>
+                                vav.VariantId == variant.VariantId &&
+                                vav.ProductAttributeValue.Attribute.Name == attr.Key &&
+                                vav.ProductAttributeValue.Value == attr.Value)))
+                        .OrderByDescending(v => v.StockQuantity > 0)
+                        .FirstOrDefault();
+
+                }
             }
 
             ViewBag.SelectedVariant = selectedVariant;
             ViewBag.SelectedAttributes = selectedAttributes;
 
-            var availableVariantsByAttribute = variantAttributeValues
-                .GroupBy(vav => vav.ProductAttributeValue.Attribute.Name)
+            // combine variant and product attributes for display
+            var allAttributes = variantAttributeValues
+             .Select(vav => new ProductAttributeDisplayDto
+             {
+                 AttributeName = vav.ProductAttributeValue.Attribute.Name,
+                 AttributeValue = vav.ProductAttributeValue.Value,
+                 VariantId = vav.VariantId,
+                 IsProductAttribute = false
+             })
+             .Concat(mainProductAttributeValues)
+             .ToList();
+
+            var availableVariantsByAttribute = allAttributes
+                .GroupBy(vav => vav.AttributeName)
                 .ToDictionary(
                     group => group.Key,
-                    group => group.GroupBy(vav => vav.ProductAttributeValue.Value)
+                    group => group.GroupBy(vav => vav.AttributeValue)
                     .ToDictionary(
                         valueGroup => valueGroup.Key,
                         valueGroup => valueGroup.Select(v => v.VariantId).Distinct().ToList()
@@ -240,19 +284,23 @@ namespace Task1LoginRegister.Controllers
                     return attrValues.Select(valueEntry =>
                     {
                         var variantIds = valueEntry.Value;
-                        var anyAvailable = variantIds.Any(vid => product.ProductVariants.Any(pv => pv.VariantId == vid && pv.StockQuantity > 0));
+                        var isProductAttribute = variantIds.All(vid => vid == null);
+
+                        var anyAvailable = isProductAttribute  || variantIds.Any(vid => product.ProductVariants.Any(pv => pv.VariantId == vid && pv.StockQuantity > 0));
                         var isCompatible = selectedAttributes.Count == 0 || selectedAttributes.All(selctedAttr =>
-                            selctedAttr.Key == currentAttrName || variantIds.Any(vid =>
-                            variantAttributeValues.Any(vav => vav.VariantId == vid &&
-                                                        vav.ProductAttributeValue.Attribute.Name == selctedAttr.Key &&
-                                                        vav.ProductAttributeValue.Value == selctedAttr.Value)));
+                            selctedAttr.Key == currentAttrName
+                            || (isProductAttribute && selctedAttr.Key == currentAttrName) || variantIds.Any(vid =>
+                            allAttributes.Any(vav => vav.VariantId == vid &&
+                                                        vav.AttributeName == selctedAttr.Key &&
+                                                        vav.AttributeValue == selctedAttr.Value)));
 
                         return new
                         {
                             ValueName = valueEntry.Key,
                             VariantIds = variantIds,
                             IsAvailable = anyAvailable,
-                            IsCompatible = isCompatible
+                            IsCompatible = isCompatible,
+                            IsProductAttribute = isProductAttribute,
                         };
                     }).ToList<dynamic>();
                 });

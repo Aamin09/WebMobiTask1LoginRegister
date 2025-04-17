@@ -72,6 +72,11 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                   Text = c.Name
               })
               .ToListAsync();
+
+            ViewBag.ProductAttributes = await context.ProductAttributes
+                 .Where(a => a.IsActive).Include(a => a.ProductAttributeValue)
+                 .ToListAsync();
+
             return View(new CreateProductsDto());
         }
 
@@ -108,6 +113,21 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
 
                     context.Add(product);
                     await context.SaveChangesAsync();
+
+                    // save optional attribute mappings
+                    if(model.SelectedAttributeValueIds != null && model.SelectedAttributeValueIds.Any())
+                    {
+                        foreach (var attrValId in model.SelectedAttributeValueIds)
+                        {
+                            var mapping = new ProductAttributeValueMapping
+                            {
+                                ProductId = product.ProductId,
+                                AttributeValueId = attrValId
+                            };
+                            context.ProductAttributeValueMappings.Add(mapping); 
+                        }
+                        await context.SaveChangesAsync();
+                    }
 
                     if (model.PrimaryImage != null)
                     {
@@ -151,6 +171,10 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                 Console.WriteLine(ex);
             }
 
+            ViewBag.ProductAttributes = await context.ProductAttributes
+                 .Where(a => a.IsActive).Include(a => a.ProductAttributeValue)
+                 .ToListAsync();
+
             await LoadDropdowns(model.CategoryId);
 
             return View(model);
@@ -181,6 +205,12 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                 return NotFound();
             }
 
+            var productAttributeValuMappings = await context.ProductAttributeValueMappings
+             .Where(vav => vav.ProductId == id).ToListAsync();
+
+            ViewBag.ProductAttributes = await context.ProductAttributes
+              .Where(a => a.IsActive).Include(a => a.ProductAttributeValue).ToListAsync();
+
             await LoadDropdowns(product.CategoryId);
 
             // model for exisiting product
@@ -201,6 +231,7 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                 PrimaryImageUrl = product.ProductImages.FirstOrDefault(pi => pi.IsPrimaryImage && !pi.IsVariantImage)?.ImageUrl,
                 DeliveryCharge=product.DeliveryCharge,
                 HasVariants=product.HasVarinats,
+                SelectedAttributeValueIds= productAttributeValuMappings.Select(pavm=>pavm.AttributeValueId).ToList()
             };
 
             // Reload existing images for the model
@@ -216,6 +247,9 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
+                ViewBag.ProductAttributes = await context.ProductAttributes
+                    .Where(a => a.IsActive).Include(a => a.ProductAttributeValue).ToListAsync();
+                model.SelectedAttributeValueIds = ViewBag.ProductAttributes;
                 await LoadDropdowns(model.CategoryId);
                 await ReloadExistingImages(model);
                 return View(model);
@@ -267,6 +301,27 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
                         context.ProductImages.Remove(image);
                     }
                     // saving changes 
+                    await context.SaveChangesAsync();
+                }
+
+                // remove existing attribute values
+                var exisitingAttributeValues = await context.ProductAttributeValueMappings
+                    .Where(pavm => pavm.ProductId == model.Id).ToListAsync();
+                context.ProductAttributeValueMappings.RemoveRange(exisitingAttributeValues);
+                await context.SaveChangesAsync();
+
+                // add new attribute values
+                if (model.SelectedAttributeValueIds != null && model.SelectedAttributeValueIds.Any())
+                {
+                    foreach (var attributeValueId in model.SelectedAttributeValueIds)
+                    {
+                        var variantAttributeValues = new ProductAttributeValueMapping
+                        {
+                            ProductId = product.ProductId,
+                            AttributeValueId = attributeValueId,
+                        };
+                        context.Add(variantAttributeValues);
+                    }
                     await context.SaveChangesAsync();
                 }
 

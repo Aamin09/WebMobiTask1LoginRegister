@@ -98,6 +98,7 @@ namespace Task1LoginRegister.Models
         public int ReviewCount=> Reviews != null  ? Reviews.Count(r=>r.IsApproved) : 0;
 
         public virtual ICollection<ProductVariant> ProductVariants { get; set; }
+        public virtual ICollection<ProductAttributeValueMapping>? ProductAttributeValueMappings { get; set; }
 
 
     }

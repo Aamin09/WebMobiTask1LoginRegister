@@ -71,6 +71,10 @@ namespace Task1LoginRegister.DTOs
         // Computed Property for Selling Price Calculation
         [DisplayName("Calculated Selling Price")]
         public decimal CalculatedSellingPrice { get; set; }
+
+        [DisplayName("Attributes")]
+        public List<int>? SelectedAttributeValueIds { get; set; } = new List<int>();
+
         [Required, DisplayName("Has Variants")]
         public bool HasVariants { get; set; } = false;
         public void CalculatePricing()

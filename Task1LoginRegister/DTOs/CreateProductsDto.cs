@@ -68,6 +68,8 @@ namespace Task1LoginRegister.DTOs
 
         [Required,DisplayName("Has Variants")]
         public bool HasVariants { get; set; } = false;
+        [DisplayName("Attributes")]
+        public List<int>? SelectedAttributeValueIds { get; set; }=new List<int> ();
         // Existing CalculatePricing method is good, but you could enhance it
         public void CalculatePricing()
         {

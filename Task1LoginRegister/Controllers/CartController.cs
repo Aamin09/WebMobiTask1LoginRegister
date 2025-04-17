@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
+using Task1LoginRegister.DTOs;
 using Task1LoginRegister.Models;
 using Task1LoginRegister.Services;
 
@@ -29,7 +30,7 @@ namespace Task1LoginRegister.Controllers
                 .Include(p => p.Product).ThenInclude(pi => pi.ProductImages)
                 .Include(p => p.Product).ThenInclude(pi => pi.Subcategory).ThenInclude(s => s.Taxes)
                 .Include(c=>c.ProductVariant).ThenInclude(pv=>pv.ProductImages)
-                .Include(c => c.ProductVariant).ThenInclude(pv => pv.VariantAttributeValues).ThenInclude(vav=>vav.ProductAttributeValue).ThenInclude(pav=>pav.Attribute).ToList();
+                .ToList();
             int cartCount = cartItems.Count;
             ViewBag.CartItemCount = cartCount > 0 ? cartCount.ToString() : "";
             return View(cartItems);
@@ -56,14 +57,41 @@ namespace Task1LoginRegister.Controllers
 
             int userId = user.Id;
 
-            var product = await context.Products.Include(p=>p.ProductVariants).FirstOrDefaultAsync(p=>p.ProductId == productId);
+            var product = await context.Products.Include(p=>p.ProductVariants)
+                .Include(p=>p.ProductAttributeValueMappings)
+                    .ThenInclude(pavm=>pavm.ProductAttributeValue).ThenInclude(pav=>pav.Attribute)
+                    .FirstOrDefaultAsync(p=>p.ProductId == productId);
             if (product == null)
             {
                 return NotFound();
             }
 
+
+            // selected attributes from form
+            var selectedAttributes = new Dictionary<string, string>();
+            foreach (var key in Request.Form.Keys.Where(k => k.StartsWith("attr_")))
+            {
+                var attributeName = key.Substring(5); // removing attr_ prefix
+                selectedAttributes[attributeName] = Request.Form[key].ToString();
+                System.Diagnostics.Debug.WriteLine($"Added to dict: {attributeName} = {Request.Form[key]}");
+            }
+
+            var mainProductAttributeValues = product.ProductAttributeValueMappings
+               .Select(pavm => new 
+               {
+                   AttributeName = pavm.ProductAttributeValue.Attribute.Name,
+                   AttributeValue = pavm.ProductAttributeValue.Value
+               }).ToList();
+
+            // Check if selected attributes match main product attributes
+            bool isMainProductAttributeSelected = selectedAttributes.Count > 0 &&
+                selectedAttributes.All(attr =>
+                    mainProductAttributeValues.Any(pav =>
+                        pav.AttributeName == attr.Key &&
+                        pav.AttributeValue == attr.Value));
+
             // checking if product has variants but no variant was selected
-            if (product.HasVarinats && product.ProductVariants?.Any() == true && !variantId.HasValue)
+            if (!isMainProductAttributeSelected && product.HasVarinats && product.ProductVariants?.Any() == true && !variantId.HasValue)
             {
                 // Build query string with currently selected attributes to redirect back
                 var selectedAttrs = Request.Form.Keys
@@ -90,21 +118,8 @@ namespace Task1LoginRegister.Controllers
             {
                 price = product.CalculatedSellingPrice;
             }
-            // Add these lines right before your foreach loop
-            System.Diagnostics.Debug.WriteLine("Form Keys Count: " + Request.Form.Keys.Count);
-            foreach (var key in Request.Form.Keys)
-            {
-                System.Diagnostics.Debug.WriteLine($"Key: {key}, Value: {Request.Form[key]}");
-            }
+          
 
-            // Then continue with your existing code
-            var selectedAttributes = new Dictionary<string, string>();
-            foreach (var key in Request.Form.Keys.Where(k => k.StartsWith("attr_")))
-            {
-                var attributeName = key.Substring(5); // removing attr_ prefix
-                selectedAttributes[attributeName] = Request.Form[key].ToString();
-                System.Diagnostics.Debug.WriteLine($"Added to dict: {attributeName} = {Request.Form[key]}");
-            }
             // searialize to json
             string attributesJsom= JsonSerializer.Serialize(selectedAttributes);
             var cartItem = await context.Carts.FirstOrDefaultAsync(c => c.ProductId == productId && c.UserId == userId && c.ProductVariantId == variantId && c.IsActive == true);
