@@ -5,30 +5,37 @@
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Create</h1>
+<div class="container mt-4">
+    <div class="card shadow-sm rounded-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">@ViewData["Title"] Product Attribute Mapping</h5>
+        </div>
+        <div class="card-body">
+            <form asp-action="@ViewData["Title"]">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
-<h4>ProductAttributeValueMapping</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="ProductId" class="control-label"></label>
-                <select asp-for="ProductId" class ="form-control" asp-items="ViewBag.ProductId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="AttributeValueId" class="control-label"></label>
-                <select asp-for="AttributeValueId" class ="form-control" asp-items="ViewBag.AttributeValueId"></select>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+                @if (ViewData["Title"].ToString() == "Edit")
+                {
+                    <input type="hidden" asp-for="Id" />
+                }
+
+                <div class="mb-3">
+                    <label asp-for="ProductId" class="form-label"></label>
+                    <select asp-for="ProductId" class="form-select" asp-items="ViewBag.ProductId"></select>
+                    <span asp-validation-for="ProductId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="AttributeValueId" class="form-label"></label>
+                    <select asp-for="AttributeValueId" class="form-select" asp-items="ViewBag.AttributeValueId"></select>
+                    <span asp-validation-for="AttributeValueId" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-success">
+                    @(ViewData["Title"].ToString() == "Edit" ? "Save" : "Create")
+                </button>
+                <a asp-action="Index" class="btn btn-secondary ms-2">Back to List</a>
+            </form>
+        </div>
     </div>
 </div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-

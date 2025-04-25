@@ -390,36 +390,35 @@
                             }
                             <script>
                                 function validateVariantSelection() {
-                                    // Check if all attribute groups have a selection
-                                    var allSelected = true;
-                                    var attributeGroups = document.querySelectorAll('.attribute-group');
-                                    var missingAttributes = [];
+                                // Check if all attribute groups have a selection
+                                var allSelected = true;
+                                var attributeGroups = document.querySelectorAll('.attribute-group');
+                                var missingAttributes = [];
 
-                                    attributeGroups.forEach(function(group) {
-                                        var hasSelection = false;
-                                        var groupLabel = group.querySelector('label').innerText.replace(':', '');
-                                        var options = group.querySelectorAll('input[type="radio"]');
+                                attributeGroups.forEach(function(group) {
+                                var hasSelection = false;
+                                var groupLabel = group.querySelector('label').innerText.replace(':', '');
+                                var options = group.querySelectorAll('input[type="radio"]');
 
-                                        options.forEach(function(option) {
-                                            if (option.checked) {
-                                                hasSelection = true;
-                                            }
-                                        });
+                                options.forEach(function(option) {
+                                if (option.checked) {
+                                hasSelection = true;
+                                }
+                                });
 
-                                        if (!hasSelection) {
-                                            allSelected = false;
-                                            missingAttributes.push(groupLabel);
-                                        }
-                                    });
+                                if (!hasSelection) {
+                                allSelected = false;
+                                missingAttributes.push(groupLabel);
+                                }
+                                });
 
-                                    if (!allSelected) {
-                                        alert("Please select options for: " + missingAttributes.join(', '));
-                                    } else {
-                                        // If you've selected all attributes but no variant was found
-                                        alert("The selected combination is not available. Please choose another option.");
-                                        // Optionally, submit the form to let the controller handle it
-                                        // document.querySelector('form[asp-action="AddToCart"]').submit();
-                                    }
+                                if (!allSelected) {
+                                alert("Please select options for: " + missingAttributes.join(', '));
+                                } else {
+                                // If you've selected all attributes but no variant was found
+                                alert("The selected combination is not available. Please choose another option.");
+
+                                }
                                 }
                             </script>
                         }
@@ -434,8 +433,8 @@
                             </form>
                         }
                     </div>
-                    <!-- Debug info - remove in production -->
-                    <!-- Debug info - remove in production -->
+
+                    @* Debug info - remove in production 
                     <div class="bg-light p-3 mt-3">
                         <h6>Debug Info:</h6>
                         <p>
@@ -460,13 +459,14 @@
                         <p>Has Variants: @Model.HasVarinats</p>
                         <p>Total Variants: @(Model.ProductVariants?.Count() ?? 0)</p>
                     </div>
+                    *@
                     @if (Model.HasVarinats && Model.ProductVariants?.Any() == true)
                     {
                         <div class="variant-section mb-4 p-3 bg-light border rounded">
                             <h5 class="mb-3">Available Options</h5>
                             <form id="variantForm" method="get" asp-action="Details" asp-asp-controller="Home">
                                 <input type="hidden" name="id" value="@Model.ProductId" />
-                               
+
                                 @foreach (var attrGroup in ViewBag.AttributeGroups)
                                 {
                                     <div class="attribute-group mb-3">
@@ -476,9 +476,9 @@
                                             {
                                                 var isSelected = ViewBag.SelectedAttributes.ContainsKey(attrGroup.Key) &&
                                                 ViewBag.SelectedAttributes[attrGroup.Key] == attrValue.ValueName;
-                                              
-                                                
-                                                var isDisabled =  !attrValue.IsAvailable || !attrValue.IsCompatible;
+
+
+                                                var isDisabled = !attrValue.IsAvailable || !attrValue.IsCompatible;
                                                 <div class="btn-group btn-group-sm">
                                                     <input type="radio"
                                                            name="attr_@attrGroup.Key"
@@ -510,9 +510,9 @@
 
                         <script>
                             document.addEventListener('DOMContentLoaded',function(){
-                                document.getElementById('clearAllBtn').addEventListener('click',function(){
-                                    window.location.href='@Url.Action("Details", "Home", new { id = Model.ProductId })';
-                                });
+                            document.getElementById('clearAllBtn').addEventListener('click',function(){
+                            window.location.href='@Url.Action("Details", "Home", new { id = Model.ProductId })';
+                            });
                             });
                         </script>
                     }
@@ -559,14 +559,57 @@
                                 <td>
                                     @if (ViewBag.SelectedVariant != null && !string.IsNullOrEmpty(ViewBag.SelectedVariant.VarinatDescription))
                                     {
-                                        @ViewBag.SelectedVariant.VarinatDescription
+                                        <div> @ViewBag.SelectedVariant.VarinatDescription</div>
                                     }
-                                    else
-                                    {
-                                        @Html.DisplayFor(model => model.Description)
-                                    }
+
+                                    @Html.DisplayFor(model => model.Description)
+
                                 </td>
                             </tr>
+
+                            @if (ViewBag.SelectedVariant == null && ViewBag.AttributeGroups != null)
+                            {
+                                @foreach (var attrGroup in ViewBag.AttributeGroups)
+                                {
+                                    <tr>
+                                        <th>
+                                            @attrGroup.Key
+                                        </th>
+                                        <td>
+                                            <div class="d-flex flex-wrap">
+                                                @for (int i = 0; i < attrGroup.Value.Count; i++)
+                                                {
+                                                    var attrValue = attrGroup.Value[i];
+                                                    <label for="@(attrGroup.Key)_@attrValue.ValueName" class="me-1">
+                                                        @attrValue.ValueName,
+                                                    </label>
+
+                                                    @if (i < attrGroup.Value.Count - 1)
+                                                    {
+                                                        <span class="me-1"></span>
+                                                    }
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else if (ViewBag.SelectedVariant != null)
+                            {
+                                var attrs = ViewBag.SelectedAttributes as Dictionary<string, string>;
+                                if (attrs != null)
+                                {
+
+                                    @foreach (var item in attrs)
+                                    {
+                                        <tr>
+                                            <th>@item.Key</th>
+                                            <td>@item.Value</td>
+                                        </tr>
+                                    }
+
+                                }
+                            }
 
                             <tr>
                                 <th>

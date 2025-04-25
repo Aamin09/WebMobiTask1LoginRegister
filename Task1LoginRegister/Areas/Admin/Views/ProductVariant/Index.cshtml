@@ -1,109 +1,93 @@
 ﻿@model IEnumerable<Task1LoginRegister.Models.ProductVariant>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Product Variants";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Index</h1>
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="text-primary">Product Variants</h2>
+    </div>
+    <div class="alert alert-info text-center">
+        <h5 class="mb-3">Want to Add Attributes and values ?</h5>
+        <a asp-action="Index" asp-controller="ProductAttributes" class="btn btn-info text-white btn-md"><i class="fas fa-box-open"></i> Go to Attributes Dashboard</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-striped table-hover table-bordered" id="variantTable">
+            <thead class="table-dark">
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.Product)</th>
+                    <th>@Html.DisplayNameFor(model => model.VarinatName)</th>
+                    <th>@Html.DisplayNameFor(model => model.VarinatDescription)</th>
+                    <th>@Html.DisplayNameFor(model => model.SKU)</th>
+                    <th>@Html.DisplayNameFor(model => model.CostPrice)</th>
+                    <th>@Html.DisplayNameFor(model => model.ProfitPercentage)</th>
+                    <th>@Html.DisplayNameFor(model => model.BasePrice)</th>
+                    <th>@Html.DisplayNameFor(model => model.DiscountPercentage)</th>
+                    <th>@Html.DisplayNameFor(model => model.FinalSellingPrice)</th>
+                    <th>@Html.DisplayNameFor(model => model.StockQuantity)</th>
+                    <th>@Html.DisplayNameFor(model => model.IsActive)</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Product?.Name</td>
+                        <td>@item.VarinatName</td>
+                        <td>@item.VarinatDescription</td>
+                        <td>@item.SKU</td>
+                        <td>@item.CostPrice</td>
+                        <td>@item.ProfitPercentage</td>
+                        <td>@item.BasePrice</td>
+                        <td>@item.DiscountPercentage</td>
+                        <td>@item.FinalSellingPrice</td>
+                        <td>@item.StockQuantity</td>
+                        <td>
+                            <button class="btn @(item.IsActive ? "btn-success" : "btn-danger") btn-sm toggle-status" data-id="@item.VariantId">
+                                @(item.IsActive ? "Active" : "InActive")
+                            </button>
+                        </td>
+                        <td>
+                            <a class="btn btn-sm btn-warning mb-2" asp-action="Edit" asp-route-id="@item.VariantId" style="width:100%"><i class="fas fa-edit"></i> Edit</a>
+                            <a class="btn btn-sm btn-info mb-2" asp-action="Details" asp-route-id="@item.VariantId" style="width:100%"><i class="fas fa-eye"></i> Details</a>
+                            <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@item.VariantId" style="width:100%"><i class="fas fa-trash"></i> Delete</a>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Product)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.VarinatName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.VarinatDescription)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SKU)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CostPrice)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ProfitPercentage)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.BasePrice)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DiscountPercentage)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.FinalSellingPrice)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.StockQuantity)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsActive)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UpdatedAt)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Product.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.VarinatName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.VarinatDescription)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.SKU)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.CostPrice)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ProfitPercentage)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.BasePrice)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.DiscountPercentage)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.FinalSellingPrice)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.StockQuantity)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.IsActive)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.CreatedAt)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.UpdatedAt)
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.VariantId">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.VariantId">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.VariantId">Delete</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#variantTable').DataTable({
+                responsive:true,
+                autoWidth:false,
+            });
+        });
+         $(document).on("click", ".toggle-status", function () {
+            var button = $(this);
+            var variantId = button.data("id");
+
+            $.ajax({
+                type: "Post",
+                url: "@Url.Action("ToggleStatus", "ProductVariant")",
+                data: { id: variantId },
+                success: function (data) {
+                    if (data.isActive) {
+                        button.removeClass("btn-danger").addClass("btn-success").text("Active");
+                    } else {
+                        button.removeClass("btn-success").addClass("btn-danger").text("InActive");
+                    }
+                }
+            });
+        });
+    </script>
+}
+

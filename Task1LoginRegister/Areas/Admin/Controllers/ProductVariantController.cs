@@ -535,5 +535,22 @@ namespace Task1LoginRegister.Areas.Admin.Controllers
             return RedirectToAction("Index");
         }
 
+
+        [HttpPost]
+        public async Task<IActionResult> ToggleStatus(int id)
+        {
+            var variant = await context.ProductVariants.FindAsync(id);
+            if (variant == null)
+            {
+                return NotFound();
+            }
+
+            variant.IsActive = !variant.IsActive;
+
+            await context.SaveChangesAsync();
+
+            return Json(new { isActive = variant.IsActive });
+        }
+
     }
 }

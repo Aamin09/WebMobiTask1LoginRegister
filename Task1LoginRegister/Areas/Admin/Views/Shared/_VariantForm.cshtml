@@ -108,12 +108,17 @@
             }
         </div>
     </div>
-
+    <hr />
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Attribute Details (Optional)</h5>
+        </div>
+        <div class="card-body">
     @foreach (var attrib in attributes)
     {
         <div class="card-body">
-            <div class="form-group mt-3">
-                <label class="form-label">@attrib.Name</label>
+            <div class="form-group">
+                <label class="form-label fw-bold">@attrib.Name:</label>
                 <div>
                     @foreach (var value in attrib.ProductAttributeValue)
                     {
@@ -133,6 +138,8 @@
         </div>
         <hr />
     }
+    </div>
+    </div>
     @if (!isEditMode && index > 0)
     {
         <div class="text-right mt-2">
